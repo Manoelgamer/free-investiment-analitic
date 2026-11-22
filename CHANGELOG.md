@@ -2,6 +2,17 @@
 
 Todas as versões notáveis deste projeto são documentadas aqui. O formato segue o [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/).
 
+## [v1.2.0] — 2026-11-22
+
+### Adicionado
+- **Cotações ao vivo:** botão “⟳ Cotações ao vivo” nas listas de ativos e “Atualizar cotação” na página do ativo. Consulta a Brapi com o token configurado e mescla os resultados aos dados ilustrativos; se falhar, mantém os dados locais e avisa o usuário.
+- **Exportação CSV:** botão “CSV ⬇” nas tabelas de mercado, respeitando o filtro atual.
+- **PWA:** `manifest.json`, ícone SVG e service worker com cache offline para o app. Chamadas externas (Brapi) nunca são interceptadas.
+
+### Alterado
+- Valuation e potencial nas tabelas agora usam a cotação ao vivo quando disponível.
+- Descrição e ícone da página adicionados ao `<head>`.
+
 ## [v1.1.0] — 2026-11-22
 
 ### Corrigido

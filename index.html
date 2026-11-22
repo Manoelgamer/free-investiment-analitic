@@ -4,6 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#13141b">
+<meta name="description" content="Notícias, cotações e ferramentas financeiras para acompanhar seus investimentos.">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="manifest" href="manifest.json">
 <title>TradeMap — notícias, cotações e ferramentas financeiras</title>
 <style>
   :root{
@@ -1036,6 +1039,12 @@ function refreshChart(shell){
    Globais de estado
    ============================================================ */
 const marketState = {filter:'', sort:'ch', dir:-1};
+/* Cotações ao vivo consultadas na Brapi (v1.2). Chave por ticker. */
+const liveQuotes = {};
+const applyLive = a => {
+  const q = liveQuotes[a.s];
+  return q ? {...a, p:q.price, ch:q.chg, n:q.name||a.n} : a;
+};
 let calFilter = 'Todos';
 let newsFilter = 'Todas';
 let azLetter = 'Todas';
@@ -1416,7 +1425,7 @@ const HOME_CRUMB='<a href="#/">Início</a> / ';
 function renderAssetsTable(list,opts={}){
   const {showClass=true}=opts;
   const f=marketState.filter.trim().toUpperCase();
-  let rows=list.filter(a=>(a.s+a.n).toUpperCase().includes(f));
+  let rows=list.map(applyLive).filter(a=>(a.s+a.n).toUpperCase().includes(f));
   const key=marketState.sort;
   rows.sort((a,b)=>{
     const va=key==='ch'?(Number(a.ch)||0):(key==='p'?parseFloat(String(a.p).replace(/[^\d,.-]/g,'').replace(',','.'))||0:String(a[key]||''));
@@ -1458,6 +1467,9 @@ function marketView(kind){
           <option value="ch">Maior variação</option><option value="s">Código (A–Z)</option>
           <option value="n">Nome (A–Z)</option><option value="p">Preço</option>
         </select>
+        <button class="btn-ghost" data-act="live-quotes" style="padding:7px 14px">⟳ Cotações ao vivo</button>
+        <button class="btn-ghost" data-act="csv" style="padding:7px 14px" title="Baixar tabela em CSV">CSV ⬇</button>
+        <span class="muted small" id="liveStatus" aria-live="polite">Dados ilustrativos</span>
       </div>
       <div id="marketRows">${renderAssetsTable(list,{showClass})}</div>
     </section>`;
@@ -1511,9 +1523,10 @@ function assetDetail(sym){
   const a=assets.find(x=>x.s===sym);
   if(!a) return head('Ativo não encontrado','O ticker informado não está na base de demonstração.',HOME_CRUMB+'Ativos de A a Z')+
     `<section class="panel pad"><p class="muted">Ticker: <b>${esc(sym)}</b></p><p><a href="#/ativos" class="link-green">← Voltar para Ativos de A a Z</a></p></section>`;
-  const cached=quoteCache[a.s];
-  const price=cached&&cached.price?cached.price:a.p;
-  const ch=cached&&cached.chg!=null?cached.chg:a.ch;
+  const cached=quoteCache[a.s], live=liveQuotes[a.s];
+  const price=live?live.price:(cached&&cached.price?cached.price:a.p);
+  const ch=live?live.chg:(cached&&cached.chg!=null?cached.chg:a.ch);
+  const priceOrigin=live?'Cotação ao vivo via Brapi.':(cached?'Cotação salva neste navegador.':'Cotação e série histórica ilustrativas geradas deterministicamente para demonstração.');
   const v=valuation(a), c=consensus(a);
   return head(a.s,a.n,HOME_CRUMB+`<a href="#/ativos">Ativos de A a Z</a> / ${a.s}`)+
   `<div class="grid-2">
@@ -1523,8 +1536,9 @@ function assetDetail(sym){
         <span class="pill">${a.c}</span><span class="pill">${a.set}</span>
       </div>
       ${chartMarkup(a.s,price,ch,'1M','line')}
-      <p class="muted small">${cached?'Cotação salva neste navegador.':'Cotação e série histórica ilustrativas geradas deterministicamente para demonstração.'}</p>
+      <p class="muted small" id="quoteOrigin" aria-live="polite">${priceOrigin}</p>
       <div class="inline-form">
+        <button class="btn-ghost" data-act="live-one" data-sym="${a.s}">⟳ Atualizar cotação</button>
         <button class="btn-green" data-act="add-wallet" data-sym="${a.s}">Adicionar à carteira</button>
         <a class="btn-ghost" href="#/historico?ativo=${a.s}" style="display:grid;place-items:center">Simular histórico</a>
         <a class="btn-ghost" href="#/comparador?ativo=${a.s}" style="display:grid;place-items:center">Comparar ativos</a>
@@ -1553,7 +1567,12 @@ function atosAZView(){
   return head('Ativos de A a Z','Navegue pelo catálogo de ativos de demonstração.',HOME_CRUMB+'Ativos de A a Z')+
   `<section class="panel pad">
     <div class="tabs">${lettersList.map(l=>`<button class="tab ${azLetter===l?'active':''}" data-act="az" data-letter="${l}">${l}</button>`).join('')}</div>
-    <div class="toolbar"><input type="search" data-act="market-search" placeholder="Buscar ativo..." aria-label="Buscar ativo"></div>
+    <div class="toolbar">
+      <input type="search" data-act="market-search" placeholder="Buscar ativo..." aria-label="Buscar ativo">
+      <button class="btn-ghost" data-act="live-quotes" style="padding:7px 14px">⟳ Cotações ao vivo</button>
+      <button class="btn-ghost" data-act="csv" style="padding:7px 14px" title="Baixar tabela em CSV">CSV ⬇</button>
+      <span class="muted small" id="liveStatus" aria-live="polite">Dados ilustrativos</span>
+    </div>
     <div id="marketRows">${renderAssetsTable(list)}</div>
   </section>`;
 }
@@ -2028,6 +2047,51 @@ function refreshMarket(){
   const path=currentPath();
   t.innerHTML=renderAssetsTable(marketListFor(path),{showClass:!['cripto','cambio','indices'].includes(path)});
 }
+
+/* Cotações ao vivo e exportação CSV (v1.2) */
+async function refreshLiveQuotes(btn,symbolsOverride){
+  const symbols=symbolsOverride||marketListFor(currentPath()).map(a=>a.s)
+    .filter(s=>/^[A-Z]{4,6}\d{0,2}[A-Z]?\d?$/.test(s)||FREE.includes(s));
+  if(!symbols.length) return;
+  const st=$('#liveStatus'), origin=$('#quoteOrigin');
+  if(btn) btn.disabled=true;
+  if(st){ st.className='muted small'; st.textContent='Consultando Brapi...' }
+  try{
+    const list=await requestQuotes(symbols,brapiToken);
+    list.forEach(q=>{
+      if(typeof q.regularMarketPrice==='number'){
+        liveQuotes[q.symbol]={
+          price:q.regularMarketPrice,
+          chg:Number(q.regularMarketChangePercent)||0,
+          name:q.shortName||q.longName||q.symbol
+        };
+      }
+    });
+    if(origin) origin.textContent='Cotação ao vivo via Brapi · '+now();
+    if(st){ st.className='up'; st.textContent=`${list.length} cotação(ões) ao vivo · ${now()}` }
+    refreshMarket();
+    if(symbolsOverride&&symbolsOverride.length===1){ const y=scrollY; renderRoute(); scrollTo(0,y) }
+  }catch(err){
+    if(st){ st.className='down'; st.textContent=err.message+' — exibindo dados ilustrativos' }
+    if(origin) origin.textContent='Não foi possível atualizar: '+err.message;
+  }finally{ if(btn) btn.disabled=false }
+}
+function downloadCSV(filename,rows){
+  const csvCell=v=>'"'+String(v==null?'':v).replace(/"/g,'""')+'"';
+  const csv=rows.map(r=>r.map(csvCell).join(';')).join('\r\n');
+  const url=URL.createObjectURL(new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8'}));
+  const a=document.createElement('a');
+  a.href=url; a.download=filename; document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url),1000);
+}
+function exportMarketCSV(){
+  const path=currentPath();
+  const rows=marketListFor(path).map(applyLive).filter(a=>
+    marketState.filter?(a.s+a.n).toUpperCase().includes(marketState.filter.toUpperCase()):true);
+  const data=[['Codigo','Nome','Classe','Preco','Variacao %'],
+    ...rows.map(a=>[a.s,a.n,a.c||'',typeof a.p==='number'?a.p.toFixed(2).replace('.',','):a.p,(a.ch||0).toFixed(2).replace('.',',')])];
+  downloadCSV('trademap-'+path.replace(/[^\w-]/g,'-')+'.csv',data);
+}
 VIEW.addEventListener('input',e=>{
   const act=e.target.dataset.act;
   if(act==='market-search'||act==='manager-search'){
@@ -2082,6 +2146,9 @@ VIEW.addEventListener('change',e=>{
 VIEW.addEventListener('click',e=>{
   const b=e.target.closest('[data-act]'); if(!b) return;
   const act=b.dataset.act;
+  if(act==='live-quotes'){ refreshLiveQuotes(b); return }
+  if(act==='csv'){ exportMarketCSV(); return }
+  if(act==='live-one'){ refreshLiveQuotes(b,[b.dataset.sym]); return }
   if(act==='chart-range'||act==='chart-mode'){
     b.parentElement.querySelectorAll('.rng').forEach(x=>x.classList.remove('active'));
     b.classList.add('active');
@@ -2116,6 +2183,11 @@ VIEW.addEventListener('click',e=>{
 /* Inicialização final da busca e calculadora (caso a rota inicial seja uma delas) */
 calcRun();
 runBusca();
+/* PWA: registramento somente em HTTPS/localhost (v1.2) */
+if('serviceWorker' in navigator && (location.protocol==='https:'||['localhost','127.0.0.1'].includes(location.hostname))){
+  addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));
+}
+
 /* Fallback de vídeo e redimensionamento com debounce (v1.1) */
 document.addEventListener('error',e=>{
   const v=e.target;

@@ -25,7 +25,20 @@ const dom = new JSDOM(html, {
     win.HTMLCanvasElement.prototype.getContext = () => ctx;
     Object.defineProperty(win.HTMLCanvasElement.prototype, 'clientWidth', { get: () => 600 });
     win.HTMLCanvasElement.prototype.getBoundingClientRect = () => ({ left: 0, top: 0, width: 600, height: 290 });
-    win.fetch = () => Promise.reject(new Error('offline smoke test'));
+    win.fetch = url => {
+      if (String(url).includes('brapi.dev')) {
+        return Promise.resolve({
+          status: 200,
+          ok: true,
+          headers: { get: () => null },
+          json: () => Promise.resolve({ results: [{
+            symbol: 'PETR4',
+            data: { regularMarketPrice: 99.99, regularMarketChangePercent: 1.23, shortName: 'PETR4 ao vivo' }
+          }] })
+        });
+      }
+      return Promise.reject(new Error('offline smoke test'));
+    };
     win.alert = noop;
     win.confirm = () => true;
     win.scrollTo = noop;
@@ -53,6 +66,7 @@ setTimeout(() => {
   ck('skip-link presente', !!d.querySelector('.skip-link'));
   ck('noscript presente', !!d.querySelector('noscript'));
   ck('export/import presentes', !!d.querySelector('#exportBtn') && !!d.querySelector('#importBtn'));
+  ck('manifest PWA presente', !!d.querySelector('link[rel="manifest"]'));
 
   let i = 0;
   const next = () => {
@@ -72,6 +86,20 @@ setTimeout(() => {
       const view = d.querySelector('#view-dynamic');
       const espera404 = r === '#/nao-existe';
       ck('rota ' + r, view && view.innerHTML.length > 200 && (espera404 ? /Página não encontrada/.test(view.innerHTML) : !/Página não encontrada/.test(view.innerHTML)));
+      if (r === '#/acoes') {
+        const btn = d.querySelector('[data-act="live-quotes"]');
+        ck('botão de cotações ao vivo', !!btn);
+        if (btn) {
+          btn.click();
+          setTimeout(() => {
+            const st = d.querySelector('#liveStatus');
+            ck('status ao vivo atualizado', st && /ao vivo/.test(st.textContent));
+            ck('preço ao vivo na tabela', /99,99/.test(d.querySelector('#marketRows').textContent));
+            next();
+          }, 80);
+          return;
+        }
+      }
       next();
     }, 5);
   };

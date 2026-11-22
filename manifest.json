@@ -1,0 +1,19 @@
+{
+  "name": "TradeMap — notícias, cotações e ferramentas financeiras",
+  "short_name": "TradeMap",
+  "description": "Clone demonstrativo do TradeMap com cotações, carteira e ferramentas para acompanhar investimentos.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#13141b",
+  "theme_color": "#13141b",
+  "lang": "pt-BR",
+  "icons": [
+    {
+      "src": "./icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

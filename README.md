@@ -21,6 +21,7 @@ python3 -m http.server 8000
 | `trademap-clone.html` | Cópia exata do arquivo original enviado (baseline v1.0.0). |
 | `versions/` | Snapshots imutáveis de cada versão publicada. |
 | `tests/smoke.js` | Teste automatizado de rotas e da interface. |
+| `manifest.json`, `icon.svg`, `sw.js` | Suporte a PWA/instalação e cache offline. |
 | `CHANGELOG.md` | Histórico de mudanças. |
 
 ## Testes
@@ -45,7 +46,13 @@ O smoke test carrega o HTML em um DOM simulado (jsdom), percorre todas as rotas 
 
 As cotações da carteira e o autocomplete de tickers vêm da API pública [Brapi](https://brapi.dev/). Sem token, respondem apenas os tickers gratuitos (`PETR4`, `VALE3`, `ITUB4`, `MGLU3`, `MXRF11`, `HGLG11`); para outros ativos, configure sua chave gratuita no ícone ⚙ da carteira. A chave fica somente no `localStorage` do navegador.
 
+Os botões **⟳ Cotações ao vivo** (nas listas e na página do ativo) consultam a Brapi e substituem os preços ilustrativos da tabela quando a consulta funciona. Se falhar, os dados locais continuam sendo exibidos e o status informa o motivo.
+
 Os demais dados de mercado, notícias, séries históricas e preços-alvo são **ilustrativos**, criados para demonstrar a interface. Nada aqui é recomendação de investimento.
+
+### PWA
+
+Ao publicar via HTTPS (GitHub Pages, por exemplo), o app pode ser instalado na tela inicial. O service worker guarda apenas arquivos locais em cache; requisições para a Brapi não são interceptadas. Para testar o service worker localmente, sirva a pasta por HTTP em `localhost` (em `file://` ele é ignorado).
 
 ## Versões
 
