@@ -11,7 +11,9 @@ Todas as versões notáveis deste projeto são documentadas aqui. O formato segu
 - `sw.js` e `manifest.json` atualizados para o novo caminho do ícone.
 
 ### Adicionado
-- Carrossel de destaques reescrito: loop infinito com slides clonados, autoplay de 6s com indicador de progresso, arrasto/swipe por Pointer Events (mouse e toque), snap com limite de distância, pausa no hover/foco/aba oculta, navegação por teclado e dica de arrasto no mobile.
+- Slide **Players do mercado** recalculado: maiores descontos segundo o preço-alvo de cada casa (BTG, XP, Itaú BBA etc.), com cotação atual, alvo, potencial e recomendação. Novo slide **Casas de análise** com o ranking agregado de alvos e compras.
+- Mini-gráficos do carrossel interativos: tooltip com casa/ativo, valor e link, clique e `Enter` levam à página do ativo; barras dos clones marcadas como inertes.
+- Carrossel de destaques reescrito: loop infinito com slides clonados, autoplay de 6s com indicador de progresso, arrasto/swipe por Pointer Events (mouse e toque), snap com limite de distância, pausa no hover/foco/aba oculta, navegação por teclado e dica de arrasto no mobile. Fallback por timer garante o loop mesmo quando `transitionend` não é disparado.
 - `tests/check-version.js` e `npm test` agora validam a consistência da versão entre `package.json`, `sw.js`, `README.md` e `CHANGELOG.md`.
 - `.gitignore` cobre o projeto auxiliar `chat-qr/` e o vídeo estendido de 28 MB.
 

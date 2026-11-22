@@ -80,11 +80,13 @@ setTimeout(() => {
   ck('manifest PWA presente', !!d.querySelector('link[rel="manifest"]'));
   ck('painel da chave Brapi presente', !!d.querySelector('#brapiPanel #brapiTokenInput') && !!d.querySelector('#brapiSave'));
   const slideTexts = [...d.querySelectorAll('#slides .slide:not(.clone)')].map(s => s.textContent);
-  ck('carrossel com 3 destaques', slideTexts.length === 3);
+  ck('carrossel com 4 destaques', slideTexts.length === 4);
   ck('clones para loop infinito', d.querySelectorAll('#slides .slide.clone').length === 2);
   ck('destaque de quedas', /mais caíram/.test(slideTexts[0] || ''));
   ck('destaque de Graham', /Graham/.test(slideTexts[1] || ''));
-  ck('destaque de players', /Players do mercado/.test(slideTexts[2] || ''));
+  ck('descontos segundo players', /Players do mercado/.test(slideTexts[2] || '') && /preço-alvo/.test(slideTexts[2] || ''));
+  ck('ranking de casas', /Casas de análise/.test(slideTexts[3] || ''));
+  ck('barras interativas', d.querySelectorAll('#slides [data-bar]').length >= 12);
 
   const finish = () => {
     console.log('\n=== RESULTADO ===');

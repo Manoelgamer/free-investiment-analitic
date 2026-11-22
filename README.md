@@ -50,7 +50,7 @@ O `npm test` roda duas checagens:
 ## O que tem
 
 - **Mercados:** ticker animado, cotações, ações, FIIs, ETFs, índices, cripto e câmbio.
-- **Destaques do mercado:** carrossel calculado com as maiores quedas do dia, as ações mais descontadas pela fórmula de Graham e os *players* (casas de análise) com mais preços-alvo. Transição suave em loop, autoplay com barra de progresso e arrasto/swipe no mobile.
+- **Destaques do mercado:** carrossel calculado com as maiores quedas do dia, os maiores descontos por Graham, os descontos segundo o preço-alvo dos *players* (BTG, XP, Itaú BBA etc.) e o ranking das casas. Mini-gráficos com tooltip e atalho para o ativo; transição suave em loop, autoplay com barra de progresso e arrasto/swipe no mobile.
 - **Mapa de setores:** visualização de altas e baixas com detalhe por setor.
 - **Notícias e TradeLetter:** listas filtráveis e páginas de leitura.
 - **Ferramentas:** calculadoras, simulador de aportes, simulador histórico e comparador de ativos com gráficos em canvas/SVG.

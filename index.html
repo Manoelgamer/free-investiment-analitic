@@ -121,7 +121,14 @@
   .slide h3{font-size:18px;line-height:1.25}
   .thumb-art{height:100%;display:grid;place-items:center;padding:20px;position:relative;z-index:1}
   .thumb-art svg rect{transform-origin:center bottom;animation:barIn .55s cubic-bezier(.22,1,.36,1) backwards}
+  .thumb-art svg rect[data-bar]{cursor:pointer;transition:filter .18s}
+  .thumb-art svg rect[data-bar]:hover,.thumb-art svg rect[data-bar]:focus{filter:brightness(1.45)}
   @keyframes barIn{from{transform:scaleY(.08);opacity:.25}to{transform:scaleY(1);opacity:1}}
+  .bar-tip{position:absolute;left:50%;bottom:14px;transform:translateX(-50%);display:none;z-index:3;
+    background:#0e1118ee;border:1px solid #3a4050;border-radius:8px;padding:6px 10px;white-space:nowrap;pointer-events:none;
+    box-shadow:0 8px 20px rgba(0,0,0,.45);font-size:10px;color:var(--text)}
+  .bar-tip b{display:block;color:var(--green);font-size:10px;margin-bottom:2px}
+  .rec-mini{font-size:8px;font-weight:800;padding:1px 5px;border-radius:999px;border:1px solid currentColor;margin-left:5px;vertical-align:middle}
   .slide-count{position:absolute;top:12px;right:14px;z-index:2;font-size:10px;font-weight:800;letter-spacing:1px;color:#ffffffaa}
   .slide .txt{padding:22px;display:flex;flex-direction:column;justify-content:center;gap:9px;min-width:0}
   .slide.active .txt>*{animation:riseIn .5s cubic-bezier(.22,1,.36,1) backwards}
@@ -1105,16 +1112,21 @@ addEventListener('keydown',e=>{
 });
 
 /* Destaques calculados a partir dos dados — quedas, Graham e players (v1.3) */
-function thumbBars(vals,color){
-  const max=Math.max(...vals.map(Math.abs))||1;
-  const bw=Math.min(26,150/Math.max(1,vals.length));
+/* Destaques calculados a partir dos dados — quedas, Graham, alvos e casas (v1.3) */
+let totalSlides=3;
+function thumbBars(items,color){
+  const list=items.map((it,i)=>typeof it==='number'?{v:it,label:'Item '+(i+1),value:numBR(it)}:it);
+  const max=Math.max(...list.map(o=>Math.abs(o.v)))||1;
+  const bw=Math.min(26,150/Math.max(1,list.length));
   return `<div class="thumb-art"><svg viewBox="0 0 200 120" preserveAspectRatio="none" width="100%" height="100%" role="img" aria-label="Barras comparativas">
     <line x1="6" y1="112" x2="194" y2="112" stroke="#ffffff22"/>
-    ${vals.map((v,i)=>{
-      const h=Math.max(8,Math.abs(v)/max*82), x=12+i*(176/Math.max(1,vals.length));
-      return `<rect x="${x}" y="${104-h}" width="${bw}" height="${h}" rx="4" fill="${color}" opacity="${(0.45+0.5*i/Math.max(1,vals.length-1)).toFixed(2)}" style="animation-delay:${i*60}ms"/>`;
+    ${list.map((o,i)=>{
+      const h=Math.max(8,Math.abs(o.v)/max*82), x=12+i*(176/Math.max(1,list.length));
+      return `<rect data-bar data-label="${esc(o.label)}" data-value="${esc(o.value)}" data-link="${o.link||''}" tabindex="0" role="button"
+        aria-label="${esc(o.label+': '+o.value)}" x="${x}" y="${104-h}" width="${bw}" height="${h}" rx="4" fill="${color}"
+        opacity="${(0.45+0.5*i/Math.max(1,list.length-1)).toFixed(2)}" style="animation-delay:${i*60}ms"/>`;
     }).join('')}
-  </svg></div>`;
+  </svg><div class="bar-tip"></div></div>`;
 }
 function buildSlides(){
   const rankedGraham=assets.filter(a=>a.lpa>0).map(a=>{
@@ -1122,34 +1134,45 @@ function buildSlides(){
     return {a,up:v?v.grahamUp:-Infinity,fair:v?v.graham:0};
   }).sort((x,y)=>y.up-x.up).slice(0,4);
   const losers=assets.filter(a=>a.c==='Ações').slice().sort((a,b)=>a.ch-b.ch).slice(0,4);
-  const houses={};
+  const houses={}, targetOps=[];
   assets.forEach(a=>(a.t||[]).forEach(([house,price,rec])=>{
     const h=houses[house]||(houses[house]={n:0,sum:0,buys:0});
     h.n++; h.sum+=(price/a.p-1)*100; if(rec==='Compra') h.buys++;
+    targetOps.push({sym:a.s,house,price:a.p,target:price,up:(price/a.p-1)*100,rec});
   }));
   const players=Object.entries(houses).map(([house,h])=>({house,n:h.n,up:h.sum/h.n,buys:h.buys}))
     .sort((x,y)=>y.n-x.n||y.up-x.up).slice(0,4);
+  const topTargets=targetOps.sort((x,y)=>y.up-x.up).slice(0,4);
   const defs=[
     {tag:'Quedas',title:'Ações que mais caíram hoje',desc:'As maiores quedas entre as ações acompanhadas.',
-     art:thumbBars(losers.map(a=>Math.abs(a.ch)),'#ff5d6c'),
+     art:thumbBars(losers.map(a=>({v:Math.abs(a.ch),label:`${a.s} · ${a.n}`,value:pct(a.ch),link:`#/ativo/${a.s}`})),'#ff5d6c'),
      rows:losers.map(a=>`<a class="slide-line" href="#/ativo/${a.s}"><span class="code">${a.s}</span><span class="nm">${a.n}</span><span class="r down">${pct(a.ch)}</span></a>`).join(''),
      link:'#/acoes',linkText:'Ver todas as ações →'},
     {tag:'Graham',title:'Ações mais descontadas (Graham)',desc:'Maior potencial contra o preço justo √(22,5 × LPA × VPA).',
-     art:thumbBars(rankedGraham.map(x=>x.up),'#0fe07f'),
+     art:thumbBars(rankedGraham.map(x=>({v:x.up,label:`${x.a.s} · Justo R$ ${numBR(x.fair)}`,value:signedPct(x.up),link:`#/ativo/${x.a.s}`})),'#0fe07f'),
      rows:rankedGraham.map(x=>`<a class="slide-line" href="#/ativo/${x.a.s}"><span class="code">${x.a.s}</span><span class="nm">Justo R$ ${numBR(x.fair)}</span><span class="r up">${signedPct(x.up)}</span></a>`).join(''),
      link:'#/comparador',linkText:'Comparar valuations →'},
-    {tag:'Players',title:'Players do mercado',desc:'Casas com mais preços-alvo e potencial médio implícito.',
-     art:thumbBars(players.map(p=>p.n),'#4da3ff'),
-     rows:players.map(p=>`<div class="slide-line"><span class="code">${p.house}</span><span class="nm">${p.n} alvos · ${p.buys} compras</span><span class="r ${p.up>=0?'up':'down'}">${signedPct(p.up)}</span></div>`).join(''),
+    {tag:'Players',title:'Players do mercado',desc:'Maiores descontos segundo o preço-alvo de cada casa de análise.',
+     art:thumbBars(topTargets.map(o=>({v:o.up,label:`${o.house} · ${o.sym}`,
+       value:`R$ ${numBR(o.price)} → R$ ${numBR(o.target)} · ${signedPct(o.up)}`,link:`#/ativo/${o.sym}`})),'#0fe07f'),
+     rows:topTargets.map(o=>`<a class="slide-line" href="#/ativo/${o.sym}"><span class="code">${o.sym}</span>
+       <span class="nm">${o.house} · R$ ${numBR(o.price)} → ${numBR(o.target)}</span>
+       <span class="r ${o.up>=0?'up':'down'}">${signedPct(o.up)}<span class="rec-mini ${o.rec==='Compra'?'up':o.rec==='Venda'?'down':''}">${o.rec}</span></span></a>`).join(''),
+     link:'#/comparador',linkText:'Comparar alvos →'},
+    {tag:'Casas',title:'Casas de análise',desc:'Ranking por quantidade de preços-alvo e potencial médio implícito.',
+     art:thumbBars(players.map(p=>({v:p.n,label:p.house,value:`${p.n} alvos · ${p.buys} compras · ${signedPct(p.up)}`,link:'#/ativos'})),'#4da3ff'),
+     rows:players.map(p=>`<div class="slide-line"><span class="code">${p.house}</span><span class="nm">${p.n} alvos · ${p.buys} compras</span>
+       <span class="r ${p.up>=0?'up':'down'}">${signedPct(p.up)}</span></div>`).join(''),
      link:'#/ativos',linkText:'Ver ativos cobertos →'}
   ];
-  const themes=[['#173c50','#231f4d'],['#3d2c1d','#182a3c'],['#1d3c30','#352241']];
-  const make=(d,i,clone)=>`<article class="slide ${clone?'clone':''}" style="--a:${themes[i][0]};--b:${themes[i][1]}" ${clone?'aria-hidden="true"':''}>
+  const themes=[['#173c50','#231f4d'],['#3d2c1d','#182a3c'],['#143f35','#352241'],['#3a2a44','#16283b']];
+  const make=(d,i,clone)=>`<article class="slide ${clone?'clone':''}" style="--a:${themes[i][0]};--b:${themes[i][1]}" ${clone?'aria-hidden="true" inert':''}>
       <div class="thumb">${d.art}<span class="slide-count">0${i+1} / 0${defs.length}</span></div>
       <div class="txt"><span class="tag">${d.tag}</span><h3>${d.title}</h3><p class="muted small">${d.desc}</p>
       <div class="slide-list">${d.rows}</div><a href="${d.link}" class="link-green">${d.linkText}</a></div>
     </article>`;
   const n=defs.length;
+  totalSlides=n;
   $('#slides').innerHTML=[make(defs[n-1],n-1,true),...defs.map((d,i)=>make(d,i,false)),make(defs[0],0,true)].join('');
   $('#dots').innerHTML=defs.map((_,i)=>`<button class="dot ${i===0?'active':''}" aria-label="Ir para o destaque ${i+1}"></button>`).join('');
   $$('#dots .dot').forEach((d,i)=>d.onclick=()=>{ goSlide(i); restartAuto() });
@@ -1157,7 +1180,7 @@ function buildSlides(){
 
 /* Motor do carrossel: loop infinito, autoplay, arrasto/swipe e teclado */
 const slidesEl=$('#slides'), bodyEl=$('#carouselBody'), dotsEl=$('#dots');
-const totalSlides=3, reduceMotion=typeof matchMedia==='function'&&matchMedia('(prefers-reduced-motion:reduce)').matches;
+const reduceMotion=typeof matchMedia==='function'&&matchMedia('(prefers-reduced-motion:reduce)').matches;
 let pos=1, autoTimer=null, paused=false, drag=null, suppressClick=false;
 const realIndex=()=>pos===totalSlides+1?0:pos===0?totalSlides-1:pos-1;
 
@@ -1169,7 +1192,24 @@ function paint(){
   $$('#dots .dot').forEach(d=>d.classList.remove('fill'));
   if(!reduceMotion&&!paused){ void dotsEl.offsetWidth; $$('#dots .dot')[r]?.classList.add('fill') }
 }
-function goTo(p){ pos=p; slidesEl.style.transition=''; paint() }
+let loopTimer=null;
+function doLoopJump(){
+  clearTimeout(loopTimer);
+  if(pos!==totalSlides+1&&pos!==0) return;
+  slidesEl.style.transition='none';
+  pos=pos===totalSlides+1?1:totalSlides;
+  slidesEl.style.transform=`translate3d(${-pos*100}%,0,0)`;
+  void slidesEl.offsetWidth;
+  slidesEl.style.transition='';
+  paint();
+}
+function goTo(p){
+  pos=p; slidesEl.style.transition=''; paint();
+  clearTimeout(loopTimer);
+  if(pos===totalSlides+1||pos===0){
+    loopTimer=setTimeout(doLoopJump,reduceMotion?40:680);
+  }
+}
 function goSlide(i){ goTo(i+1) }
 function next(){ goTo(pos+1) }
 function prev(){ goTo(pos-1) }
@@ -1186,19 +1226,34 @@ function resumeAuto(){ paused=false; startAuto(); paint() }
 function restartAuto(){ resumeAuto() }
 
 slidesEl.addEventListener('transitionend',e=>{
-  if(e.target!==slidesEl||e.propertyName!=='transform') return;
-  if(pos===totalSlides+1||pos===0){
-    slidesEl.style.transition='none';
-    pos=pos===totalSlides+1?1:totalSlides;
-    slidesEl.style.transform=`translate3d(${-pos*100}%,0,0)`;
-    void slidesEl.offsetWidth;
-    slidesEl.style.transition='';
-    paint();
-  }
+  if(e.target===slidesEl&&e.propertyName==='transform') doLoopJump();
+});
+
+/* Interação com as barras dos mini-gráficos: tooltip + atalho para o ativo */
+function showBarTip(bar){
+  const tip=bar.closest('.thumb')?.querySelector('.bar-tip');
+  if(tip){ tip.innerHTML=`<b>${bar.dataset.label}</b><span>${bar.dataset.value}</span>`; tip.style.display='block' }
+}
+function hideBarTip(bar){
+  const tip=bar.closest('.thumb')?.querySelector('.bar-tip');
+  if(tip) tip.style.display='none';
+}
+function followBar(bar){
+  if(!bar||!bar.dataset.link||suppressClick) return;
+  location.hash=bar.dataset.link;
+}
+slidesEl.addEventListener('pointerover',e=>{ const b=e.target.closest?.('[data-bar]'); if(b) showBarTip(b) });
+slidesEl.addEventListener('pointerout',e=>{ const b=e.target.closest?.('[data-bar]'); if(b) hideBarTip(b) });
+slidesEl.addEventListener('focusin',e=>{ const b=e.target.closest?.('[data-bar]'); if(b) showBarTip(b) });
+slidesEl.addEventListener('focusout',e=>{ const b=e.target.closest?.('[data-bar]'); if(b) hideBarTip(b) });
+slidesEl.addEventListener('click',e=>{ const b=e.target.closest?.('[data-bar]'); if(b) followBar(b) });
+slidesEl.addEventListener('keydown',e=>{
+  const b=e.target.closest?.('[data-bar]');
+  if(b&&(e.key==='Enter'||e.key===' ')){ e.preventDefault(); followBar(b) }
 });
 
 bodyEl.addEventListener('pointerdown',e=>{
-  if(e.target.closest('a,button')||(e.button!==undefined&&e.button!==0)) return;
+  if(e.target.closest('a,button,[data-bar]')||(e.button!==undefined&&e.button!==0)) return;
   drag={id:e.pointerId,x:e.clientX,dx:0,moved:false};
   bodyEl.classList.add('dragging');
   try{ bodyEl.setPointerCapture(e.pointerId) }catch(_){}
