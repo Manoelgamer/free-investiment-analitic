@@ -837,6 +837,10 @@ const courses = [
   {id:'c4',title:'Gestão de riscos',level:'Avançado',lessons:['Volatilidade e drawdown','Diversificação e correlação','Position sizing','Rebalanceamento de carteira']}
 ];
 
+/* Só aparecem no mapa os setores que possuem empresas/FIIs cadastrados na base */
+const sectorAssets = name => assets.filter(a=>a.set===name&&(a.c==='Ações'||a.c==='FIIs'));
+const activeSectors = sectors.filter(([name])=>sectorAssets(name).length>0);
+
 const videos = [
   {src:'assets/videos/video-dolar-b3.mp4',track:'assets/videos/legenda-dolar-b3.srt',title:'Entenda o dólar e a B3',desc:'Uma visão prática de como o câmbio influencia o mercado de ações brasileiro.'},
   {src:'assets/videos/exemplo-video.mp4',track:'',title:'Conheça a plataforma',desc:'Um passeio pelas funcionalidades de cotações, carteira e ferramentas.'}
@@ -1480,9 +1484,10 @@ function sectorColor(v){
   const a=Math.min(Math.abs(v)*22,55)+25;
   return v>=0?`rgba(15,224,127,${a/100})`:`rgba(255,93,108,${a/100})`;
 }
-$('#sectorGrid').innerHTML=sectors.map(([n,v])=>
-  `<a class="sector" style="background:${sectorColor(v)}" href="#/setor/${encodeURIComponent(n)}" title="${n}: ${v>0?'+':''}${v.toFixed(1)}%">${n}<small>${v>0?'+':''}${v.toFixed(1)}%</small></a>`
-).join('');
+$('#sectorGrid').innerHTML=activeSectors.map(([n,v])=>{
+  const qtd=sectorAssets(n).length;
+  return `<a class="sector" style="background:${sectorColor(v)}" href="#/setor/${encodeURIComponent(n)}" title="${n}: ${v>0?'+':''}${v.toFixed(1)}% · ${qtd} ativo(s)">${n}<small>${v>0?'+':''}${v.toFixed(1)}% · ${qtd} ativo(s)</small></a>`;
+}).join('');
 
 $$('.spark').forEach((el,i)=>{
   const pts=Array.from({length:22},(_,j)=>{
@@ -2006,16 +2011,18 @@ function gestorasView(){
 function mapaSetoresView(){
   return head('Mapa de setores','Desempenho por setor. Clique em um setor para ver as empresas.',HOME_CRUMB+'Mapa de setores')+
   `<section class="panel pad">
-    <div class="sector-full" id="sectorFull">${sectors.map(([n,v])=>
-      `<a class="sector" style="background:${sectorColor(v)}" href="#/setor/${encodeURIComponent(n)}" title="${n}: ${v>0?'+':''}${v.toFixed(1)}%">${n}<small>${v>0?'+':''}${v.toFixed(1)}%</small></a>`).join('')}</div>
-    <p class="muted small" style="margin-top:14px">Verde = alta · Vermelho = baixa. Intensidade proporcional à variação.</p>
+    <div class="sector-full" id="sectorFull">${activeSectors.map(([n,v])=>{
+      const qtd=sectorAssets(n).length;
+      return `<a class="sector" style="background:${sectorColor(v)}" href="#/setor/${encodeURIComponent(n)}" title="${n}: ${v>0?'+':''}${v.toFixed(1)}% · ${qtd} ativo(s)">${n}<small>${v>0?'+':''}${v.toFixed(1)}% · ${qtd} ativo(s)</small></a>`;
+    }).join('')}</div>
+    <p class="muted small" style="margin-top:14px">Verde = alta · Vermelho = baixa. Intensidade proporcional à variação. Setores sem empresas cadastradas na base demonstrativa não aparecem.</p>
   </section>`;
 }
 
 function setorView(name){
-  const item=sectors.find(s=>s[0]===name);
-  if(!item) return head('Setor não encontrado','',HOME_CRUMB+'Mapa de setores')+'<section class="panel pad"><a href="#/mapa-setores" class="link-green">← Voltar</a></section>';
-  const list=assets.filter(a=>a.set===name);
+  const item=activeSectors.find(s=>s[0]===name);
+  if(!item) return head('Setor não encontrado','Este setor não possui empresas cadastradas na base demonstrativa.',HOME_CRUMB+'Mapa de setores')+'<section class="panel pad"><a href="#/mapa-setores" class="link-green">← Voltar</a></section>';
+  const list=sectorAssets(name);
   return head(name,`Variação do setor: <span class="${item[1]>=0?'up':'down'}">${item[1]>0?'+':''}${item[1].toFixed(1)}%</span>`,HOME_CRUMB+`<a href="#/mapa-setores">Mapa de setores</a> / ${name}`)+
   `<section class="panel pad">
     <h3 style="margin-bottom:12px">Empresas do setor</h3>
@@ -2398,7 +2405,7 @@ function runBusca(){
   ].filter(p=>hit(p[0]));
   const ativos=assets.filter(a=>hit(a.s)||hit(a.n)).slice(0,12);
   const noticias=news.filter(n=>hit(n.title)||hit(n.src)).slice(0,8);
-  const setores=sectors.filter(s=>hit(s[0])).slice(0,8);
+  const setores=activeSectors.filter(s=>hit(s[0])).slice(0,8);
   const groups=[
     ['Páginas e ferramentas',pages.map(p=>`<a href="${p[1]}">${p[0]} →</a>`)],
     ['Ativos',ativos.map(a=>`<a href="#/ativo/${encodeURIComponent(a.s)}"><b>${a.s}</b> · ${a.n} <span class="pill">${a.c}</span></a>`)],

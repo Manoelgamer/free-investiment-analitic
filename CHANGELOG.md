@@ -2,6 +2,12 @@
 
 Todas as versões notáveis deste projeto são documentadas aqui. O formato segue o [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/).
 
+## [v1.4.4] — 2026-11-22
+
+### Corrigido
+- O mapa de setores (home, página completa e busca) agora mostra apenas setores que possuem empresas/FIIs cadastrados na base. Setores vazios como Siderurgia, TI e Energia não aparecem mais.
+- Cada bloco do mapa exibe a quantidade de ativos do setor; a página de detalhe e a busca usam a mesma lista filtrada.
+
 ## [v1.4.3] — 2026-11-22
 
 ### Alterado
