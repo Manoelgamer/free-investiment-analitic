@@ -28,11 +28,12 @@ python3 -m http.server 8000
 | Arquivo | Descrição |
 | --- | --- |
 | `index.html` | Versão atual da aplicação (a que o GitHub Pages serve). |
-| `trademap-clone.html` | Cópia exata do arquivo original enviado (baseline v1.0.0). |
-| `versions/` | Snapshots imutáveis de cada versão publicada. |
-| `tests/smoke.js` | Teste automatizado de rotas e da interface. |
-| `manifest.json`, `icon.svg`, `sw.js` | Suporte a PWA/instalação e cache offline. |
+| `assets/icon.svg`, `manifest.json`, `sw.js` | Suporte a PWA/instalação e cache offline. |
+| `assets/videos/` | Vídeos da página `#/videos` e a legenda `.srt`. |
+| `tests/` | Verificação de versão e smoke test de rotas/interface. |
 | `CHANGELOG.md` | Histórico de mudanças. |
+
+> O vídeo estendido `video-dolar-b3-pro.mp4` (~28 MB) fica apenas local e é ignorado pelo Git. Se quiser usá-lo, coloque-o em `assets/videos/`; ele não é necessário para rodar o projeto. O projeto auxiliar `chat-qr/` também fica fora do repositório.
 
 ## Testes
 
@@ -41,7 +42,10 @@ npm install
 npm test
 ```
 
-O smoke test carrega o HTML em um DOM simulado (jsdom), percorre todas as rotas e verifica se não há erros de JavaScript.
+O `npm test` roda duas checagens:
+
+- `tests/check-version.js` — garante que `package.json`, `sw.js`, `README.md` e `CHANGELOG.md` estejam na mesma versão;
+- `tests/smoke.js` — carrega o HTML em um DOM simulado (jsdom), percorre todas as rotas e verifica se não há erros de JavaScript.
 
 ## O que tem
 
@@ -69,7 +73,16 @@ Ao publicar via HTTPS (GitHub Pages, por exemplo), o app pode ser instalado na t
 
 ## Versões
 
-As versões são marcadas com tags Git (`v1.0.0`, `v1.1.0`, ...) e os arquivos correspondentes ficam em `versions/`. Veja o [CHANGELOG.md](CHANGELOG.md).
+Versão atual: **v1.3.0**. Cada release é uma tag Git (`v1.0.0`, `v1.1.0`, `v1.2.0`, `v1.3.0`). O histórico está no [CHANGELOG.md](CHANGELOG.md).
+
+As tags substituem os antigos snapshots em `versions/`. Para inspecionar ou recuperar uma versão antiga sem sair do branch atual:
+
+```bash
+git show v1.2.0:index.html > /tmp/trademap-v1.2.0.html
+git diff v1.2.0..v1.3.0 -- index.html
+```
+
+Ao lançar uma versão nova, atualize o número em `package.json`, `sw.js` (nome do cache), `README.md` e `CHANGELOG.md` — o `npm test` falha se algum ficar desatualizado.
 
 ## Como contribuir
 
@@ -100,7 +113,7 @@ Tudo está em um único `index.html` para facilitar o estudo. Dentro dele:
 | `loadCurrencies` | Câmbio ao vivo via `/api/v2/currency`, com status e fallback ilustrativo. |
 | `marketView`, `assetDetail`, `Calculadoras`, `comparadorView` | Páginas renderizadas pelo roteador `#/...`. |
 | `routeTable` / `renderRoute` | Roteamento por hash (funciona em `file://` e no Pages). |
-| `tests/smoke.js` | Verificação automática das rotas e da interface. |
+| `tests/check-version.js`, `tests/smoke.js` | Consistência de versão e verificação automática das rotas. |
 
 ## Ideias para melhorar
 

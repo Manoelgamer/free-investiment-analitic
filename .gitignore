@@ -1,3 +1,9 @@
 node_modules/
 .DS_Store
 *.log
+
+# Projeto auxiliar (servidor de chat + QR) — não faz parte do app
+chat-qr/
+
+# Versão estendida do vídeo (28 MB) — manter apenas localmente
+assets/videos/video-dolar-b3-pro.mp4

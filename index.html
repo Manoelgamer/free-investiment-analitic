@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#13141b">
 <meta name="description" content="Notícias, cotações e ferramentas financeiras para acompanhar seus investimentos.">
-<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="icon" href="assets/icon.svg" type="image/svg+xml">
 <link rel="manifest" href="manifest.json">
 <title>TradeMap — notícias, cotações e ferramentas financeiras</title>
 <style>
@@ -781,8 +781,8 @@ const courses = [
 ];
 
 const videos = [
-  {src:'video-dolar-b3.mp4',title:'Entenda o dólar e a B3',desc:' Uma visão prática de como o câmbio influencia o mercado de ações brasileiro.'},
-  {src:'exemplo-video.mp4',title:'Conheça a plataforma',desc:'Um passeio pelas funcionalidades de cotações, carteira e ferramentas.'}
+  {src:'assets/videos/video-dolar-b3.mp4',track:'assets/videos/legenda-dolar-b3.srt',title:'Entenda o dólar e a B3',desc:'Uma visão prática de como o câmbio influencia o mercado de ações brasileiro.'},
+  {src:'assets/videos/exemplo-video.mp4',track:'',title:'Conheça a plataforma',desc:'Um passeio pelas funcionalidades de cotações, carteira e ferramentas.'}
 ];
 
 const managers = [
@@ -1735,7 +1735,7 @@ function academyView(){
 function videosView(){
   return head('Vídeos','Conteúdo em vídeo sobre mercado e plataforma.',HOME_CRUMB+'Vídeos')+
   `<div class="cards">${videos.map(v=>`<div class="card video-card">
-    <video controls preload="metadata" src="${v.src}" aria-label="${esc(v.title)}"></video>
+    <video controls preload="metadata" src="${v.src}" aria-label="${esc(v.title)}">${v.track?`<track kind="subtitles" src="${v.track}" srclang="pt-BR" label="Português" default>`:''}</video>
     <div class="video-fallback" style="display:none" role="status">▶<span>Prévia indisponível nesta versão demonstrativa.</span></div>
     <h3>${v.title}</h3><p>${v.desc}</p>
   </div>`).join('')}</div>`;

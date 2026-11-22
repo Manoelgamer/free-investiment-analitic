@@ -2,6 +2,18 @@
 
 Todas as versões notáveis deste projeto são documentadas aqui. O formato segue o [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/).
 
+## [Não publicado]
+
+### Alterado
+- Organização do repositório: ícone e mídia movidos para `assets/`; vídeos e legenda referenciados a partir de `assets/videos/`.
+- Legenda `legenda-dolar-b3.srt` agora associada ao player via `<track kind="subtitles">`.
+- Removidos `trademap-clone.html` e o diretório `versions/`: as tags Git (`v1.0.0` … `v1.3.0`) já guardam o histórico e permitem recuperar qualquer versão com `git show vX.Y.Z:index.html`.
+- `sw.js` e `manifest.json` atualizados para o novo caminho do ícone.
+
+### Adicionado
+- `tests/check-version.js` e `npm test` agora validam a consistência da versão entre `package.json`, `sw.js`, `README.md` e `CHANGELOG.md`.
+- `.gitignore` cobre o projeto auxiliar `chat-qr/` e o vídeo estendido de 28 MB.
+
 ## [v1.3.0] — 2026-11-22
 
 ### Adicionado
