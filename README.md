@@ -59,7 +59,8 @@ O `npm test` roda duas checagens:
 - **Gráficos:** linha ou candles, volume, crosshair e indicadores MM20, Bandas de Bollinger e RSI(14).
 - **Alertas de preço:** cadastre alvos por ativo; o sino no cabeçalho avisa quando uma cotação atinge o valor definido (dados salvos apenas no navegador).
 - **Carteira:** cadastro de ativos com autocomplete via Brapi, cálculo de patrimônio, donut de alocação, persistência em `localStorage`.
-- **Busca global, Academy e páginas institucionais.**
+- **Busca global no cabeçalho** com autocomplete de ativos, notícias, setores e páginas (setas + Enter); a página `#/busca` aceita `?q=...`. O autocomplete da carteira também consulta o catálogo local antes da Brapi.
+- **Backend opcional** em `backend/` (Python puro): catálogo, validação, cobertura, cotações via proxy e lista de recomendações dos agentes. Em `localhost`, o frontend usa o backend automaticamente.
 
 ## Dados
 
@@ -77,7 +78,7 @@ Ao publicar via HTTPS (GitHub Pages, por exemplo), o app pode ser instalado na t
 
 ## Versões
 
-Versão atual: **v1.5.0**. Cada release é uma tag Git (`v1.0.0` … `v1.5.0`). O histórico está no [CHANGELOG.md](CHANGELOG.md).
+Versão atual: **v1.6.0**. Cada release é uma tag Git (`v1.0.0` … `v1.6.0`). O histórico está no [CHANGELOG.md](CHANGELOG.md).
 
 As tags substituem os antigos snapshots em `versions/`. Para inspecionar ou recuperar uma versão antiga sem sair do branch atual:
 

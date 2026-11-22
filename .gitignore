@@ -7,3 +7,10 @@ chat-qr/
 
 # Versão estendida do vídeo (28 MB) — manter apenas localmente
 assets/videos/video-dolar-b3-pro.mp4
+
+# Cache runtime do backend
+data/
+__pycache__/
+
+# Dados internos do ambiente de desenvolvimento
+.opencode/

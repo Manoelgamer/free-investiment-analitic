@@ -53,12 +53,24 @@
   .icon-btn:hover{background:var(--panel-2)}
   .logo{display:flex;align-items:center;gap:9px;font-weight:800;font-size:17px;letter-spacing:-.4px}
   .logo-mark{width:26px;height:26px;color:var(--green)}
-  .search-btn{
-    display:flex;align-items:center;gap:9px;margin-left:auto;
-    background:#262935;border:1px solid #313543;border-radius:999px;padding:0 16px;height:38px;
-    color:var(--muted);font-size:13px;
-  }
-  .search-btn:hover{border-color:var(--green);color:var(--green)}
+  .search{position:relative;display:flex;align-items:center;gap:9px;margin-left:auto;flex:1;max-width:520px;
+    background:#262935;border:1px solid #313543;border-radius:999px;padding:0 16px;height:38px}
+  .search>svg{color:var(--muted);flex:0 0 auto}
+  .search:focus-within{border-color:var(--green);box-shadow:0 0 0 3px rgba(15,224,127,.10)}
+  .search input{flex:1;min-width:0;background:transparent;border:0;outline:0;color:var(--text);font-size:13px}
+  .search input::placeholder{color:#9a9fae}
+  .global-ac{position:absolute;top:calc(100% + 8px);left:0;right:0;z-index:90;display:none;background:#222632;
+    border:1px solid var(--line);border-radius:12px;max-height:350px;overflow:auto;box-shadow:0 18px 40px rgba(0,0,0,.55)}
+  .global-ac.show{display:block}
+  .global-ac .ac-group{padding:6px 0;border-bottom:1px solid var(--line)}
+  .global-ac .ac-group:last-child{border-bottom:0}
+  .global-ac .ac-title{font-size:9px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);padding:4px 12px}
+  .global-ac a{display:flex;align-items:center;gap:8px;padding:8px 12px;font-size:12px;color:#e8ebf2}
+  .global-ac a:hover,.global-ac a.active{background:#2c3140}
+  .global-ac a b{color:var(--green);min-width:58px}
+  .global-ac a span{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--muted)}
+  .global-ac a i{font-style:normal;font-size:10px;color:var(--muted);font-variant-numeric:tabular-nums}
+  .global-ac .ac-empty{padding:14px;font-size:11px;color:var(--muted);text-align:center}
   .alert-btn{position:relative;text-decoration:none}
   .alert-badge{position:absolute;top:-5px;right:-5px;min-width:16px;height:16px;padding:0 3px;border-radius:999px;
     background:var(--red);color:#fff;font-size:9px;font-weight:800;display:grid;place-items:center;box-shadow:0 0 0 2px var(--panel)}
@@ -459,8 +471,8 @@
     main{padding:18px 14px 50px}
     .topbar-inner{padding:0 12px;gap:8px}
     .logo span{display:none}
-    .search-btn span{display:none}
-    .search-btn{padding:0;width:38px;justify-content:center}
+    .search{height:34px;padding:0 12px;max-width:none;margin:0}
+    .search input{font-size:12px}
     .layout{display:flex;flex-direction:column}
     .center{order:1;width:100%}
     .rail.right{order:2;width:100%;display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
@@ -520,10 +532,11 @@
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M13.7 21a2 2 0 0 1-3.4 0"/></svg>
       <span class="alert-badge" id="alertBadge" style="display:none" aria-hidden="true"></span>
     </a>
-    <a class="search-btn" href="#/busca" aria-label="Buscar no Free Invest Analytic">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
-      <span>Buscar ativos, notícias e ferramentas</span>
-    </a>
+    <form class="search" id="globalSearchForm" role="search" autocomplete="off">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+      <input type="search" id="globalSearch" placeholder="Buscar ativos, notícias e ferramentas" aria-label="Buscar no Free Invest Analytic" aria-controls="globalAc" aria-expanded="false">
+      <div class="global-ac" id="globalAc" role="listbox"></div>
+    </form>
   </div>
 </header>
 
@@ -895,10 +908,13 @@ const activeSectors = () => sectors.filter(([name])=>sectorAssets(name).length>0
 
 /* ---------- Universo completo de ativos via Brapi (v1.5) ---------- */
 const UNIVERSE_KEY='tm_asset_universe';
+const BACKEND_URL=(['localhost','127.0.0.1'].includes(location.hostname))?'http://'+location.hostname+':8765':'';
+const fromBackend=b=>({s:b.s,n:b.n,c:b.c,set:b.set,p:b.p,ch:b.ch,lpa:0,vpa:0,dy:0,roe:0,t:[],brapi:true});
 let universeLoaded=false, universeLoading=false, universeCount=0, universeStatusText='';
-const SUBTYPE_CLASS={stock:'Ações',unit:'Ações',bdr:'Ações',fii:'FIIs','fi-infra':'FIIs','fi-agro':'FIIs',fip:'FIIs',fidc:'FIIs',etf:'ETFs'};
+const SUBTYPE_CLASS={stock:'Ações',unit:'Ações',bdr:'BDRs',fii:'FIIs','fi-infra':'FIIs','fi-agro':'FIIs',fip:'FIIs',fidc:'FIIs',etf:'ETFs'};
+const MANUAL_SECTOR={VALE3:'Mineração',CSNA3:'Siderurgia',GGBR4:'Siderurgia',USIM5:'Siderurgia',KLBN11:'Papel',MXRF11:'Imobiliário',ITSA4:'Finanças',EMBJ3:'Máquinas',NATU3:'Varejo',RENT3:'Transporte',ALOS3:'Imobiliário'};
 const SETOR_KEYWORDS=[
-  ['Petroquímica',['petróleo','petroquím','petroquim']],['Mineração',['miner']],['Bancos',['banco','bank']],
+  ['Petroquímica',['petróleo','petroquím','petroquim','energy minerals','oil & gas','integrated oil']],['Mineração',['miner']],['Bancos',['banco','bank']],
   ['Finanças',['financeir','dados financeiros','títulos e val','crédito']],['Varejo',['varejo','retail','vestuário']],
   ['Máquinas',['máq','maq','equip','motores']],['Bebidas',['bebida','cerveja']],
   ['Transporte',['transporte','rodov','aéreo','ferrovi','hidrovi','logística']],['Papel',['papel','celulose']],
@@ -914,12 +930,25 @@ function mapSetor(r){
   for(const [name,keys] of SETOR_KEYWORDS) if(keys.some(k=>txt.includes(k))) return name;
   return 'Outros';
 }
+function inferClass(r){
+  const name=(String(r.name||'')+' '+String(r.longName||'')).toUpperCase(), sym=String(r.symbol||'').toUpperCase();
+  if(name.includes('FUNDO')||name.includes('FII')) return 'FIIs';
+  if(['ETF','IT NOW','ISHARES','INVESTO','IBOVESPA'].some(k=>name.includes(k))) return 'ETFs';
+  if(sym.endsWith('11')) return 'FIIs';
+  return 'Outros';
+}
 function normalizeBrapi(r){
-  return {s:r.symbol,n:r.longName||r.name||r.symbol,c:SUBTYPE_CLASS[r.subType]||'Outros',
-    set:r.subType==='etf'?'Mercado':mapSetor(r),p:Number(r.quote?.lastPrice)||0,
-    ch:Number(r.quote?.changePercent)||0,lpa:0,vpa:0,dy:0,roe:0,t:[],logo:r.logoUrl,brapi:true};
+  const kind=SUBTYPE_CLASS[r.subType]||inferClass(r);
+  const set=MANUAL_SECTOR[r.symbol]||(kind==='ETFs'?'Mercado':mapSetor(r));
+  return {s:r.symbol,n:r.longName||r.name||r.symbol,c:kind,set,
+    p:Number(r.quote?.lastPrice)||0,ch:Number(r.quote?.changePercent)||0,
+    lpa:0,vpa:0,dy:0,roe:0,t:[],logo:r.logoUrl,brapi:true};
 }
 const fromCompact=a=>({s:a[0],n:a[1],c:a[2],set:a[3],p:a[4],ch:a[5],lpa:0,vpa:0,dy:0,roe:0,t:[],brapi:true});
+function dedupUniverse(items){
+  const syms=new Set(items.map(a=>a.s));
+  return items.filter(a=>!a.s.endsWith('F')||!syms.has(a.s.slice(0,-1)));
+}
 function setUniverseStatus(txt){
   universeStatusText=txt;
   const el=$('#universeStatus'); if(el) el.textContent=txt;
@@ -929,7 +958,7 @@ function mergeUniverse(items){
   items.forEach(it=>{
     const ex=have.get(it.s);
     if(!ex){ assets.push(it); have.set(it.s,it) }
-    else if(!ex.lpa){ ex.p=it.p||ex.p; ex.ch=it.ch; ex.n=it.n||ex.n }
+    else if(it.brapi){ ex.p=it.p||ex.p; ex.ch=it.ch; ex.c=it.c!=='Outros'?it.c:ex.c }
   });
   universeCount=assets.length;
 }
@@ -948,7 +977,7 @@ async function loadAssetUniverse(force=false){
     try{
       const c=JSON.parse(localStorage.getItem(UNIVERSE_KEY)||'null');
       if(c&&Array.isArray(c.items)&&Date.now()-c.ts<86400000){
-        mergeUniverse(c.items.map(fromCompact)); universeLoaded=true;
+        mergeUniverse(dedupUniverse(c.items.map(fromCompact))); universeLoaded=true;
         setUniverseStatus(c.items.length+' ativos via Brapi');
         return;
       }
@@ -957,14 +986,23 @@ async function loadAssetUniverse(force=false){
   universeLoading=true;
   setUniverseStatus('Carregando ativos da B3...');
   try{
-    const p1=await fetchUniversePage(1);
-    const pages=Math.min(3,p1.pagination?.totalPages||1);
-    const rest=await Promise.all(Array.from({length:Math.max(0,pages-1)},(_,i)=>fetchUniversePage(i+2)));
-    const items=[p1,...rest].flatMap(j=>j.results||[]).map(normalizeBrapi).filter(a=>a.s);
+    let items=[], source='Brapi';
+    if(BACKEND_URL){
+      try{
+        const r=await fetch(BACKEND_URL+'/api/catalog');
+        if(r.ok){ const j=await r.json(); items=dedupUniverse((j.items||[]).map(fromBackend)); source='backend' }
+      }catch(e){}
+    }
+    if(!items.length){
+      const p1=await fetchUniversePage(1);
+      const pages=Math.min(3,p1.pagination?.totalPages||1);
+      const rest=await Promise.all(Array.from({length:Math.max(0,pages-1)},(_,i)=>fetchUniversePage(i+2)));
+      items=dedupUniverse([p1,...rest].flatMap(j=>j.results||[]).map(normalizeBrapi).filter(a=>a.s));
+    }
     mergeUniverse(items);
     try{ localStorage.setItem(UNIVERSE_KEY,JSON.stringify({ts:Date.now(),items:items.map(a=>[a.s,a.n,a.c,a.set,a.p,a.ch])})) }catch(e){}
     universeLoaded=true;
-    setUniverseStatus(items.length+' ativos da B3 via Brapi');
+    setUniverseStatus(items.length+' ativos da B3 via '+source);
     afterUniverseLoad();
   }catch(err){
     setUniverseStatus('Brapi indisponível — usando base local');
@@ -1724,7 +1762,10 @@ async function acSearch(q){
   if(q.length<2){ acHide(); return }
   const seq=++acSeq, box=$('#acList');
   if(acCache[q]){ acShow(acCache[q],q); return }
-  box.className='ac-list show'; box.innerHTML='<div class="ac-empty">Buscando na Brapi...</div>';
+  const local=assets.filter(a=>(String(a.s)+' '+String(a.n)).toUpperCase().includes(q)).slice(0,8)
+    .map(a=>({symbol:a.s,name:a.n,quote:{lastPrice:a.p,changePercent:a.ch}}));
+  if(local.length) acShow(local,q);
+  else { box.className='ac-list show'; box.innerHTML='<div class="ac-empty">Buscando ativos...</div>' }
   try{
     const ctrl=new AbortController(); const timer=setTimeout(()=>ctrl.abort(),10000); let res;
     try{
@@ -1738,6 +1779,7 @@ async function acSearch(q){
     acCache[q]=list; if(seq===acSeq) acShow(list,q);
   }catch(e){
     if(seq!==acSeq) return;
+    if(local.length){ acShow(local,q); return }
     const fallback=FREE.filter(s=>s.includes(q)).map(s=>({symbol:s,name:s,quote:{}}));
     if(fallback.length) acShow(fallback,q); else acHide();
   }
@@ -2582,6 +2624,84 @@ function runBusca(){
     `<div class="empty">Nenhum resultado para “${esc(buscaQuery)}”.</div>`;
 }
 
+/* Busca global do cabeçalho — ativos, notícias, setores e páginas */
+let acGlobalItems=[], acGlobalIndex=-1, acGlobalTimer=null;
+function globalAcHide(){
+  $('#globalAc').classList.remove('show');
+  $('#globalSearch').setAttribute('aria-expanded','false');
+  acGlobalItems=[]; acGlobalIndex=-1;
+}
+function globalAcRender(q){
+  const box=$('#globalAc'), U=q.trim().toUpperCase();
+  if(U.length<2){ globalAcHide(); return }
+  const groups=[];
+  const add=(title,list)=>{ if(list.length) groups.push([title,list]) };
+  const ativos=assets.filter(a=>(String(a.s)+' '+String(a.n)).toUpperCase().includes(U)).slice(0,8)
+    .map(a=>({href:'#/ativo/'+encodeURIComponent(a.s),code:a.s,label:a.n,extra:'R$ '+numBR(a.p)}));
+  const noticias=news.filter(n=>(n.title+' '+n.src).toUpperCase().includes(U)).slice(0,3)
+    .map(n=>({href:'#/noticia/'+n.id,code:n.src,label:n.title,extra:n.date}));
+  const setores=activeSectors().filter(s=>s[0].toUpperCase().includes(U)).slice(0,3)
+    .map(s=>({href:'#/setor/'+encodeURIComponent(s[0]),code:'SETOR',label:s[0],extra:s[1]>0?'+'+s[1]+'%':s[1]+'%'}));
+  const pages=[
+    ['Ações','#/acoes'],['ETFs','#/etfs'],['FIIs','#/fis'],['Ativos de A a Z','#/ativos'],
+    ['Calculadoras','#/calculadoras'],['Simulador histórico','#/historico'],['Comparador','#/comparador'],
+    ['Alertas','#/alertas'],['Notícias','#/noticias'],['Carta Semanal','#/tradeletter'],
+    ['Academy','#/academy'],['Vídeos','#/videos'],['Busca completa','#/busca']
+  ].filter(p=>p[0].toUpperCase().includes(U)).slice(0,4)
+    .map(p=>({href:p[1],code:'PÁGINA',label:p[0],extra:'→'}));
+  add('Ativos',ativos); add('Notícias',noticias); add('Setores',setores); add('Páginas',pages);
+  acGlobalItems=groups.flatMap(g=>g[1]); acGlobalIndex=-1;
+  if(!acGlobalItems.length){
+    box.innerHTML='<div class="ac-empty">Nada encontrado · Enter abre a busca completa</div>';
+  }else{
+    let idx=0;
+    box.innerHTML=groups.map(([title,list])=>`<div class="ac-group"><div class="ac-title">${title}</div>`+
+      list.map(it=>`<a href="${it.href}" data-i="${idx++}"><b>${esc(it.code)}</b><span>${esc(it.label)}</span><i>${esc(it.extra)}</i></a>`).join('')+'</div>').join('');
+  }
+  box.classList.add('show');
+  $('#globalSearch').setAttribute('aria-expanded','true');
+}
+function globalAcMark(){
+  $$('#globalAc a').forEach((a,i)=>a.classList.toggle('active',i===acGlobalIndex));
+  const el=$(`#globalAc a[data-i="${acGlobalIndex}"]`);
+  if(el) el.scrollIntoView({block:'nearest'});
+}
+function initGlobalSearch(){
+  const input=$('#globalSearch'), box=$('#globalAc'); if(!input||!box) return;
+  input.addEventListener('input',()=>{
+    clearTimeout(acGlobalTimer);
+    const q=input.value;
+    acGlobalTimer=setTimeout(()=>globalAcRender(q),120);
+  });
+  input.addEventListener('keydown',e=>{
+    if(e.key==='ArrowDown'||e.key==='ArrowUp'){
+      if(!acGlobalItems.length) return;
+      e.preventDefault();
+      acGlobalIndex=e.key==='ArrowDown'
+        ? (acGlobalIndex+1)%acGlobalItems.length
+        : (acGlobalIndex<=0?acGlobalItems.length-1:acGlobalIndex-1);
+      globalAcMark();
+    }else if(e.key==='Enter'){
+      e.preventDefault();
+      if(acGlobalIndex>=0&&acGlobalItems[acGlobalIndex]){
+        location.hash=acGlobalItems[acGlobalIndex].href;
+      }else if(input.value.trim()){
+        location.hash='#/busca?q='+encodeURIComponent(input.value.trim());
+      }
+      input.blur(); globalAcHide();
+    }else if(e.key==='Escape'){ globalAcHide() }
+  });
+  input.addEventListener('blur',()=>setTimeout(globalAcHide,180));
+  box.addEventListener('mousedown',e=>{
+    const a=e.target.closest('a'); if(a){ e.preventDefault(); location.hash=a.getAttribute('href'); input.blur(); globalAcHide() }
+  });
+  $('#globalSearchForm').addEventListener('submit',e=>{
+    e.preventDefault();
+    const q=input.value.trim(); if(q) location.hash='#/busca?q='+encodeURIComponent(q);
+    input.blur(); globalAcHide();
+  });
+}
+
 function institutionView(key){
   const p=institutional[key];
   if(!p) return head('Página não encontrada','',HOME_CRUMB)+'<section class="panel pad"><a href="#/" class="link-green">← Início</a></section>';
@@ -2625,7 +2745,7 @@ const routeTable=[
     if(qa&&assets.some(a=>a.s===qa)&&!compareState.syms.includes(qa)) compareState.syms=[qa,...compareState.syms].slice(0,5);
     return comparadorView();
   },'Comparador de ativos'],
-  [/^busca$/,buscaView,'Buscar'],
+  [/^busca$/,()=>{ buscaQuery=queryParam('q')||''; return buscaView() },'Buscar'],
   [/^alertas$/,alertasView,'Alertas de preço'],
   [/^(sobre|privacidade|termos|cookies)$/,m=>institutionView(m[1]),'Institucional']
 ];
@@ -2915,6 +3035,7 @@ VIEW.addEventListener('click',e=>{
 /* Inicialização final da busca e calculadora (caso a rota inicial seja uma delas) */
 calcRun();
 runBusca();
+initGlobalSearch();
 renderAlertBadge();
 checkAlerts();
 loadCurrencies();

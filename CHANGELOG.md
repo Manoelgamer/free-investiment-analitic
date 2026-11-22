@@ -2,6 +2,19 @@
 
 Todas as versões notáveis deste projeto são documentadas aqui. O formato segue o [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/).
 
+## [v1.6.0] — 2026-11-22
+
+### Adicionado
+- **Backend** em `backend/` (Python stdlib, sem dependências): `/api/health`, `/api/catalog`, `/api/catalog/summary`, `/api/validate`, `/api/coverage`, `/api/quotes`, `/api/recommendations` e `POST /api/refresh`. Cache em `data/`, CORS liberado e token Brapi opcional via variável de ambiente.
+- `tests/test_backend.py` com 6 testes unitários; `backend/README.md` com instruções.
+- Três agentes analisaram o catálogo e produziram listas prioritárias de **25 ações, 15 ETFs e 20 FIIs** ausentes da base curada, salvas em `backend/recommendations.json`.
+- Campo de busca do topo virou **input com autocomplete real** (ativos, notícias, setores e páginas), navegação por setas/Enter e busca completa via `#/busca?q=...`.
+- Frontend usa o backend automaticamente em `localhost` e faz fallback para a Brapi; autocomplete do modal de ativos consulta primeiro o catálogo local.
+
+### Corrigido
+- BDRs separados das ações (classe própria), duplicatas com sufixo `F` removidas e setores corrigidos por mapa manual (VALE3, CSNA3, GGBR4, USIM5, KLBN11, MXRF11 etc.).
+- Preços da base curada passam a ser atualizados com a cotação da Brapi ao carregar o universo.
+
 ## [v1.5.0] — 2026-11-22
 
 ### Adicionado
