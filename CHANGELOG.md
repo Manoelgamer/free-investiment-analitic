@@ -11,6 +11,7 @@ Todas as versões notáveis deste projeto são documentadas aqui. O formato segu
 - `sw.js` e `manifest.json` atualizados para o novo caminho do ícone.
 
 ### Adicionado
+- Carrossel de destaques reescrito: loop infinito com slides clonados, autoplay de 6s com indicador de progresso, arrasto/swipe por Pointer Events (mouse e toque), snap com limite de distância, pausa no hover/foco/aba oculta, navegação por teclado e dica de arrasto no mobile.
 - `tests/check-version.js` e `npm test` agora validam a consistência da versão entre `package.json`, `sw.js`, `README.md` e `CHANGELOG.md`.
 - `.gitignore` cobre o projeto auxiliar `chat-qr/` e o vídeo estendido de 28 MB.
 

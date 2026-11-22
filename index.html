@@ -107,16 +107,29 @@
   .link-green:hover{text-decoration:underline}
 
   /* ---------- Carousel ---------- */
-  .carousel-body{position:relative;overflow:hidden;border-radius:10px}
-  .slides{display:flex;transition:transform .35s ease}
-  .slide{min-width:100%;display:grid;grid-template-columns:1.25fr 1fr;background:var(--panel-2)}
-  .slide .thumb{min-height:210px;background:linear-gradient(135deg,#1b3a4a,#2a2340)}
-  .slide:nth-child(2) .thumb{background:linear-gradient(135deg,#3a2b1e,#1d2b39)}
-  .slide:nth-child(3) .thumb{background:linear-gradient(135deg,#243b2f,#38243a)}
-  .slide .txt{padding:20px;display:flex;flex-direction:column;justify-content:center;gap:8px;min-width:0}
+  .carousel-body{position:relative;overflow:hidden;border-radius:12px;touch-action:pan-y;cursor:grab;user-select:none;-webkit-user-select:none}
+  .carousel-body.dragging{cursor:grabbing}
+  .slides{display:flex;transition:transform .62s cubic-bezier(.22,1,.36,1);will-change:transform}
+  .slide{
+    flex:0 0 100%;display:grid;grid-template-columns:1.1fr 1fr;overflow:hidden;min-height:238px;
+    background:linear-gradient(135deg,#1d2130,#171922);border:1px solid var(--line);border-radius:12px
+  }
+  .slide .thumb{position:relative;min-height:238px;overflow:hidden;background:linear-gradient(135deg,var(--a,#1b3a4a),var(--b,#2a2340))}
+  .slide .thumb::before{content:"";position:absolute;inset:0;background:radial-gradient(circle at 25% 80%,rgba(255,255,255,.10),transparent 55%)}
+  .slide .thumb::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 55%,rgba(0,0,0,.28))}
   .tag{font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--green);font-weight:700}
-  .slide h3{font-size:18px}
-  .thumb-art{height:100%;display:grid;place-items:center;padding:18px}
+  .slide h3{font-size:18px;line-height:1.25}
+  .thumb-art{height:100%;display:grid;place-items:center;padding:20px;position:relative;z-index:1}
+  .thumb-art svg rect{transform-origin:center bottom;animation:barIn .55s cubic-bezier(.22,1,.36,1) backwards}
+  @keyframes barIn{from{transform:scaleY(.08);opacity:.25}to{transform:scaleY(1);opacity:1}}
+  .slide-count{position:absolute;top:12px;right:14px;z-index:2;font-size:10px;font-weight:800;letter-spacing:1px;color:#ffffffaa}
+  .slide .txt{padding:22px;display:flex;flex-direction:column;justify-content:center;gap:9px;min-width:0}
+  .slide.active .txt>*{animation:riseIn .5s cubic-bezier(.22,1,.36,1) backwards}
+  .slide.active .txt>*:nth-child(2){animation-delay:.05s}
+  .slide.active .txt>*:nth-child(3){animation-delay:.1s}
+  .slide.active .txt>*:nth-child(4){animation-delay:.15s}
+  .slide.active .txt>*:nth-child(5){animation-delay:.2s}
+  @keyframes riseIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
   .slide-list{display:flex;flex-direction:column;gap:5px;margin-top:2px}
   .slide-line{display:grid;grid-template-columns:minmax(56px,auto) minmax(0,1fr) auto;gap:8px;align-items:center;
     font-size:11px;padding:6px 9px;background:#191c26;border:1px solid #313543;border-radius:7px;min-width:0}
@@ -124,10 +137,21 @@
   .slide-line .code{font-weight:800;color:var(--green);white-space:nowrap}
   .slide-line .nm{color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .slide-line .r{font-weight:800;font-variant-numeric:tabular-nums;white-space:nowrap}
-  .nav-round{width:34px;height:34px;border-radius:50%;border:1px solid var(--line);background:#232633;color:#fff;display:grid;place-items:center}
-  .dots{display:flex;gap:6px;justify-content:center;margin-top:12px}
-  .dot{width:7px;height:7px;border-radius:50%;background:#3a3e4d;border:0;padding:0}
-  .dot.active{background:var(--green);width:20px;border-radius:99px}
+  .nav-round{width:34px;height:34px;border-radius:50%;border:1px solid var(--line);background:#232633;color:#fff;display:grid;place-items:center;
+    transition:transform .2s,background .2s,border-color .2s}
+  .nav-round:hover{transform:scale(1.09);border-color:var(--green);background:#2b3040}
+  .nav-round:active{transform:scale(.94)}
+  .dots{display:flex;gap:7px;justify-content:center;margin-top:12px}
+  .dot{position:relative;width:7px;height:7px;border-radius:99px;background:#3a3e4d;border:0;padding:0;overflow:hidden;transition:width .35s cubic-bezier(.22,1,.36,1),background .2s}
+  .dot.active{background:#35513f;width:28px}
+  .dot::after{content:"";position:absolute;inset:0;background:var(--green);border-radius:99px;transform:scaleX(0);transform-origin:left;animation:dotFill 6s linear forwards;animation-play-state:paused}
+  .dot.fill::after{animation-play-state:running}
+  @keyframes dotFill{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+  .carousel-hint{display:none;text-align:center;font-size:10px;color:var(--muted);margin-top:7px}
+  @media (prefers-reduced-motion:reduce){
+    .slides{transition-duration:.01ms}
+    .thumb-art svg rect,.slide.active .txt>*,.dot::after{animation:none}
+  }
 
   /* ---------- Sector map ---------- */
   .sector-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:5px}
@@ -380,8 +404,9 @@
     .center{order:1;width:100%}
     .rail.right{order:2;width:100%;display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
     .rail.right .panel:first-child{grid-column:1/-1}
-    .slide{grid-template-columns:1fr}
+    .slide{grid-template-columns:1fr;min-height:0}
     .slide .thumb{min-height:130px}
+    .carousel-hint{display:block}
     .sector-grid{grid-template-columns:repeat(4,1fr)}
     .macro-grid{grid-template-columns:1fr}
     .grid-2{grid-template-columns:1fr}
@@ -492,10 +517,11 @@
               <button class="nav-round" id="nextSlide" aria-label="Próximo destaque">›</button>
             </div>
           </div>
-          <div class="carousel-body">
+          <div class="carousel-body" id="carouselBody">
             <div class="slides" id="slides"></div>
           </div>
-          <div class="dots" id="dots"></div>
+          <div class="dots" id="dots" aria-hidden="true"></div>
+          <div class="carousel-hint">← arraste para trocar de destaque →</div>
         </section>
 
         <section class="panel pad" aria-label="Mapa de setores">
@@ -1086,7 +1112,7 @@ function thumbBars(vals,color){
     <line x1="6" y1="112" x2="194" y2="112" stroke="#ffffff22"/>
     ${vals.map((v,i)=>{
       const h=Math.max(8,Math.abs(v)/max*82), x=12+i*(176/Math.max(1,vals.length));
-      return `<rect x="${x}" y="${104-h}" width="${bw}" height="${h}" rx="4" fill="${color}" opacity="${(0.45+0.5*i/Math.max(1,vals.length-1)).toFixed(2)}"/>`;
+      return `<rect x="${x}" y="${104-h}" width="${bw}" height="${h}" rx="4" fill="${color}" opacity="${(0.45+0.5*i/Math.max(1,vals.length-1)).toFixed(2)}" style="animation-delay:${i*60}ms"/>`;
     }).join('')}
   </svg></div>`;
 }
@@ -1103,40 +1129,119 @@ function buildSlides(){
   }));
   const players=Object.entries(houses).map(([house,h])=>({house,n:h.n,up:h.sum/h.n,buys:h.buys}))
     .sort((x,y)=>y.n-x.n||y.up-x.up).slice(0,4);
-  const slideHTML=(tag,title,desc,art,rows,link,linkText)=>`<article class="slide">
-      <div class="thumb">${art}</div>
-      <div class="txt"><span class="tag">${tag}</span><h3>${title}</h3><p class="muted small">${desc}</p>
-      <div class="slide-list">${rows}</div><a href="${link}" class="link-green">${linkText}</a></div>
+  const defs=[
+    {tag:'Quedas',title:'Ações que mais caíram hoje',desc:'As maiores quedas entre as ações acompanhadas.',
+     art:thumbBars(losers.map(a=>Math.abs(a.ch)),'#ff5d6c'),
+     rows:losers.map(a=>`<a class="slide-line" href="#/ativo/${a.s}"><span class="code">${a.s}</span><span class="nm">${a.n}</span><span class="r down">${pct(a.ch)}</span></a>`).join(''),
+     link:'#/acoes',linkText:'Ver todas as ações →'},
+    {tag:'Graham',title:'Ações mais descontadas (Graham)',desc:'Maior potencial contra o preço justo √(22,5 × LPA × VPA).',
+     art:thumbBars(rankedGraham.map(x=>x.up),'#0fe07f'),
+     rows:rankedGraham.map(x=>`<a class="slide-line" href="#/ativo/${x.a.s}"><span class="code">${x.a.s}</span><span class="nm">Justo R$ ${numBR(x.fair)}</span><span class="r up">${signedPct(x.up)}</span></a>`).join(''),
+     link:'#/comparador',linkText:'Comparar valuations →'},
+    {tag:'Players',title:'Players do mercado',desc:'Casas com mais preços-alvo e potencial médio implícito.',
+     art:thumbBars(players.map(p=>p.n),'#4da3ff'),
+     rows:players.map(p=>`<div class="slide-line"><span class="code">${p.house}</span><span class="nm">${p.n} alvos · ${p.buys} compras</span><span class="r ${p.up>=0?'up':'down'}">${signedPct(p.up)}</span></div>`).join(''),
+     link:'#/ativos',linkText:'Ver ativos cobertos →'}
+  ];
+  const themes=[['#173c50','#231f4d'],['#3d2c1d','#182a3c'],['#1d3c30','#352241']];
+  const make=(d,i,clone)=>`<article class="slide ${clone?'clone':''}" style="--a:${themes[i][0]};--b:${themes[i][1]}" ${clone?'aria-hidden="true"':''}>
+      <div class="thumb">${d.art}<span class="slide-count">0${i+1} / 0${defs.length}</span></div>
+      <div class="txt"><span class="tag">${d.tag}</span><h3>${d.title}</h3><p class="muted small">${d.desc}</p>
+      <div class="slide-list">${d.rows}</div><a href="${d.link}" class="link-green">${d.linkText}</a></div>
     </article>`;
-  $('#slides').innerHTML=[
-    slideHTML('Quedas','Ações que mais caíram hoje','As maiores quedas entre as ações acompanhadas.',
-      thumbBars(losers.map(a=>Math.abs(a.ch)),'#ff5d6c'),
-      losers.map(a=>`<a class="slide-line" href="#/ativo/${a.s}"><span class="code">${a.s}</span><span class="nm">${a.n}</span><span class="r down">${pct(a.ch)}</span></a>`).join(''),
-      '#/acoes','Ver todas as ações →'),
-    slideHTML('Graham','Ações mais descontadas (Graham)','Maior potencial contra o preço justo √(22,5 × LPA × VPA).',
-      thumbBars(rankedGraham.map(x=>x.up),'#0fe07f'),
-      rankedGraham.map(x=>`<a class="slide-line" href="#/ativo/${x.a.s}"><span class="code">${x.a.s}</span><span class="nm">Justo R$ ${numBR(x.fair)}</span><span class="r up">${signedPct(x.up)}</span></a>`).join(''),
-      '#/comparador','Comparar valuations →'),
-    slideHTML('Players','Players do mercado','Casas com mais preços-alvo e potencial médio implícito.',
-      thumbBars(players.map(p=>p.n),'#4da3ff'),
-      players.map(p=>`<div class="slide-line"><span class="code">${p.house}</span><span class="nm">${p.n} alvos · ${p.buys} compras</span><span class="r ${p.up>=0?'up':'down'}">${signedPct(p.up)}</span></div>`).join(''),
-      '#/ativos','Ver ativos cobertos →')
-  ].join('');
-  $('#dots').innerHTML=Array.from({length:3},(_,i)=>`<button class="dot ${i===0?'active':''}" aria-label="Ir para o destaque ${i+1}"></button>`).join('');
-  $$('#dots .dot').forEach((d,i)=>d.onclick=()=>goSlide(i));
+  const n=defs.length;
+  $('#slides').innerHTML=[make(defs[n-1],n-1,true),...defs.map((d,i)=>make(d,i,false)),make(defs[0],0,true)].join('');
+  $('#dots').innerHTML=defs.map((_,i)=>`<button class="dot ${i===0?'active':''}" aria-label="Ir para o destaque ${i+1}"></button>`).join('');
+  $$('#dots .dot').forEach((d,i)=>d.onclick=()=>{ goSlide(i); restartAuto() });
 }
-let slide=0;
-function goSlide(n){
-  const total=$$('#slides .slide').length||1; slide=(n+total)%total;
-  $('#slides').style.transform=`translateX(-${slide*100}%)`;
-  $$('#dots .dot').forEach((d,i)=>d.classList.toggle('active',i===slide));
+
+/* Motor do carrossel: loop infinito, autoplay, arrasto/swipe e teclado */
+const slidesEl=$('#slides'), bodyEl=$('#carouselBody'), dotsEl=$('#dots');
+const totalSlides=3, reduceMotion=typeof matchMedia==='function'&&matchMedia('(prefers-reduced-motion:reduce)').matches;
+let pos=1, autoTimer=null, paused=false, drag=null, suppressClick=false;
+const realIndex=()=>pos===totalSlides+1?0:pos===0?totalSlides-1:pos-1;
+
+function paint(){
+  slidesEl.style.transform=`translate3d(${-pos*100}%,0,0)`;
+  const r=realIndex();
+  $$('#dots .dot').forEach((d,i)=>d.classList.toggle('active',i===r));
+  $$('#slides .slide').forEach((s,i)=>s.classList.toggle('active',i===pos));
+  $$('#dots .dot').forEach(d=>d.classList.remove('fill'));
+  if(!reduceMotion&&!paused){ void dotsEl.offsetWidth; $$('#dots .dot')[r]?.classList.add('fill') }
 }
+function goTo(p){ pos=p; slidesEl.style.transition=''; paint() }
+function goSlide(i){ goTo(i+1) }
+function next(){ goTo(pos+1) }
+function prev(){ goTo(pos-1) }
+function startAuto(){
+  clearInterval(autoTimer); autoTimer=null;
+  if(reduceMotion||paused) return;
+  autoTimer=setInterval(()=>{ if(!paused&&!drag) next() },6000);
+}
+function pauseAuto(){
+  paused=true; clearInterval(autoTimer); autoTimer=null;
+  $$('#dots .dot').forEach(d=>d.classList.remove('fill'));
+}
+function resumeAuto(){ paused=false; startAuto(); paint() }
+function restartAuto(){ resumeAuto() }
+
+slidesEl.addEventListener('transitionend',e=>{
+  if(e.target!==slidesEl||e.propertyName!=='transform') return;
+  if(pos===totalSlides+1||pos===0){
+    slidesEl.style.transition='none';
+    pos=pos===totalSlides+1?1:totalSlides;
+    slidesEl.style.transform=`translate3d(${-pos*100}%,0,0)`;
+    void slidesEl.offsetWidth;
+    slidesEl.style.transition='';
+    paint();
+  }
+});
+
+bodyEl.addEventListener('pointerdown',e=>{
+  if(e.target.closest('a,button')||(e.button!==undefined&&e.button!==0)) return;
+  drag={id:e.pointerId,x:e.clientX,dx:0,moved:false};
+  bodyEl.classList.add('dragging');
+  try{ bodyEl.setPointerCapture(e.pointerId) }catch(_){}
+  slidesEl.style.transition='none';
+  pauseAuto();
+});
+bodyEl.addEventListener('pointermove',e=>{
+  if(!drag||e.pointerId!==drag.id) return;
+  drag.dx=e.clientX-drag.x;
+  if(Math.abs(drag.dx)>6) drag.moved=true;
+  slidesEl.style.transform=`translate3d(calc(${-pos*100}% + ${drag.dx}px),0,0)`;
+});
+function finishDrag(e){
+  if(!drag||(e&&e.pointerId!==drag.id)) return;
+  const d=drag; drag=null;
+  bodyEl.classList.remove('dragging');
+  slidesEl.style.transition='';
+  const w=bodyEl.clientWidth||600;
+  if(Math.abs(d.dx)>Math.min(80,w*0.16)) goTo(pos+(d.dx<0?1:-1));
+  else goTo(pos);
+  if(d.moved){
+    suppressClick=true;
+    setTimeout(()=>{ suppressClick=false },350);
+  }
+  resumeAuto();
+}
+bodyEl.addEventListener('pointerup',finishDrag);
+bodyEl.addEventListener('pointercancel',finishDrag);
+bodyEl.addEventListener('click',e=>{
+  if(suppressClick){ e.preventDefault(); e.stopPropagation(); suppressClick=false }
+},true);
+bodyEl.addEventListener('pointerenter',e=>{ if(e.pointerType==='mouse'&&!drag) pauseAuto() });
+bodyEl.addEventListener('pointerleave',e=>{ if(e.pointerType==='mouse'&&!drag) resumeAuto() });
+document.addEventListener('visibilitychange',()=>{ document.hidden?pauseAuto():resumeAuto() });
+
 buildSlides();
-$('#prevSlide').onclick=()=>goSlide(slide-1);
-$('#nextSlide').onclick=()=>goSlide(slide+1);
+paint();
+startAuto();
+$('#prevSlide').onclick=()=>{ prev(); restartAuto() };
+$('#nextSlide').onclick=()=>{ next(); restartAuto() };
 $('#slides').closest('.panel').addEventListener('keydown',e=>{
-  if(e.key==='ArrowLeft'){ goSlide(slide-1) }
-  else if(e.key==='ArrowRight'){ goSlide(slide+1) }
+  if(e.key==='ArrowLeft'){ prev(); restartAuto() }
+  else if(e.key==='ArrowRight'){ next(); restartAuto() }
 });
 
 function sectorColor(v){
