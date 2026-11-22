@@ -20,7 +20,17 @@ python3 -m http.server 8000
 | `index.html` | Versão atual da aplicação (a que o GitHub Pages serve). |
 | `trademap-clone.html` | Cópia exata do arquivo original enviado (baseline v1.0.0). |
 | `versions/` | Snapshots imutáveis de cada versão publicada. |
+| `tests/smoke.js` | Teste automatizado de rotas e da interface. |
 | `CHANGELOG.md` | Histórico de mudanças. |
+
+## Testes
+
+```bash
+npm install
+npm test
+```
+
+O smoke test carrega o HTML em um DOM simulado (jsdom), percorre todas as rotas e verifica se não há erros de JavaScript.
 
 ## O que tem
 

@@ -1,0 +1,12 @@
+{
+  "name": "free-investiment-analitic",
+  "version": "1.1.0",
+  "private": true,
+  "description": "Clone demonstrativo do TradeMap (HTML/CSS/JS puro)",
+  "scripts": {
+    "test": "node tests/smoke.js index.html"
+  },
+  "devDependencies": {
+    "jsdom": "^31.0.1"
+  }
+}

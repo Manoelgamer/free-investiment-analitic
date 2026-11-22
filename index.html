@@ -391,9 +391,24 @@
     .quote-stats,.metrics,.sim-grid{grid-template-columns:repeat(2,1fr)}
     .chart-mode{margin-left:0;width:100%}
   }
+
+  /* ---------- Acessibilidade (v1.1) ---------- */
+  :focus-visible{outline:2px solid var(--green);outline-offset:2px;border-radius:6px}
+  .skip-link{position:fixed;top:-70px;left:12px;z-index:200;background:var(--green);color:#042514;padding:10px 16px;border-radius:0 0 10px 10px;font-weight:800;transition:top .2s}
+  .skip-link:focus{top:0}
+  .noscript{background:var(--panel-2);border:1px solid var(--line);border-radius:var(--radius);padding:16px;margin:18px auto;max-width:1320px}
+  .video-fallback{aspect-ratio:16/9;border-radius:10px;border:1px dashed var(--line);background:var(--panel-2);display:none;align-items:center;justify-content:center;flex-direction:column;gap:8px;color:var(--green);font-size:28px;text-align:center;padding:16px}
+  .video-fallback span{font-size:12px;color:var(--muted)}
+  @media (prefers-reduced-motion: reduce){
+    html{scroll-behavior:auto}
+    *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
+    .ticker-track{animation:none}
+  }
 </style>
 </head>
 <body>
+<a class="skip-link" href="#conteudo">Pular para o conteúdo</a>
+<noscript><div class="noscript">Esta demonstração precisa de JavaScript para exibir cotações, gráficos e ferramentas. Ative o JavaScript no navegador para continuar.</div></noscript>
 
 <header class="topbar">
   <div class="topbar-inner">
@@ -433,7 +448,7 @@
   <a href="#/sobre">Sobre</a><a href="#/privacidade">Privacidade</a><a href="#/termos">Termos de Uso</a><a href="#/cookies">Preferências de cookies</a>
 </nav>
 
-<main>
+<main id="conteudo">
 <div class="wrap">
 
   <!-- ============ HOME ============ -->
@@ -523,12 +538,15 @@
           <div class="pf-head">
             <div>
               <h3 style="font-size:16px">Minha carteira</h3>
-              <span class="status" id="pfStatus"><i></i> Carregando...</span>
+              <span class="status" id="pfStatus" aria-live="polite"><i></i> Carregando...</span>
             </div>
             <div style="display:flex;gap:5px">
               <button class="icon-mini" id="addAssetBtn" title="Adicionar ativo" aria-label="Adicionar ativo">＋</button>
               <button class="icon-mini" id="apiConfigBtn" title="Configurar token Brapi" aria-label="Configurar token Brapi">⚙</button>
               <button class="icon-mini" id="refreshBtn" title="Atualizar cotações" aria-label="Atualizar cotações">⟳</button>
+              <button class="icon-mini" id="exportBtn" title="Exportar carteira (JSON)" aria-label="Exportar carteira em JSON">⇩</button>
+              <button class="icon-mini" id="importBtn" title="Importar carteira (JSON)" aria-label="Importar carteira de JSON">⇧</button>
+              <input type="file" id="importFile" accept="application/json,.json" class="sr-only" aria-label="Selecionar arquivo JSON da carteira">
             </div>
           </div>
           <div class="pf-empty" id="pfEmpty">
@@ -885,7 +903,9 @@ function drawPriceChart(canvas,bars,mode,color){
   const dpr=window.devicePixelRatio||1;
   const w=canvas.clientWidth||600, h=mode==='candle'?320:290;
   canvas.width=w*dpr; canvas.height=h*dpr; canvas.style.height=h+'px';
-  const g=canvas.getContext('2d'); g.scale(dpr,dpr);
+  const g=canvas.getContext('2d');
+  g.setTransform(1,0,0,1,0,0); // evita acumular escalas entre redesenhos
+  g.scale(dpr,dpr);
   g.clearRect(0,0,w,h);
   const padL=6,padR=58,padT=12,padB=26, volH=48;
   const plotW=w-padL-padR, plotH=h-padT-padB-(mode==='candle'?volH+10:0);
@@ -933,36 +953,42 @@ function drawPriceChart(canvas,bars,mode,color){
   g.fillStyle=color;g.fillRect(padL+plotW+1,Y(last.c)-9,55,18);
   g.fillStyle='#042514';g.textAlign='center';g.font='bold 10px system-ui';g.fillText(numBR(last.c),padL+plotW+28,Y(last.c)+3);
 
-  canvas.onmousemove=e=>{
-    drawPriceChart(canvas,bars,mode,color);
-    const r=canvas.getBoundingClientRect();
-    const mx=e.clientX-r.left;
-    let i=Math.round((mx-padL)/(plotW/bars.length)-0.5);
-    i=Math.max(0,Math.min(bars.length-1,i));
-    const b=bars[i], xx=X(i), yy=Y(b.c);
-    const tip=canvas.parentElement.querySelector('.chart-tip');
-    if(tip){
-      tip.style.display='block';
-      tip.innerHTML=`<div class="d">${b.label}</div>
-        <div class="row"><span>Abertura</span><b>R$ ${numBR(b.o)}</b></div>
-        <div class="row"><span>Máxima</span><b>R$ ${numBR(b.h)}</b></div>
-        <div class="row"><span>Mínima</span><b>R$ ${numBR(b.l)}</b></div>
-        <div class="row"><span>Fechamento</span><b>R$ ${numBR(b.c)}</b></div>
-        <div class="row"><span>Volume</span><b>${b.v.toLocaleString('pt-BR')}</b></div>`;
-      const tw=tip.offsetWidth||150;
-      tip.style.left=Math.min(Math.max(4,xx+14),w-tw-6)+'px';
-      tip.style.top=Math.max(4,yy-70)+'px';
-    }
-    g.save();g.strokeStyle='#ffffff66';g.setLineDash([3,3]);g.lineWidth=1;
-    g.beginPath();g.moveTo(xx,padT);g.lineTo(xx,padT+plotH);g.stroke();
-    g.beginPath();g.moveTo(padL,yy);g.lineTo(padL+plotW,yy);g.stroke();g.restore();
-    canvas.dataset.barsSnapshot='';
-  };
-  canvas.onmouseleave=()=>{
-    const tip=canvas.parentElement.querySelector('.chart-tip');
-    if(tip) tip.style.display='none';
-    drawPriceChart(canvas,bars,mode,color);
-  };
+  // Handlers registrados uma única vez; a geometria mais recente fica no estado.
+  // Isso evita o bug de escala acumulada (setTransform + scale a cada mousemove).
+  canvas.__chart={bars,mode,color,w,h,padL,padR,padT,padB,plotW,plotH,X,Y,
+    repaint:()=>drawPriceChart(canvas,bars,mode,color)};
+  if(!canvas.__chartBound){
+    canvas.__chartBound=true;
+    canvas.addEventListener('mousemove',e=>{
+      const s=canvas.__chart; if(!s) return;
+      const r=canvas.getBoundingClientRect();
+      let i=Math.round(((e.clientX-r.left)-s.padL)/(s.plotW/s.bars.length)-0.5);
+      i=Math.max(0,Math.min(s.bars.length-1,i));
+      const b=s.bars[i], xx=s.X(i), yy=s.Y(b.c);
+      const tip=canvas.parentElement.querySelector('.chart-tip');
+      if(tip){
+        tip.style.display='block';
+        tip.innerHTML=`<div class="d">${esc(b.label)}</div>
+          <div class="row"><span>Abertura</span><b>R$ ${numBR(b.o)}</b></div>
+          <div class="row"><span>Máxima</span><b>R$ ${numBR(b.h)}</b></div>
+          <div class="row"><span>Mínima</span><b>R$ ${numBR(b.l)}</b></div>
+          <div class="row"><span>Fechamento</span><b>R$ ${numBR(b.c)}</b></div>
+          <div class="row"><span>Volume</span><b>${b.v.toLocaleString('pt-BR')}</b></div>`;
+        tip.style.left=Math.min(Math.max(4,xx+14),s.w-(tip.offsetWidth||150)-6)+'px';
+        tip.style.top=Math.max(4,yy-70)+'px';
+      }
+      s.repaint();
+      const ctx=canvas.getContext('2d');
+      ctx.save();ctx.strokeStyle='#ffffff66';ctx.setLineDash([3,3]);ctx.lineWidth=1;
+      ctx.beginPath();ctx.moveTo(xx,s.padT);ctx.lineTo(xx,s.padT+s.plotH);ctx.stroke();
+      ctx.beginPath();ctx.moveTo(s.padL,yy);ctx.lineTo(s.padL+s.plotW,yy);ctx.stroke();ctx.restore();
+    });
+    canvas.addEventListener('mouseleave',()=>{
+      const tip=canvas.parentElement.querySelector('.chart-tip');
+      if(tip) tip.style.display='none';
+      const s=canvas.__chart; if(s) s.repaint();
+    });
+  }
 }
 function chartMarkup(sym,price,ch,range,mode){
   const bars=genHistory(sym,price,range);
@@ -1028,12 +1054,20 @@ function toggleMenu(open){
   $('#drawer').classList.toggle('show',open);
   $('#scrim').classList.toggle('show',open);
   $('#menuBtn').setAttribute('aria-expanded',String(open));
+  $('#drawer').setAttribute('aria-hidden',String(!open));
+  if(open) setTimeout(()=>$('#closeMenu').focus(),30);
+  else if(document.activeElement && $('#drawer').contains(document.activeElement)) $('#menuBtn').focus();
 }
 $('#menuBtn').onclick=()=>toggleMenu(true);
 $('#closeMenu').onclick=()=>toggleMenu(false);
 $('#scrim').onclick=()=>toggleMenu(false);
 $$('#drawer a').forEach(a=>a.onclick=()=>toggleMenu(false));
-addEventListener('keydown',e=>{ if(e.key==='Escape') toggleMenu(false) });
+addEventListener('keydown',e=>{
+  if(e.key!=='Escape') return;
+  const openModal=$('.modal.show')||$('#assetModal.show')||$('#apiModal.show');
+  if(openModal){ openModal.classList.remove('show'); if(openModal===$('#assetModal')) acHide(); return }
+  toggleMenu(false);
+});
 
 let slide=0;
 function goSlide(n){
@@ -1045,6 +1079,10 @@ $('#dots').innerHTML=Array.from({length:3},(_,i)=>`<button class="dot ${i===0?'a
 $$('#dots .dot').forEach((d,i)=>d.onclick=()=>goSlide(i));
 $('#prevSlide').onclick=()=>goSlide(slide-1);
 $('#nextSlide').onclick=()=>goSlide(slide+1);
+$('#slides').closest('.panel').addEventListener('keydown',e=>{
+  if(e.key==='ArrowLeft'){ goSlide(slide-1) }
+  else if(e.key==='ArrowRight'){ goSlide(slide+1) }
+});
 
 function sectorColor(v){
   const a=Math.min(Math.abs(v)*22,55)+25;
@@ -1302,7 +1340,13 @@ $('#deleteAsset').onclick=()=>{
 $('#pfRows').addEventListener('click',e=>{
   const b=e.target.closest('button'); if(!b) return;
   if(b.dataset.edit) openAsset(b.dataset.edit);
-  if(b.dataset.del){ holdings=holdings.filter(x=>x.symbol!==b.dataset.del); saveHoldings(); loadQuotes() }
+  if(b.dataset.del){
+    if(!confirm(`Remover ${b.dataset.del} da carteira?`)) return;
+    holdings=holdings.filter(x=>x.symbol!==b.dataset.del);
+    delete quoteCache[b.dataset.del];
+    localStorage.setItem('tm_quote_cache',JSON.stringify(quoteCache));
+    saveHoldings(); loadQuotes();
+  }
 });
 $('#viewWallet').onclick=e=>{
   e.preventDefault();
@@ -1333,6 +1377,34 @@ $('#clearToken').onclick=()=>{
   loadQuotes();
 };
 $('#refreshBtn').onclick=loadQuotes;
+
+/* Exportação/importação da carteira (v1.1) — o token Brapi NÃO é exportado. */
+$('#exportBtn').onclick=()=>{
+  if(!holdings.length){ alert('Sua carteira está vazia.'); return }
+  const data={app:'TradeMap',version:1,exportedAt:new Date().toISOString(),holdings};
+  const url=URL.createObjectURL(new Blob([JSON.stringify(data,null,2)],{type:'application/json'}));
+  const a=document.createElement('a');
+  a.href=url; a.download='trademap-carteira-'+new Date().toISOString().slice(0,10)+'.json';
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url),1000);
+};
+$('#importBtn').onclick=()=>$('#importFile').click();
+$('#importFile').addEventListener('change',async e=>{
+  const file=e.target.files&&e.target.files[0]; if(!file) return;
+  try{
+    const data=JSON.parse(await file.text());
+    const list=Array.isArray(data)?data:data.holdings;
+    if(!Array.isArray(list)) throw new Error('Arquivo sem lista de ativos.');
+    const clean=list.map(x=>({
+      symbol:String(x.symbol||x.s||'').trim().toUpperCase().replace(/\s+/g,''),
+      qty:Number(x.qty),avg:Number(x.avg)
+    })).filter(x=>/^[A-Z0-9]{2,12}$/.test(x.symbol)&&Number.isFinite(x.qty)&&x.qty>0&&Number.isFinite(x.avg)&&x.avg>0);
+    if(!clean.length) throw new Error('Nenhum ativo válido no arquivo.');
+    if(!confirm(`Importar ${clean.length} ativo(s)? Isso substitui a carteira atual.`)) return;
+    holdings=clean; saveHoldings(); loadQuotes();
+  }catch(err){ alert('Não foi possível importar: '+err.message) }
+  finally{ e.target.value='' }
+});
 loadQuotes();
 
 /* ============================================================
@@ -1584,7 +1656,9 @@ function academyView(){
 function videosView(){
   return head('Vídeos','Conteúdo em vídeo sobre mercado e plataforma.',HOME_CRUMB+'Vídeos')+
   `<div class="cards">${videos.map(v=>`<div class="card video-card">
-    <video controls preload="metadata" src="${v.src}"></video><h3>${v.title}</h3><p>${v.desc}</p>
+    <video controls preload="metadata" src="${v.src}" aria-label="${esc(v.title)}"></video>
+    <div class="video-fallback" style="display:none" role="status">▶<span>Prévia indisponível nesta versão demonstrativa.</span></div>
+    <h3>${v.title}</h3><p>${v.desc}</p>
   </div>`).join('')}</div>`;
 }
 
@@ -2042,7 +2116,20 @@ VIEW.addEventListener('click',e=>{
 /* Inicialização final da busca e calculadora (caso a rota inicial seja uma delas) */
 calcRun();
 runBusca();
-addEventListener('resize',()=>{ if($('#view-dynamic .chart-shell')) mountChart(VIEW) });
+/* Fallback de vídeo e redimensionamento com debounce (v1.1) */
+document.addEventListener('error',e=>{
+  const v=e.target;
+  if(v&&v.tagName==='VIDEO'){
+    v.style.display='none';
+    const f=v.parentElement&&v.parentElement.querySelector('.video-fallback');
+    if(f) f.style.display='flex';
+  }
+},true);
+let resizeTimer;
+addEventListener('resize',()=>{
+  clearTimeout(resizeTimer);
+  resizeTimer=setTimeout(()=>{ if($('#view-dynamic .chart-shell')) mountChart(VIEW) },120);
+});
 </script>
 </body>
 </html>
