@@ -233,9 +233,46 @@
   .pf-empty p{margin:0;max-width:220px}
   .icon-mini{background:var(--panel-2);border:1px solid var(--line);color:#fff;border-radius:8px;padding:5px 9px;font-size:12px;line-height:1}
   .icon-mini:disabled{opacity:.5;cursor:not-allowed}
-  .api-test{font-size:11px;padding:8px 10px;border-radius:8px;margin-top:8px;background:#262a36;color:var(--muted);min-height:32px}
-  .api-test.ok{background:rgba(15,224,127,.12);color:var(--green)}
-  .api-test.err{background:rgba(255,93,108,.12);color:var(--red)}
+  /* ---------- Painel da chave Brapi ---------- */
+  .brapi-card{background:linear-gradient(150deg,#1c202c,#171922 65%)}
+  .brapi-head{display:flex;align-items:flex-start;gap:10px;margin-bottom:10px}
+  .brapi-icon{width:36px;height:36px;flex:0 0 36px;display:grid;place-items:center;border-radius:10px;
+    background:rgba(15,224,127,.12);border:1px solid rgba(15,224,127,.35);color:var(--green)}
+  .brapi-pill{font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;padding:4px 8px;border-radius:999px;
+    border:1px solid var(--line);color:var(--muted);background:#202430;white-space:nowrap}
+  .brapi-pill.ok{color:var(--green);border-color:rgba(15,224,127,.45);background:rgba(15,224,127,.10)}
+  .brapi-desc{margin:0 0 12px;line-height:1.55}
+  .brapi-desc b{color:#e8ebf2}
+  .brapi-input-wrap{position:relative;display:flex;align-items:center}
+  .brapi-input-wrap>svg{position:absolute;left:12px;color:var(--muted);pointer-events:none}
+  .brapi-input-wrap input{width:100%;background:#11141c;border:1px solid var(--line);border-radius:10px;
+    padding:11px 42px 11px 36px;color:#fff;font-size:12px;outline:0;transition:border-color .2s,box-shadow .2s}
+  .brapi-input-wrap input::placeholder{color:#6f7584}
+  .brapi-input-wrap input:focus{border-color:var(--green);box-shadow:0 0 0 3px rgba(15,224,127,.12)}
+  .brapi-eye{position:absolute;right:6px;width:30px;height:30px;display:grid;place-items:center;background:transparent;
+    border:0;color:var(--muted);border-radius:7px}
+  .brapi-eye:hover{color:var(--green);background:var(--panel-2)}
+  .brapi-status{display:flex;align-items:center;gap:9px;margin-top:10px;padding:10px 11px;border-radius:10px;
+    background:#11141c;border:1px solid var(--line);font-size:11px;color:var(--muted);line-height:1.45;min-height:40px}
+  .brapi-status-dot{width:8px;height:8px;flex:0 0 8px;border-radius:50%;background:var(--muted)}
+  .brapi-status.ok{border-color:rgba(15,224,127,.4);background:rgba(15,224,127,.08);color:#b9f5d7}
+  .brapi-status.ok .brapi-status-dot{background:var(--green);box-shadow:0 0 8px var(--green)}
+  .brapi-status.err{border-color:rgba(255,93,108,.4);background:rgba(255,93,108,.08);color:#ffc4ca}
+  .brapi-status.err .brapi-status-dot{background:var(--red)}
+  .brapi-status.loading .brapi-status-dot{background:#f5a623;animation:pulseDot 1s ease-in-out infinite}
+  .brapi-actions{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:10px}
+  .brapi-btn{border:1px solid var(--line);background:#222633;color:#e8ebf2;border-radius:9px;padding:9px 10px;
+    font-size:11px;font-weight:700;transition:transform .15s,border-color .2s,background .2s}
+  .brapi-btn:hover{border-color:var(--green);transform:translateY(-1px)}
+  .brapi-btn:active{transform:translateY(0)}
+  .brapi-btn.primary{grid-column:1/-1;background:var(--green);color:#042514;border-color:var(--green);font-size:12px}
+  .brapi-btn.primary:hover{background:#25e992}
+  .brapi-btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
+  .brapi-note{display:flex;gap:7px;align-items:flex-start;margin:12px 0 0;padding-top:10px;border-top:1px dashed var(--line);
+    font-size:10px;line-height:1.55;color:var(--muted)}
+  .brapi-note svg{flex:0 0 13px;margin-top:1px;color:var(--green)}
+  .brapi-note b{color:#cdd2dc}
+  .brapi-note a{color:var(--green);font-weight:700}
   .ac-wrap{position:relative}
   .ac-list{position:absolute;top:100%;left:0;right:0;z-index:30;display:none;background:#222632;border:1px solid var(--line);border-radius:10px;max-height:230px;overflow:auto;margin-top:4px;box-shadow:0 14px 34px rgba(0,0,0,.55)}
   .ac-list.show{display:block}
@@ -586,22 +623,37 @@
       </div>
 
       <aside class="rail right" aria-label="Ferramentas e cotações">
-        <section class="panel pad" id="brapiPanel" aria-label="Chave da API Brapi">
-          <div class="section-head" style="margin-bottom:8px">
-            <h3 style="font-size:15px">Chave da Brapi</h3><span class="tag">API</span>
+        <section class="panel pad brapi-card" id="brapiPanel" aria-label="Chave da API Brapi">
+          <div class="brapi-head">
+            <span class="brapi-icon" aria-hidden="true">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="15" r="4"/><path d="m10.8 12.2 8.2-8.2M17 5l2 2M14 8l2 2"/></svg>
+            </span>
+            <div style="flex:1;min-width:0">
+              <h3 style="font-size:15px">Chave da Brapi</h3>
+              <span class="muted small">Cotações estendidas e câmbio</span>
+            </div>
+            <span class="brapi-pill" id="brapiPill">sem chave</span>
           </div>
-          <p class="muted small" style="margin:0 0 10px">Cole sua chave para consultar <b style="color:#fff">dólar, moedas, FIIs e demais ativos</b>. Sem chave, respondem apenas <b style="color:#fff">PETR4, VALE3, ITUB4 e MGLU3</b>.</p>
-          <div style="display:flex;gap:6px">
-            <input id="brapiTokenInput" type="password" placeholder="Cole sua chave brapi.dev" autocomplete="off" aria-label="Chave da API Brapi" style="flex:1;min-width:0;background:#262a36;border:1px solid var(--line);border-radius:8px;padding:9px 10px;color:#fff;outline:0">
-            <button class="icon-mini" id="brapiToggle" title="Mostrar ou ocultar a chave" aria-label="Mostrar ou ocultar a chave">👁</button>
+          <p class="muted small brapi-desc">Sem chave, apenas <b>PETR4, VALE3, ITUB4 e MGLU3</b> respondem. Com chave, você libera <b>FIIs, ETFs, câmbio e demais ativos</b>.</p>
+          <div class="brapi-input-wrap">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>
+            <input id="brapiTokenInput" type="password" placeholder="Cole sua chave brapi.dev" autocomplete="off" spellcheck="false" aria-label="Chave da API Brapi">
+            <button class="brapi-eye" id="brapiToggle" title="Mostrar ou ocultar a chave" aria-label="Mostrar chave">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg>
+            </button>
           </div>
-          <div class="api-test" id="brapiStatus" aria-live="polite">Sem chave · cotações limitadas aos 4 tickers gratuitos.</div>
-          <div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap">
-            <button class="btn-green" id="brapiSave" style="flex:1;padding:8px 12px">Salvar chave</button>
-            <button class="btn-ghost" id="brapiTest" style="padding:8px 12px">Testar</button>
-            <button class="btn-ghost" id="brapiClear" style="padding:8px 12px">Limpar</button>
+          <div class="brapi-status" id="brapiStatus" role="status" aria-live="polite">
+            <i class="brapi-status-dot"></i><span>Sem chave · cotações limitadas aos 4 tickers gratuitos.</span>
           </div>
-          <p class="muted small" style="font-size:10px;margin:10px 0 0">A chave fica apenas no <b>localStorage deste navegador</b>. Crie uma gratuitamente em <a href="https://brapi.dev/dashboard" target="_blank" rel="noopener" style="color:var(--green)">brapi.dev/dashboard</a>.</p>
+          <div class="brapi-actions">
+            <button class="brapi-btn primary" id="brapiSave">Salvar chave</button>
+            <button class="brapi-btn" id="brapiTest">Testar chave</button>
+            <button class="brapi-btn" id="brapiClear">Limpar</button>
+          </div>
+          <p class="brapi-note">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/></svg>
+            <span>A chave fica só no <b>localStorage deste navegador</b>. Obtenha a sua em <a href="https://brapi.dev/dashboard" target="_blank" rel="noopener">brapi.dev/dashboard ↗</a>.</span>
+          </p>
         </section>
         <section class="panel pad" id="walletPanel" aria-label="Minha carteira">
           <div class="pf-head">
@@ -1768,10 +1820,18 @@ $('#viewWallet').onclick=e=>{
   e.target.textContent=hide?'Ver carteira →':'Ocultar detalhes ↑';
 };
 /* Painel explícito da chave Brapi (v1.3) */
-function tokenStatus(t){
-  const el=$('#brapiStatus'); if(!el) return;
-  if(!t){ el.className='api-test'; el.textContent='Sem chave · cotações limitadas aos 4 tickers gratuitos.' }
-  else{ el.className='api-test ok'; el.textContent='✓ Chave salva neste navegador · ativos, FIIs e câmbio disponíveis.' }
+function tokenStatus(t,msg,kind){
+  const el=$('#brapiStatus'), pill=$('#brapiPill'); if(!el) return;
+  if(msg){ el.className='brapi-status'+(kind?' '+kind:''); el.innerHTML='<i class="brapi-status-dot"></i><span>'+esc(msg)+'</span>'; return }
+  if(!t){
+    if(pill){ pill.textContent='sem chave'; pill.className='brapi-pill' }
+    el.className='brapi-status';
+    el.innerHTML='<i class="brapi-status-dot"></i><span>Sem chave · cotações limitadas aos 4 tickers gratuitos.</span>';
+  }else{
+    if(pill){ pill.textContent='chave ativa'; pill.className='brapi-pill ok' }
+    el.className='brapi-status ok';
+    el.innerHTML='<i class="brapi-status-dot"></i><span>Chave ativa · ativos, FIIs e câmbio disponíveis.</span>';
+  }
 }
 $('#brapiTokenInput').value=brapiToken;
 tokenStatus(brapiToken);
@@ -1780,16 +1840,21 @@ $('#apiConfigBtn').onclick=()=>{
   $('#brapiTokenInput').focus();
 };
 $('#brapiToggle').onclick=()=>{
-  const i=$('#brapiTokenInput'), show=i.type==='password';
+  const i=$('#brapiTokenInput'), btn=$('#brapiToggle'), show=i.type==='password';
   i.type=show?'text':'password';
-  $('#brapiToggle').textContent=show?'🙈':'👁';
+  btn.setAttribute('aria-label',show?'Ocultar chave':'Mostrar chave');
+  btn.title=show?'Ocultar chave':'Mostrar chave';
 };
 $('#brapiTest').onclick=async()=>{
-  const t=$('#brapiTokenInput').value.trim(), out=$('#brapiStatus');
-  if(!t){ out.className='api-test err'; out.textContent='Cole uma chave para testar.'; return }
-  out.className='api-test'; out.textContent='Testando com BBAS3...';
-  try{ const r=await requestQuotes(['BBAS3'],t); out.className='api-test ok'; out.textContent='✓ Chave válida — '+r.length+' ativo consultado com sucesso.' }
-  catch(err){ out.className='api-test err'; out.textContent='✕ '+err.message }
+  const t=$('#brapiTokenInput').value.trim();
+  if(!t){ tokenStatus(null,'Cole uma chave para testar.','err'); return }
+  const btn=$('#brapiTest'); btn.disabled=true;
+  tokenStatus(null,'Testando a chave com BBAS3...','loading');
+  try{
+    const r=await requestQuotes(['BBAS3'],t);
+    tokenStatus(null,'Chave válida · '+r.length+' ativo consultado com sucesso.','ok');
+  }catch(err){ tokenStatus(null,err.message,'err') }
+  finally{ btn.disabled=false }
 };
 function applyToken(t){
   brapiToken=t;

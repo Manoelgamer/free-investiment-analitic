@@ -2,6 +2,11 @@
 
 Todas as versões notáveis deste projeto são documentadas aqui. O formato segue o [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/).
 
+## [v1.4.5] — 2026-11-22
+
+### Alterado
+- Painel da chave Brapi redesenhado: cabeçalho com ícone de chave e *pill* de status, campo com ícone de cadeado e botão de visibilidade em SVG, cartão de status com estados (vazio/ok/erro/carregando), botões hierárquicos e nota de segurança com link para a Brapi.
+
 ## [v1.4.4] — 2026-11-22
 
 ### Corrigido
