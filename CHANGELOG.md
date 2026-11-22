@@ -2,6 +2,14 @@
 
 Todas as versões notáveis deste projeto são documentadas aqui. O formato segue o [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/).
 
+## [v1.6.1] — 2026-11-22
+
+### Corrigido
+- Página de detalhe aceita agora **todos os tickers exibidos no app**: ações, BDRs, ETFs, FIIs, cripto (ETH, BTC...), câmbio (USD/BRL...) e índices (IBOVESPA...). Antes esses cliques mostravam "Ativo não encontrado".
+- Tickers desconhecidos tentam busca na Brapi (via backend ou direto) e exibem mensagem de erro clara, sem quebrar a navegação.
+- Formatação de preços exibidos (`USDT 60.138,04`, `R$ 5,8889`, `166.376`) corrigida: cripto aparece em US$, índices na escala correta.
+- Busca global e página `#/busca` incluem cripto, câmbio e índices nos resultados.
+
 ## [v1.6.0] — 2026-11-22
 
 ### Adicionado

@@ -2132,10 +2132,68 @@ function targetsCard(a,price,c){
     <p class="disclaimer"><b>Dados fictícios de demonstração.</b> Os preços e recomendações acima foram criados apenas para ilustrar a interface e não representam publicações reais dessas instituições nem recomendação de investimento.</p>
   </section>`;
 }
+/* Interpreta números exibidos como "USDT 60.138,04", "R$ 5,8889" ou "166.376" */
+function parseDisplayNumber(v){
+  if(typeof v==='number') return v;
+  const s=String(v==null?'':v).replace(/[^\d,.-]/g,'');
+  if(!s) return 0;
+  if(s.includes(',')) return Number(s.replace(/\./g,'').replace(',','.'))||0;
+  const parts=s.split('.');
+  if(parts.length===2&&parts[1].length===3) return Number(parts.join(''))||0;
+  return Number(s)||0;
+}
+const fmtPrice=(v,a)=>(a&&a.c==='Cripto'?'US$ ':'R$ ')+numBR(v||0);
+
+/* Busca um ticker em todas as listas do app; se não existir, tenta a Brapi */
+const externalAssets={}, externalPending={};
+function lookupAsset(sym){
+  const found=assets.find(x=>x.s===sym); if(found) return found;
+  const cr=cryptos.find(x=>x.s===sym);
+  if(cr) return {s:cr.s,n:cr.n,c:'Cripto',set:'Cripto',p:parseDisplayNumber(cr.p),ch:cr.ch,lpa:0,vpa:0,dy:0,roe:0,t:[]};
+  const cu=currencies.find(x=>x.s===sym);
+  if(cu) return {s:cu.s,n:cu.n,c:'Câmbio',set:'Câmbio',p:parseDisplayNumber(cu.p),ch:cu.ch,lpa:0,vpa:0,dy:0,roe:0,t:[]};
+  const ix=indexRows.find(x=>x.s===sym);
+  if(ix) return {s:ix.s,n:ix.n,c:'Índice',set:'Índice',p:parseDisplayNumber(ix.p),ch:ix.ch,lpa:0,vpa:0,dy:0,roe:0,t:[]};
+  if(externalAssets[sym]) return externalAssets[sym];
+  return {s:sym,n:sym,c:'Ativo',set:'Externo',p:0,ch:0,lpa:0,vpa:0,dy:0,roe:0,t:[],pending:true};
+}
+async function fetchExternalAsset(sym){
+  if(externalPending[sym]||externalAssets[sym]) return;
+  externalPending[sym]=true;
+  try{
+    let q=null;
+    if(BACKEND_URL){
+      try{
+        const r=await fetch(BACKEND_URL+'/api/quotes?symbols='+encodeURIComponent(sym));
+        if(r.ok){ const j=await r.json(); q=(j.results||[]).find(x=>String(x.symbol).toUpperCase()===sym)?.data }
+      }catch(e){}
+    }
+    if(!q){ const list=await requestQuotes([sym],brapiToken); q=list[0] }
+    if(q){
+      externalAssets[sym]={s:sym,n:q.shortName||q.longName||sym,c:'Ações',set:'Externo',
+        p:q.regularMarketPrice||0,ch:q.regularMarketChangePercent||0,lpa:0,vpa:0,dy:0,roe:0,t:[],brapi:true};
+    }else throw new Error('Ticker não encontrado na Brapi');
+  }catch(err){
+    const msg=String(err.message||'');
+    const clean=msg.includes('exige chave')?'Ticker não encontrado na Brapi ou é necessário configurar uma chave.':msg;
+    externalAssets[sym]={s:sym,n:sym,c:'Ativo',set:'Externo',p:0,ch:0,lpa:0,vpa:0,dy:0,roe:0,t:[],error:clean};
+  }finally{
+    externalPending[sym]=false;
+    if(currentPath()==='ativo/'+sym) renderRoute();
+  }
+}
 function assetDetail(sym){
-  const a=assets.find(x=>x.s===sym);
-  if(!a) return head('Ativo não encontrado','O ticker informado não está na base de demonstração.',HOME_CRUMB+'Ativos de A a Z')+
-    `<section class="panel pad"><p class="muted">Ticker: <b>${esc(sym)}</b></p><p><a href="#/ativos" class="link-green">← Voltar para Ativos de A a Z</a></p></section>`;
+  const a=lookupAsset(sym);
+  if(a.pending){
+    fetchExternalAsset(sym);
+    return head(sym,'Consultando a cotação deste ticker...',HOME_CRUMB+'Ativos de A a Z / '+sym)+
+      `<section class="panel pad"><p class="muted">Buscando <b>${esc(sym)}</b> na Brapi...</p>
+       <p><a href="#/ativos" class="link-green">← Voltar para Ativos de A a Z</a></p></section>`;
+  }
+  if(a.error) return head(sym,'Não foi possível obter a cotação.',HOME_CRUMB+'Ativos de A a Z / '+sym)+
+    `<section class="panel pad"><h3>Ticker: ${esc(sym)}</h3><p class="muted">${esc(a.error)}</p>
+     <p class="muted small">Verifique se o código está correto ou configure uma chave no painel da Brapi.</p>
+     <p><a href="#/ativos" class="link-green">← Voltar para Ativos de A a Z</a></p></section>`;
   const cached=quoteCache[a.s], live=liveQuotes[a.s];
   const price=live?live.price:(cached&&cached.price?cached.price:a.p);
   const ch=live?live.chg:(cached&&cached.chg!=null?cached.chg:a.ch);
@@ -2145,7 +2203,7 @@ function assetDetail(sym){
   `<div class="grid-2">
     <section class="panel pad">
       <div class="detail-hero">
-        <div><div class="big">${money(price)}</div><div class="${ch>=0?'up':'down'}" style="font-weight:700">${pct(ch)} hoje</div></div>
+        <div><div class="big">${fmtPrice(price,a)}</div><div class="${ch>=0?'up':'down'}" style="font-weight:700">${pct(ch)} hoje</div></div>
         <span class="pill">${a.c}</span><span class="pill">${a.set}</span>
       </div>
       ${chartMarkup(a.s,price,ch,'1M','line')}
@@ -2617,6 +2675,8 @@ function runBusca(){
   const groups=[
     ['Páginas e ferramentas',pages.map(p=>`<a href="${p[1]}">${p[0]} →</a>`)],
     ['Ativos',ativos.map(a=>`<a href="#/ativo/${encodeURIComponent(a.s)}"><b>${a.s}</b> · ${a.n} <span class="pill">${a.c}</span></a>`)],
+    ['Cripto',cryptos.filter(x=>hit(x.s+' '+x.n)).map(x=>`<a href="#/ativo/${encodeURIComponent(x.s)}"><b>${x.s}</b> · ${x.n} <span class="pill">Cripto</span></a>`)],
+    ['Câmbio',currencies.filter(x=>hit(x.s+' '+x.n)).map(x=>`<a href="#/ativo/${encodeURIComponent(x.s)}"><b>${x.s}</b> · ${x.n}</a>`)],
     ['Notícias',noticias.map(n=>`<a href="#/noticia/${n.id}"><span class="source">${n.src}</span> · ${n.title}</a>`)],
     ['Setores',setores.map(s=>`<a href="#/setor/${encodeURIComponent(s[0])}">${s[0]} · ${s[1]>0?'+':''}${s[1].toFixed(1)}%</a>`)]
   ].filter(g=>g[1].length);
@@ -2649,7 +2709,14 @@ function globalAcRender(q){
     ['Academy','#/academy'],['Vídeos','#/videos'],['Busca completa','#/busca']
   ].filter(p=>p[0].toUpperCase().includes(U)).slice(0,4)
     .map(p=>({href:p[1],code:'PÁGINA',label:p[0],extra:'→'}));
-  add('Ativos',ativos); add('Notícias',noticias); add('Setores',setores); add('Páginas',pages);
+  const cripto=cryptos.filter(x=>(x.s+' '+x.n).toUpperCase().includes(U)).slice(0,3)
+    .map(x=>({href:'#/ativo/'+encodeURIComponent(x.s),code:'CRIPTO',label:x.n+' ('+x.s+')',extra:x.p}));
+  const cambio=currencies.filter(x=>(x.s+' '+x.n).toUpperCase().includes(U)).slice(0,3)
+    .map(x=>({href:'#/ativo/'+encodeURIComponent(x.s),code:'CÂMBIO',label:x.n,extra:x.p}));
+  const indices=indexRows.filter(x=>(x.s+' '+x.n).toUpperCase().includes(U)).slice(0,3)
+    .map(x=>({href:'#/ativo/'+encodeURIComponent(x.s),code:'ÍNDICE',label:x.s,extra:x.p}));
+  add('Ativos',ativos); add('Cripto',cripto); add('Câmbio',cambio); add('Índices',indices);
+  add('Notícias',noticias); add('Setores',setores); add('Páginas',pages);
   acGlobalItems=groups.flatMap(g=>g[1]); acGlobalIndex=-1;
   if(!acGlobalItems.length){
     box.innerHTML='<div class="ac-empty">Nada encontrado · Enter abre a busca completa</div>';
