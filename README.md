@@ -46,6 +46,7 @@ O smoke test carrega o HTML em um DOM simulado (jsdom), percorre todas as rotas 
 ## O que tem
 
 - **Mercados:** ticker animado, cotações, ações, FIIs, ETFs, índices, cripto e câmbio.
+- **Destaques do mercado:** carrossel calculado com as maiores quedas do dia, as ações mais descontadas pela fórmula de Graham e os *players* (casas de análise) com mais preços-alvo.
 - **Mapa de setores:** visualização de altas e baixas com detalhe por setor.
 - **Notícias e TradeLetter:** listas filtráveis e páginas de leitura.
 - **Ferramentas:** calculadoras, simulador de aportes, simulador histórico e comparador de ativos com gráficos em canvas/SVG.
@@ -54,9 +55,11 @@ O smoke test carrega o HTML em um DOM simulado (jsdom), percorre todas as rotas 
 
 ## Dados
 
-As cotações da carteira e o autocomplete de tickers vêm da API pública [Brapi](https://brapi.dev/). Sem token, respondem apenas os tickers gratuitos (`PETR4`, `VALE3`, `ITUB4`, `MGLU3`, `MXRF11`, `HGLG11`); para outros ativos, configure sua chave gratuita no ícone ⚙ da carteira. A chave fica somente no `localStorage` do navegador.
+As cotações da carteira e o autocomplete de tickers vêm da API pública [Brapi](https://brapi.dev/). Sem chave, respondem apenas os quatro tickers gratuitos atuais (`PETR4`, `VALE3`, `ITUB4`, `MGLU3`). Para consultar **outros ativos, FIIs e câmbio (dólar/euro)**, cole sua chave no painel explícito **“Chave da Brapi”** na coluna direita (o botão ⚙ da carteira leva até ele). A chave fica somente no `localStorage` do navegador e não é exportada com a carteira.
 
-Os botões **⟳ Cotações ao vivo** (nas listas e na página do ativo) consultam a Brapi e substituem os preços ilustrativos da tabela quando a consulta funciona. Se falhar, os dados locais continuam sendo exibidos e o status informa o motivo.
+O painel tem botões **Salvar chave**, **Testar** (consulta `BBAS3`, que exige autenticação) e **Limpar**, além de um botão para mostrar/ocultar a chave. O módulo de câmbio usa `/api/v2/currency` da Brapi (PTAX); sem chave, a página de câmbio mostra dados ilustrativos e informa isso no status.
+
+Os botões **⟳ Cotações ao vivo** (nas listas e na página do ativo) consultam a Brapi e substituem os preços ilustrativos da tabela quando a consulta funciona. Se falhar, os dados locais continuam sendo exibidos e o status informa o motivo. Os preços de câmbio atualizam também o ticker e o cartão do dólar na página inicial.
 
 Os demais dados de mercado, notícias, séries históricas e preços-alvo são **ilustrativos**, criados para demonstrar a interface. Nada aqui é recomendação de investimento.
 
@@ -93,6 +96,8 @@ Tudo está em um único `index.html` para facilitar o estudo. Dentro dele:
 | `const ticks`, `sectors`, `assets`, `news`... | Base de dados ilustrativa — troque ou conecte à sua API. |
 | `genHistory` / `drawPriceChart` | Séries determinísticas e gráfico em canvas com crosshair. |
 | `loadQuotes` / `renderPortfolio` | Carteira, Brapi, cache local e donut de alocação. |
+| `buildSlides` | Destaques calculados (quedas, descontos Graham e casas de análise). |
+| `loadCurrencies` | Câmbio ao vivo via `/api/v2/currency`, com status e fallback ilustrativo. |
 | `marketView`, `assetDetail`, `Calculadoras`, `comparadorView` | Páginas renderizadas pelo roteador `#/...`. |
 | `routeTable` / `renderRoute` | Roteamento por hash (funciona em `file://` e no Pages). |
 | `tests/smoke.js` | Verificação automática das rotas e da interface. |

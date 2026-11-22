@@ -113,9 +113,17 @@
   .slide .thumb{min-height:210px;background:linear-gradient(135deg,#1b3a4a,#2a2340)}
   .slide:nth-child(2) .thumb{background:linear-gradient(135deg,#3a2b1e,#1d2b39)}
   .slide:nth-child(3) .thumb{background:linear-gradient(135deg,#243b2f,#38243a)}
-  .slide .txt{padding:20px;display:flex;flex-direction:column;justify-content:center;gap:10px}
+  .slide .txt{padding:20px;display:flex;flex-direction:column;justify-content:center;gap:8px;min-width:0}
   .tag{font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--green);font-weight:700}
-  .slide h3{font-size:19px}
+  .slide h3{font-size:18px}
+  .thumb-art{height:100%;display:grid;place-items:center;padding:18px}
+  .slide-list{display:flex;flex-direction:column;gap:5px;margin-top:2px}
+  .slide-line{display:grid;grid-template-columns:minmax(56px,auto) minmax(0,1fr) auto;gap:8px;align-items:center;
+    font-size:11px;padding:6px 9px;background:#191c26;border:1px solid #313543;border-radius:7px;min-width:0}
+  a.slide-line:hover{border-color:var(--green);background:#1e2330}
+  .slide-line .code{font-weight:800;color:var(--green);white-space:nowrap}
+  .slide-line .nm{color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .slide-line .r{font-weight:800;font-variant-numeric:tabular-nums;white-space:nowrap}
   .nav-round{width:34px;height:34px;border-radius:50%;border:1px solid var(--line);background:#232633;color:#fff;display:grid;place-items:center}
   .dots{display:flex;gap:6px;justify-content:center;margin-top:12px}
   .dot{width:7px;height:7px;border-radius:50%;background:#3a3e4d;border:0;padding:0}
@@ -476,29 +484,16 @@
           <p class="date" id="homeDate"></p>
         </div>
 
-        <section class="panel" aria-label="Manchetes da TradeMap">
+        <section class="panel" aria-label="Destaques do mercado">
           <div class="section-head pad" style="padding-bottom:10px">
-            <h3>Manchetes da TradeMap</h3>
+            <h3>Destaques do mercado</h3>
             <div style="display:flex;gap:6px">
-              <button class="nav-round" id="prevSlide" aria-label="Manchete anterior">‹</button>
-              <button class="nav-round" id="nextSlide" aria-label="Próxima manchete">›</button>
+              <button class="nav-round" id="prevSlide" aria-label="Destaque anterior">‹</button>
+              <button class="nav-round" id="nextSlide" aria-label="Próximo destaque">›</button>
             </div>
           </div>
           <div class="carousel-body">
-            <div class="slides" id="slides">
-              <article class="slide">
-                <div class="thumb"></div>
-                <div class="txt"><span class="tag">TradeLetter</span><h3>TradeLetter Semanal | 15 – 21 Novembro 2026</h3><p class="muted small">Os principais eventos da semana e o que esperar dos mercados.</p><a href="#/carta/tl1" class="link-green">Ler agora →</a></div>
-              </article>
-              <article class="slide">
-                <div class="thumb"></div>
-                <div class="txt"><span class="tag">Ibovespa</span><h3>Maiores altas e baixas do Ibovespa na semana</h3><p class="muted small">Veja quais ações se destacaram e o que movimentou o índice.</p><a href="#/noticia/n4" class="link-green">Ler agora →</a></div>
-              </article>
-              <article class="slide">
-                <div class="thumb"></div>
-                <div class="txt"><span class="tag">Mercados</span><h3>Ibovespa fecha em baixa com pacote fiscal e estreia da Anthropic em foco</h3><p class="muted small">Entenda o que impactou o pregão de sexta-feira.</p><a href="#/noticia/n5" class="link-green">Ler agora →</a></div>
-              </article>
-            </div>
+            <div class="slides" id="slides"></div>
           </div>
           <div class="dots" id="dots"></div>
         </section>
@@ -537,6 +532,23 @@
       </div>
 
       <aside class="rail right" aria-label="Ferramentas e cotações">
+        <section class="panel pad" id="brapiPanel" aria-label="Chave da API Brapi">
+          <div class="section-head" style="margin-bottom:8px">
+            <h3 style="font-size:15px">Chave da Brapi</h3><span class="tag">API</span>
+          </div>
+          <p class="muted small" style="margin:0 0 10px">Cole sua chave para consultar <b style="color:#fff">dólar, moedas, FIIs e demais ativos</b>. Sem chave, respondem apenas <b style="color:#fff">PETR4, VALE3, ITUB4 e MGLU3</b>.</p>
+          <div style="display:flex;gap:6px">
+            <input id="brapiTokenInput" type="password" placeholder="Cole sua chave brapi.dev" autocomplete="off" aria-label="Chave da API Brapi" style="flex:1;min-width:0;background:#262a36;border:1px solid var(--line);border-radius:8px;padding:9px 10px;color:#fff;outline:0">
+            <button class="icon-mini" id="brapiToggle" title="Mostrar ou ocultar a chave" aria-label="Mostrar ou ocultar a chave">👁</button>
+          </div>
+          <div class="api-test" id="brapiStatus" aria-live="polite">Sem chave · cotações limitadas aos 4 tickers gratuitos.</div>
+          <div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap">
+            <button class="btn-green" id="brapiSave" style="flex:1;padding:8px 12px">Salvar chave</button>
+            <button class="btn-ghost" id="brapiTest" style="padding:8px 12px">Testar</button>
+            <button class="btn-ghost" id="brapiClear" style="padding:8px 12px">Limpar</button>
+          </div>
+          <p class="muted small" style="font-size:10px;margin:10px 0 0">A chave fica apenas no <b>localStorage deste navegador</b>. Crie uma gratuitamente em <a href="https://brapi.dev/dashboard" target="_blank" rel="noopener" style="color:var(--green)">brapi.dev/dashboard</a>.</p>
+        </section>
         <section class="panel pad" id="walletPanel" aria-label="Minha carteira">
           <div class="pf-head">
             <div>
@@ -597,21 +609,7 @@
 </div>
 </main>
 
-<!-- Modais da carteira -->
-<div class="modal" id="apiModal">
-  <div class="modal-card">
-    <button class="close-x" id="closeApiModal" aria-label="Fechar">✕</button>
-    <h3>Token Brapi</h3>
-    <p class="muted small">Sem chave, respondem: <b style="color:#fff">PETR4, VALE3, ITUB4, MGLU3, MXRF11 e HGLG11</b>. Para outros ativos, gere uma chave gratuita em <a href="https://brapi.dev/dashboard" target="_blank" rel="noopener" style="color:var(--green)">brapi.dev/dashboard</a>.</p>
-    <input type="password" id="apiToken" placeholder="Cole sua chave da brapi.dev" autocomplete="off">
-    <div class="api-test" id="apiTest">Teste a chave com um ativo que exige autenticação.</div>
-    <button class="btn-ghost" id="testToken" style="width:100%;margin-top:8px">Testar token</button>
-    <button class="btn-green" id="saveToken" style="width:100%;margin-top:8px">Salvar e atualizar</button>
-    <button class="btn-ghost" id="clearToken" style="width:100%;margin-top:8px">Remover token</button>
-    <p class="muted small" style="font-size:10px;margin-top:12px">A chave fica apenas no localStorage deste navegador.</p>
-  </div>
-</div>
-
+<!-- Modal da carteira -->
 <div class="modal" id="assetModal">
   <div class="modal-card">
     <button class="close-x" id="closeAssetModal" aria-label="Fechar">✕</button>
@@ -642,6 +640,7 @@ const money = v => v.toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
 const pct = v => `${v>0?'+':''}${(v||0).toFixed(2).replace('.',',')}%`;
 const now = () => new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
 const numBR = v => Number(v||0).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
+const numBR4 = v => Number(v||0).toLocaleString('pt-BR',{minimumFractionDigits:4,maximumFractionDigits:4});
 
 /* ============================================================
    Dados
@@ -1042,8 +1041,9 @@ const marketState = {filter:'', sort:'ch', dir:-1};
 /* Cotações ao vivo consultadas na Brapi (v1.2). Chave por ticker. */
 const liveQuotes = {};
 const applyLive = a => {
-  const q = liveQuotes[a.s];
-  return q ? {...a, p:q.price, ch:q.chg, n:q.name||a.n} : a;
+  const c = currencyOf(a);                 // cotação de câmbio (se aplicável)
+  const q = liveQuotes[c.s];               // cotação de ações/FIIs (se aplicável)
+  return q ? {...c, p:q.price, ch:q.chg, n:q.name||c.n} : c;
 };
 let calFilter = 'Todos';
 let newsFilter = 'Todas';
@@ -1073,19 +1073,65 @@ $('#scrim').onclick=()=>toggleMenu(false);
 $$('#drawer a').forEach(a=>a.onclick=()=>toggleMenu(false));
 addEventListener('keydown',e=>{
   if(e.key!=='Escape') return;
-  const openModal=$('.modal.show')||$('#assetModal.show')||$('#apiModal.show');
+  const openModal=$('.modal.show');
   if(openModal){ openModal.classList.remove('show'); if(openModal===$('#assetModal')) acHide(); return }
   toggleMenu(false);
 });
 
+/* Destaques calculados a partir dos dados — quedas, Graham e players (v1.3) */
+function thumbBars(vals,color){
+  const max=Math.max(...vals.map(Math.abs))||1;
+  const bw=Math.min(26,150/Math.max(1,vals.length));
+  return `<div class="thumb-art"><svg viewBox="0 0 200 120" preserveAspectRatio="none" width="100%" height="100%" role="img" aria-label="Barras comparativas">
+    <line x1="6" y1="112" x2="194" y2="112" stroke="#ffffff22"/>
+    ${vals.map((v,i)=>{
+      const h=Math.max(8,Math.abs(v)/max*82), x=12+i*(176/Math.max(1,vals.length));
+      return `<rect x="${x}" y="${104-h}" width="${bw}" height="${h}" rx="4" fill="${color}" opacity="${(0.45+0.5*i/Math.max(1,vals.length-1)).toFixed(2)}"/>`;
+    }).join('')}
+  </svg></div>`;
+}
+function buildSlides(){
+  const rankedGraham=assets.filter(a=>a.lpa>0).map(a=>{
+    const v=valuation(a);
+    return {a,up:v?v.grahamUp:-Infinity,fair:v?v.graham:0};
+  }).sort((x,y)=>y.up-x.up).slice(0,4);
+  const losers=assets.filter(a=>a.c==='Ações').slice().sort((a,b)=>a.ch-b.ch).slice(0,4);
+  const houses={};
+  assets.forEach(a=>(a.t||[]).forEach(([house,price,rec])=>{
+    const h=houses[house]||(houses[house]={n:0,sum:0,buys:0});
+    h.n++; h.sum+=(price/a.p-1)*100; if(rec==='Compra') h.buys++;
+  }));
+  const players=Object.entries(houses).map(([house,h])=>({house,n:h.n,up:h.sum/h.n,buys:h.buys}))
+    .sort((x,y)=>y.n-x.n||y.up-x.up).slice(0,4);
+  const slideHTML=(tag,title,desc,art,rows,link,linkText)=>`<article class="slide">
+      <div class="thumb">${art}</div>
+      <div class="txt"><span class="tag">${tag}</span><h3>${title}</h3><p class="muted small">${desc}</p>
+      <div class="slide-list">${rows}</div><a href="${link}" class="link-green">${linkText}</a></div>
+    </article>`;
+  $('#slides').innerHTML=[
+    slideHTML('Quedas','Ações que mais caíram hoje','As maiores quedas entre as ações acompanhadas.',
+      thumbBars(losers.map(a=>Math.abs(a.ch)),'#ff5d6c'),
+      losers.map(a=>`<a class="slide-line" href="#/ativo/${a.s}"><span class="code">${a.s}</span><span class="nm">${a.n}</span><span class="r down">${pct(a.ch)}</span></a>`).join(''),
+      '#/acoes','Ver todas as ações →'),
+    slideHTML('Graham','Ações mais descontadas (Graham)','Maior potencial contra o preço justo √(22,5 × LPA × VPA).',
+      thumbBars(rankedGraham.map(x=>x.up),'#0fe07f'),
+      rankedGraham.map(x=>`<a class="slide-line" href="#/ativo/${x.a.s}"><span class="code">${x.a.s}</span><span class="nm">Justo R$ ${numBR(x.fair)}</span><span class="r up">${signedPct(x.up)}</span></a>`).join(''),
+      '#/comparador','Comparar valuations →'),
+    slideHTML('Players','Players do mercado','Casas com mais preços-alvo e potencial médio implícito.',
+      thumbBars(players.map(p=>p.n),'#4da3ff'),
+      players.map(p=>`<div class="slide-line"><span class="code">${p.house}</span><span class="nm">${p.n} alvos · ${p.buys} compras</span><span class="r ${p.up>=0?'up':'down'}">${signedPct(p.up)}</span></div>`).join(''),
+      '#/ativos','Ver ativos cobertos →')
+  ].join('');
+  $('#dots').innerHTML=Array.from({length:3},(_,i)=>`<button class="dot ${i===0?'active':''}" aria-label="Ir para o destaque ${i+1}"></button>`).join('');
+  $$('#dots .dot').forEach((d,i)=>d.onclick=()=>goSlide(i));
+}
 let slide=0;
 function goSlide(n){
-  const total=3; slide=(n+total)%total;
+  const total=$$('#slides .slide').length||1; slide=(n+total)%total;
   $('#slides').style.transform=`translateX(-${slide*100}%)`;
   $$('#dots .dot').forEach((d,i)=>d.classList.toggle('active',i===slide));
 }
-$('#dots').innerHTML=Array.from({length:3},(_,i)=>`<button class="dot ${i===0?'active':''}" aria-label="Ir para o slide ${i+1}"></button>`).join('');
-$$('#dots .dot').forEach((d,i)=>d.onclick=()=>goSlide(i));
+buildSlides();
 $('#prevSlide').onclick=()=>goSlide(slide-1);
 $('#nextSlide').onclick=()=>goSlide(slide+1);
 $('#slides').closest('.panel').addEventListener('keydown',e=>{
@@ -1130,7 +1176,8 @@ $$('#ageTabs .tab').forEach(t=>t.onclick=()=>{
 });
 
 /* ---------- Carteira (Brapi) ---------- */
-const FREE=['PETR4','VALE3','ITUB4','MGLU3','MXRF11','HGLG11'];
+/* Tickerões gratuitos conforme a documentação atual da Brapi (05/2026). */
+const FREE=['PETR4','VALE3','ITUB4','MGLU3'];
 const COLORS=['#0fe07f','#4da3ff','#ff5d6c','#f5a623','#a78bfa','#22d3ee','#84cc16','#fb7185','#38bdf8','#eab308'];
 let brapiToken=localStorage.getItem('tm_brapi_token')||'';
 let holdings=[];
@@ -1152,7 +1199,7 @@ async function requestQuotes(symbols,tokenUsed){
     });
     json=await res.json().catch(()=>({}));
   }finally{ clearTimeout(timer) }
-  if(res.status===401) throw new Error(tokenUsed?'Chave inválida (401)':'Este ativo exige chave Brapi — configure na ⚙');
+  if(res.status===401) throw new Error(tokenUsed?'Chave inválida (401)':'Este ativo exige chave Brapi — use o painel “Chave da Brapi”');
   if(res.status===403) throw new Error('Plano sem acesso a este recurso (403)');
   if(res.status===429){
     const wait=res.headers.get('Retry-After');
@@ -1262,7 +1309,7 @@ async function loadQuotes(){
     const list=cached.length?cached:symbols.map(s=>({symbol:s,regularMarketPrice:0,regularMarketChangePercent:0}));
     renderPortfolio(list); renderQuotes(list);
     setStatus('demo',cached.length?'Última cotação salva':'Sem cotação');
-    $('#pfNote').textContent=`${err.message}. ${cached.length?'Exibindo cotações salvas.':'Configure a chave na ⚙ ou tente novamente.'}`;
+    $('#pfNote').textContent=`${err.message}. ${cached.length?'Exibindo cotações salvas.':'Configure a chave no painel “Chave da Brapi” ou tente novamente.'}`;
   }finally{ if(seq===loadSeq) $('#refreshBtn').disabled=false }
 }
 
@@ -1363,28 +1410,39 @@ $('#viewWallet').onclick=e=>{
   rows.style.display=hide?'none':'block';
   e.target.textContent=hide?'Ver carteira →':'Ocultar detalhes ↑';
 };
-$('#apiToken').value=brapiToken;
-$('#apiConfigBtn').onclick=()=>$('#apiModal').classList.add('show');
-$('#closeApiModal').onclick=()=>$('#apiModal').classList.remove('show');
-$('#apiModal').onclick=e=>{ if(e.target.id==='apiModal') $('#apiModal').classList.remove('show') };
-$('#testToken').onclick=async()=>{
-  const t=$('#apiToken').value.trim(), out=$('#apiTest');
+/* Painel explícito da chave Brapi (v1.3) */
+function tokenStatus(t){
+  const el=$('#brapiStatus'); if(!el) return;
+  if(!t){ el.className='api-test'; el.textContent='Sem chave · cotações limitadas aos 4 tickers gratuitos.' }
+  else{ el.className='api-test ok'; el.textContent='✓ Chave salva neste navegador · ativos, FIIs e câmbio disponíveis.' }
+}
+$('#brapiTokenInput').value=brapiToken;
+tokenStatus(brapiToken);
+$('#apiConfigBtn').onclick=()=>{
+  $('#brapiPanel').scrollIntoView({behavior:'smooth',block:'center'});
+  $('#brapiTokenInput').focus();
+};
+$('#brapiToggle').onclick=()=>{
+  const i=$('#brapiTokenInput'), show=i.type==='password';
+  i.type=show?'text':'password';
+  $('#brapiToggle').textContent=show?'🙈':'👁';
+};
+$('#brapiTest').onclick=async()=>{
+  const t=$('#brapiTokenInput').value.trim(), out=$('#brapiStatus');
   if(!t){ out.className='api-test err'; out.textContent='Cole uma chave para testar.'; return }
   out.className='api-test'; out.textContent='Testando com BBAS3...';
   try{ const r=await requestQuotes(['BBAS3'],t); out.className='api-test ok'; out.textContent='✓ Chave válida — '+r.length+' ativo consultado com sucesso.' }
   catch(err){ out.className='api-test err'; out.textContent='✕ '+err.message }
 };
-$('#saveToken').onclick=()=>{
-  brapiToken=$('#apiToken').value.trim();
-  localStorage.setItem('tm_brapi_token',brapiToken);
-  $('#apiModal').classList.remove('show'); loadQuotes();
-};
-$('#clearToken').onclick=()=>{
-  brapiToken=''; localStorage.removeItem('tm_brapi_token');
-  $('#apiToken').value='';
-  $('#apiTest').className='api-test'; $('#apiTest').textContent='Teste a chave com um ativo que exige autenticação.';
-  loadQuotes();
-};
+function applyToken(t){
+  brapiToken=t;
+  if(t) localStorage.setItem('tm_brapi_token',t); else localStorage.removeItem('tm_brapi_token');
+  $('#brapiTokenInput').value=t;
+  tokenStatus(t);
+  loadQuotes(); loadCurrencies();
+}
+$('#brapiSave').onclick=()=>applyToken($('#brapiTokenInput').value.trim());
+$('#brapiClear').onclick=()=>applyToken('');
 $('#refreshBtn').onclick=loadQuotes;
 
 /* Exportação/importação da carteira (v1.1) — o token Brapi NÃO é exportado. */
@@ -1467,9 +1525,11 @@ function marketView(kind){
           <option value="ch">Maior variação</option><option value="s">Código (A–Z)</option>
           <option value="n">Nome (A–Z)</option><option value="p">Preço</option>
         </select>
-        <button class="btn-ghost" data-act="live-quotes" style="padding:7px 14px">⟳ Cotações ao vivo</button>
+        ${kind==='Câmbio'
+          ? '<button class="btn-ghost" data-act="currency-refresh" style="padding:7px 14px">⟳ Câmbio ao vivo</button>'
+          : '<button class="btn-ghost" data-act="live-quotes" style="padding:7px 14px">⟳ Cotações ao vivo</button>'}
         <button class="btn-ghost" data-act="csv" style="padding:7px 14px" title="Baixar tabela em CSV">CSV ⬇</button>
-        <span class="muted small" id="liveStatus" aria-live="polite">Dados ilustrativos</span>
+        <span class="muted small" id="liveStatus" aria-live="polite">${kind==='Câmbio'?(brapiToken?'Consultando câmbio na Brapi...':'Câmbio ilustrativo · configure a chave Brapi'):'Dados ilustrativos'}</span>
       </div>
       <div id="marketRows">${renderAssetsTable(list,{showClass})}</div>
     </section>`;
@@ -2018,6 +2078,7 @@ function renderRoute(){
       if(title==='Ativo') mountChart(VIEW);
       if(title==='Simulador histórico') renderSim();
       if(title==='Comparador de ativos') renderCompare();
+      if(title==='Câmbio') loadCurrencies();
       window.scrollTo(0,0);
       return;
     }
@@ -2092,6 +2153,69 @@ function exportMarketCSV(){
     ...rows.map(a=>[a.s,a.n,a.c||'',typeof a.p==='number'?a.p.toFixed(2).replace('.',','):a.p,(a.ch||0).toFixed(2).replace('.',',')])];
   downloadCSV('trademap-'+path.replace(/[^\w-]/g,'-')+'.csv',data);
 }
+
+/* Câmbio ao vivo pela Brapi: /api/v2/currency?currency=USD-BRL,... (v1.3) */
+const currencyLive={};
+const currencyPairs={'USD/BRL':'USD-BRL','EUR/BRL':'EUR-BRL','GBP/BRL':'GBP-BRL','USD/BRL PTAX':'USD-BRL'};
+function parseBrapiNumber(v){
+  const s=String(v==null?'':v).trim(); if(!s) return NaN;
+  return s.includes(',')?Number(s.replace(/\./g,'').replace(',','.')):Number(s);
+}
+function currencyOf(a){
+  const key=currencyPairs[a.s], q=key&&currencyLive[key];
+  return q?{...a,p:'R$ '+numBR4(q.bid),ch:q.ch}:a;
+}
+function updateCurrencyWidgets(){
+  $$('#tickerTrack .tick').forEach(t=>{
+    const b=t.querySelector('b'); if(!b) return;
+    const key=b.textContent==='DÓLAR'?'USD-BRL':b.textContent==='EURO'?'EUR-BRL':null;
+    const q=key&&currencyLive[key]; if(!q) return;
+    const sp=t.querySelectorAll('span');
+    if(sp[0]) sp[0].textContent='R$ '+numBR4(q.bid);
+    if(sp[1]){ sp[1].textContent=pct(q.ch); sp[1].className=q.ch>=0?'up':'down' }
+  });
+  $$('.macro-card').forEach(c=>{
+    if(/D[oó]lar PTAX/i.test(c.querySelector('h3')?.textContent||'')&&currencyLive['USD-BRL']){
+      const v=c.querySelector('.val'); if(v) v.textContent='R$ '+numBR4(currencyLive['USD-BRL'].bid);
+    }
+  });
+}
+async function loadCurrencies(){
+  const st=$('#liveStatus');
+  if(!brapiToken){
+    if(st){ st.className='muted small'; st.textContent='Câmbio ilustrativo · configure a chave Brapi' }
+    return;
+  }
+  if(st){ st.className='muted small'; st.textContent='Consultando câmbio na Brapi...' }
+  const ctrl=new AbortController(), timer=setTimeout(()=>ctrl.abort(),10000);
+  let res;
+  try{
+    try{
+      res=await fetch('https://brapi.dev/api/v2/currency?currency=USD-BRL,EUR-BRL,GBP-BRL',{
+        headers:{Authorization:'Bearer '+brapiToken},signal:ctrl.signal
+      });
+    }finally{ clearTimeout(timer) }
+    if(res.status===401) throw new Error('Chave inválida para câmbio (401)');
+    if(res.status===403) throw new Error('Seu plano não inclui o módulo de câmbio (403)');
+    if(!res.ok) throw new Error('HTTP '+res.status);
+    const json=await res.json();
+    let n=0;
+    (json.currency||[]).forEach(c=>{
+      const key=c.fromCurrency+'-'+c.toCurrency;
+      const bid=parseBrapiNumber(c.bidPrice), ch=parseBrapiNumber(c.percentageChange);
+      if(Number.isFinite(bid)&&bid>0){
+        currencyLive[key]={bid,ask:parseBrapiNumber(c.askPrice)||bid,ch:Number.isFinite(ch)?ch:0};
+        n++;
+      }
+    });
+    if(!n) throw new Error('Nenhum par de moeda retornado');
+    updateCurrencyWidgets(); refreshMarket();
+    if(st){ st.className='up'; st.textContent=`Câmbio ao vivo (PTAX) · ${n} pares · ${now()}` }
+  }catch(err){
+    if(st){ st.className='down'; st.textContent=err.message+' · usando câmbio ilustrativo' }
+  }
+}
+
 VIEW.addEventListener('input',e=>{
   const act=e.target.dataset.act;
   if(act==='market-search'||act==='manager-search'){
@@ -2147,6 +2271,7 @@ VIEW.addEventListener('click',e=>{
   const b=e.target.closest('[data-act]'); if(!b) return;
   const act=b.dataset.act;
   if(act==='live-quotes'){ refreshLiveQuotes(b); return }
+  if(act==='currency-refresh'){ loadCurrencies(); return }
   if(act==='csv'){ exportMarketCSV(); return }
   if(act==='live-one'){ refreshLiveQuotes(b,[b.dataset.sym]); return }
   if(act==='chart-range'||act==='chart-mode'){
@@ -2183,6 +2308,7 @@ VIEW.addEventListener('click',e=>{
 /* Inicialização final da busca e calculadora (caso a rota inicial seja uma delas) */
 calcRun();
 runBusca();
+loadCurrencies();
 /* PWA: registramento somente em HTTPS/localhost (v1.2) */
 if('serviceWorker' in navigator && (location.protocol==='https:'||['localhost','127.0.0.1'].includes(location.hostname))){
   addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));

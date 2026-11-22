@@ -2,6 +2,18 @@
 
 Todas as versões notáveis deste projeto são documentadas aqui. O formato segue o [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/).
 
+## [v1.3.0] — 2026-11-22
+
+### Adicionado
+- **Destaques do mercado:** o carrossel da página inicial agora é gerado pelos dados — maiores quedas do dia, ações com maior desconto pela fórmula de Graham e *players* do mercado (casas de análise com mais preços-alvo), cada um com mini-gráfico de barras e atalhos para as páginas relacionadas.
+- **Painel “Chave da Brapi”:** local explícito na coluna direita para colar, testar, salvar, mostrar/ocultar e limpar a chave. O botão ⚙ da carteira agora leva ao painel.
+- **Câmbio ao vivo:** integração com `/api/v2/currency` (PTAX do Banco Central) para USD-BRL, EUR-BRL e GBP-BRL quando há chave. Os valores atualizam a tabela de câmbio, o ticker e o cartão do dólar; sem chave ou em caso de falha, os dados ilustrativos permanecem e o status explica o motivo.
+
+### Alterado
+- Lista de tickers gratuitos ajustada para os quatro atuais (`PETR4`, `VALE3`, `ITUB4`, `MGLU3`) — `MXRF11` e `HGLG11` agora exigem chave.
+- Mensagens de erro sobre autenticação passam a apontar para o novo painel.
+- Smoke test cobre o painel da chave, os três destaques e o fluxo de câmbio ao vivo (com resposta simulada da Brapi).
+
 ## [v1.2.0] — 2026-11-22
 
 ### Adicionado

@@ -26,6 +26,17 @@ const dom = new JSDOM(html, {
     Object.defineProperty(win.HTMLCanvasElement.prototype, 'clientWidth', { get: () => 600 });
     win.HTMLCanvasElement.prototype.getBoundingClientRect = () => ({ left: 0, top: 0, width: 600, height: 290 });
     win.fetch = url => {
+      if (String(url).includes('/api/v2/currency')) {
+        return Promise.resolve({
+          status: 200,
+          ok: true,
+          headers: { get: () => null },
+          json: () => Promise.resolve({ currency: [
+            { fromCurrency: 'USD', toCurrency: 'BRL', bidPrice: '5,8889', askPrice: '5,9000', percentageChange: '1,35' },
+            { fromCurrency: 'EUR', toCurrency: 'BRL', bidPrice: '6,4672', askPrice: '6,4800', percentageChange: '1,49' }
+          ] })
+        });
+      }
       if (String(url).includes('brapi.dev')) {
         return Promise.resolve({
           status: 200,
@@ -67,18 +78,43 @@ setTimeout(() => {
   ck('noscript presente', !!d.querySelector('noscript'));
   ck('export/import presentes', !!d.querySelector('#exportBtn') && !!d.querySelector('#importBtn'));
   ck('manifest PWA presente', !!d.querySelector('link[rel="manifest"]'));
+  ck('painel da chave Brapi presente', !!d.querySelector('#brapiPanel #brapiTokenInput') && !!d.querySelector('#brapiSave'));
+  const slideTexts = [...d.querySelectorAll('#slides .slide')].map(s => s.textContent);
+  ck('carrossel com 3 destaques', slideTexts.length === 3);
+  ck('destaque de quedas', /mais caíram/.test(slideTexts[0] || ''));
+  ck('destaque de Graham', /Graham/.test(slideTexts[1] || ''));
+  ck('destaque de players', /Players do mercado/.test(slideTexts[2] || ''));
+
+  const finish = () => {
+    console.log('\n=== RESULTADO ===');
+    let fail = 0;
+    for (const [n, ok] of checks) { if (!ok) fail++; console.log((ok ? 'PASS ' : 'FAIL ') + n); }
+    console.log('\nErros capturados: ' + errors.length);
+    errors.slice(0, 15).forEach(e => console.log('  ' + e.split('\n')[0]));
+    console.log('\n' + (fail === 0 && errors.length === 0 ? 'SMOKE OK' : 'SMOKE COM PROBLEMAS'));
+    process.exit(fail === 0 && errors.length === 0 ? 0 : 1);
+  };
+
+  // Cenário da chave Brapi + câmbio ao vivo
+  const testarChaveECambio = () => {
+    d.querySelector('#brapiTokenInput').value = 'token_de_teste';
+    d.querySelector('#brapiSave').click();
+    setTimeout(() => {
+      ck('chave salva no painel', /Chave salva/.test(d.querySelector('#brapiStatus').textContent));
+      ck('dólar ao vivo no ticker', /5,8889/.test(d.querySelector('#tickerTrack').textContent));
+      w.location.hash = '#/cambio';
+      w.dispatchEvent(new w.HashChangeEvent('hashchange'));
+      setTimeout(() => {
+        ck('câmbio ao vivo na tabela', /5,8889/.test(d.querySelector('#marketRows').textContent));
+        ck('status do câmbio', /Câmbio ao vivo/.test(d.querySelector('#liveStatus').textContent));
+        finish();
+      }, 80);
+    }, 100);
+  };
 
   let i = 0;
   const next = () => {
-    if (i >= routes.length) {
-      console.log('\n=== RESULTADO ===');
-      let fail = 0;
-      for (const [n, ok] of checks) { if (!ok) fail++; console.log((ok ? 'PASS ' : 'FAIL ') + n); }
-      console.log('\nErros capturados: ' + errors.length);
-      errors.slice(0, 15).forEach(e => console.log('  ' + e.split('\n')[0]));
-      console.log('\n' + (fail === 0 && errors.length === 0 ? 'SMOKE OK' : 'SMOKE COM PROBLEMAS'));
-      process.exit(fail === 0 && errors.length === 0 ? 0 : 1);
-    }
+    if (i >= routes.length) { testarChaveECambio(); return; }
     const r = routes[i++];
     w.location.hash = r;
     w.dispatchEvent(new w.HashChangeEvent('hashchange'));

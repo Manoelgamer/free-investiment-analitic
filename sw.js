@@ -1,5 +1,5 @@
 /* Service worker do TradeMap — cache-only para assets locais, network-first para navegação. */
-const CACHE = 'trademap-v1.2.0';
+const CACHE = 'trademap-v1.3.0';
 const ASSETS = ['./', './index.html', './icon.svg', './manifest.json'];
 
 self.addEventListener('install', event => {
