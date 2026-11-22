@@ -2,6 +2,13 @@
 
 Todas as versões notáveis deste projeto são documentadas aqui. O formato segue o [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/).
 
+## [v1.4.3] — 2026-11-22
+
+### Alterado
+- A cor do gráfico de ativos agora acompanha a **variação do período selecionado** (1D, 5D, 1M, 6M, 1A, MÁX), e não mais a variação do último dia: linha/área, candles, volume, fundo e etiqueta do último preço usam a tendência do período.
+- Legenda e estatísticas passam a exibir explicitamente **“Var. período”** com o sinal e a cor correspondentes.
+- Corrigido bloco duplicado no handler de cliques que impedia a execução do script em algumas situações.
+
 ## [v1.4.2] — 2026-11-22
 
 ### Alterado

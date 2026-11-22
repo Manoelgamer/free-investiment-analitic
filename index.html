@@ -972,8 +972,17 @@ function rsiOf(vals,n=14){
   }
   return out;
 }
-function drawPriceChart(canvas,bars,mode,color,opts={}){
+/* Variação do período selecionado — usada para colorir todo o gráfico */
+function periodChange(bars){
+  if(!bars||bars.length<2) return 0;
+  const first=bars[0].c, last=bars[bars.length-1].c;
+  return first?(last-first)/first*100:0;
+}
+const trendColor=v=>v>=0?'#0fe07f':'#ff5d6c';
+
+function drawPriceChart(canvas,bars,mode,opts={}){
   if(!canvas||!bars.length) return;
+  const period=periodChange(bars), color=trendColor(period);
   const dpr=window.devicePixelRatio||1;
   const rsiOn=!!opts.rsi, rsiH=rsiOn?60:0;
   const w=canvas.clientWidth||600, h=(mode==='candle'?320:290)+rsiH;
@@ -988,6 +997,9 @@ function drawPriceChart(canvas,bars,mode,color,opts={}){
   const span=hi-lo||1, top=hi+span*0.08, bot=lo-span*0.08;
   const X=i=>padL+(i+0.5)*(plotW/bars.length);
   const Y=v=>padT+(top-v)/(top-bot)*plotH;
+  /* Fundo sutil na cor da tendência do período selecionado */
+  g.fillStyle=period>=0?'rgba(15,224,127,.035)':'rgba(255,93,108,.035)';
+  g.fillRect(padL,padT,plotW,plotH);
   g.strokeStyle='#2b2e3a'; g.lineWidth=1; g.font='10px system-ui'; g.fillStyle='#8d92a3';
   for(let k=0;k<5;k++){
     const yy=padT+plotH*k/4;
@@ -1000,17 +1012,21 @@ function drawPriceChart(canvas,bars,mode,color,opts={}){
   const volMax=Math.max(...bars.map(b=>b.v));
   if(mode==='candle'){
     bars.forEach((b,i)=>{
-      const up=b.c>=b.o, c=up?'#0fe07f':'#ff5d6c';
-      g.strokeStyle=c;g.fillStyle=c;g.lineWidth=1;
+      const up=b.c>=b.o;
+      g.strokeStyle=up?'rgba(15,224,127,.55)':'rgba(255,93,108,.55)';
+      g.fillStyle=color;               // cor da tendência do período
+      g.globalAlpha=up?1:.7;
+      g.lineWidth=1;
       g.beginPath();g.moveTo(X(i),Y(b.h));g.lineTo(X(i),Y(b.l));g.stroke();
       const bw=Math.max(2,plotW/bars.length*0.6);
       const y1=Y(Math.max(b.o,b.c)),y2=Y(Math.min(b.o,b.c));
       g.fillRect(X(i)-bw/2,y1,bw,Math.max(1,y2-y1));
+      g.globalAlpha=1;
     });
     const vy=padT+plotH+16;
     bars.forEach((b,i)=>{
       const hh=(b.v/volMax)*volH;
-      g.fillStyle=b.c>=b.o?'rgba(15,224,127,.35)':'rgba(255,93,108,.35)';
+      g.fillStyle=period>=0?'rgba(15,224,127,.35)':'rgba(255,93,108,.35)';
       g.fillRect(X(i)-Math.max(1,plotW/bars.length*0.3),vy+volH-hh,Math.max(2,plotW/bars.length*0.6),hh);
     });
     g.fillStyle='#8d92a3';g.textAlign='left';g.fillText('VOLUME',padL,vy-4);
@@ -1073,7 +1089,7 @@ function drawPriceChart(canvas,bars,mode,color,opts={}){
   // Handlers registrados uma única vez; a geometria mais recente fica no estado.
   // Isso evita o bug de escala acumulada (setTransform + scale a cada mousemove).
   canvas.__chart={bars,mode,color,w,h,padL,padR,padT,padB,plotW,plotH,X,Y,
-    repaint:()=>drawPriceChart(canvas,bars,mode,color,opts)};
+    repaint:()=>drawPriceChart(canvas,bars,mode,opts)};
   if(!canvas.__chartBound){
     canvas.__chartBound=true;
     canvas.addEventListener('mousemove',e=>{
@@ -1107,9 +1123,15 @@ function drawPriceChart(canvas,bars,mode,color,opts={}){
     });
   }
 }
+function chartLegend(bars,range){
+  const p=periodChange(bars);
+  return `<span>Máx. <b>R$ ${numBR(Math.max(...bars.map(b=>b.h)))}</b></span>
+    <span>Mín. <b>R$ ${numBR(Math.min(...bars.map(b=>b.l)))}</b></span>
+    <span>Período <b>${range}</b></span>
+    <span>Var. período <b class="${p>=0?'up':'down'}">${pct(p)}</b></span>`;
+}
 function chartMarkup(sym,price,ch,range,mode){
   const bars=genHistory(sym,price,range);
-  const color=ch>=0?'#0fe07f':'#ff5d6c';
   const hi=Math.max(...bars.map(b=>b.h)),lo=Math.min(...bars.map(b=>b.l));
   return `<div class="chart-shell" data-chart-sym="${sym}" data-chart-price="${price}" data-chart-ch="${ch}">
     <div class="chart-toolbar">
@@ -1124,13 +1146,13 @@ function chartMarkup(sym,price,ch,range,mode){
         <button class="rng ${indicators.rsi?'active':''}" data-act="chart-ind" data-ind="rsi" title="Índice de força relativa 14">RSI</button>
       </div>
     </div>
-    <div class="chart-legend"><span>Máx. <b>R$ ${numBR(hi)}</b></span><span>Mín. <b>R$ ${numBR(lo)}</b></span><span>Período <b>${range}</b></span></div>
+    <div class="chart-legend">${chartLegend(bars,range)}</div>
     <div class="chart-canvas-wrap"><canvas></canvas><div class="chart-tip"></div></div>
     <div class="quote-stats">
       <div class="quote-stat"><span>Abertura</span><b>R$ ${numBR(bars[0].o)}</b></div>
       <div class="quote-stat"><span>Último</span><b>R$ ${numBR(price)}</b></div>
+      <div class="quote-stat"><span>Var. período</span><b class="${periodChange(bars)>=0?'up':'down'}">${pct(periodChange(bars))}</b></div>
       <div class="quote-stat"><span>Volume</span><b>${(bars.reduce((s,b)=>s+b.v,0)/1e6).toFixed(1)} mi</b></div>
-      <div class="quote-stat"><span>Volatilidade</span><b>${((hi-lo)/lo*100).toFixed(1).replace('.',',')}%</b></div>
     </div>
   </div>`;
 }
@@ -1138,20 +1160,20 @@ function mountChart(scope){
   const shell=scope?.querySelector?.('.chart-shell')||document.querySelector('#view-dynamic .chart-shell');
   if(!shell) return;
   const sym=shell.dataset.chartSym, price=Number(shell.dataset.chartPrice);
-  const ch=Number(shell.dataset.chartCh||0);
   const range=shell.querySelector('.rng[data-range].active')?.dataset.range||'1M';
   const mode=shell.querySelector('[data-mode].active')?.dataset.mode||'line';
-  drawPriceChart(shell.querySelector('canvas'),genHistory(sym,price,range),mode,ch>=0?'#0fe07f':'#ff5d6c',indicators);
+  drawPriceChart(shell.querySelector('canvas'),genHistory(sym,price,range),mode,indicators);
 }
 function refreshChart(shell){
   if(!shell) return;
   const sym=shell.dataset.chartSym, price=Number(shell.dataset.chartPrice);
-  const ch=Number(shell.dataset.chartCh||0);
   const range=shell.querySelector('.rng[data-range].active')?.dataset.range||'1M';
   const mode=shell.querySelector('[data-mode].active')?.dataset.mode||'line';
   const bars=genHistory(sym,price,range);
-  shell.querySelector('.chart-legend').innerHTML=`<span>Máx. <b>R$ ${numBR(Math.max(...bars.map(b=>b.h)))}</b></span><span>Mín. <b>R$ ${numBR(Math.min(...bars.map(b=>b.l)))}</b></span><span>Período <b>${range}</b></span>`;
-  drawPriceChart(shell.querySelector('canvas'),bars,mode,ch>=0?'#0fe07f':'#ff5d6c',indicators);
+  shell.querySelector('.chart-legend').innerHTML=chartLegend(bars,range);
+  const stat=shell.querySelector('.quote-stat:nth-child(3) b');
+  if(stat){ const p=periodChange(bars); stat.textContent=pct(p); stat.className=p>=0?'up':'down' }
+  drawPriceChart(shell.querySelector('canvas'),bars,mode,indicators);
 }
 
 /* ============================================================

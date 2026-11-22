@@ -77,7 +77,7 @@ Ao publicar via HTTPS (GitHub Pages, por exemplo), o app pode ser instalado na t
 
 ## Versões
 
-Versão atual: **v1.4.2**. Cada release é uma tag Git (`v1.0.0` … `v1.4.2`). O histórico está no [CHANGELOG.md](CHANGELOG.md).
+Versão atual: **v1.4.3**. Cada release é uma tag Git (`v1.0.0` … `v1.4.3`). O histórico está no [CHANGELOG.md](CHANGELOG.md).
 
 As tags substituem os antigos snapshots em `versions/`. Para inspecionar ou recuperar uma versão antiga sem sair do branch atual:
 
