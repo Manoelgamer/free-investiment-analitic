@@ -59,6 +59,10 @@
     color:var(--muted);font-size:13px;
   }
   .search-btn:hover{border-color:var(--green);color:var(--green)}
+  .alert-btn{position:relative;text-decoration:none}
+  .alert-badge{position:absolute;top:-5px;right:-5px;min-width:16px;height:16px;padding:0 3px;border-radius:999px;
+    background:var(--red);color:#fff;font-size:9px;font-weight:800;display:grid;place-items:center;box-shadow:0 0 0 2px var(--panel)}
+  .chart-ind{display:flex;gap:4px;flex-wrap:wrap;margin-left:6px}
 
   /* ---------- Ticker ---------- */
   .ticker{
@@ -462,6 +466,10 @@
       <svg class="logo-mark" viewBox="0 0 32 32" fill="currentColor"><path d="M16 2c1 5-3 7-3 11 0 2 1 3 2 4-4-1-7-5-7-9C5 12 3 17 5 22c2.5 6 9 9 14 6 6-3.5 7-12 3-17-1 4-4 6-6 7 2-5 1-11 0-16Z"/></svg>
       <span>TradeMap</span>
     </a>
+    <a class="icon-btn alert-btn" href="#/alertas" aria-label="Alertas de preço">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M13.7 21a2 2 0 0 1-3.4 0"/></svg>
+      <span class="alert-badge" id="alertBadge" style="display:none" aria-hidden="true"></span>
+    </a>
     <a class="search-btn" href="#/busca" aria-label="Buscar no TradeMap">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
       <span>Buscar ativos, notícias e ferramentas</span>
@@ -474,7 +482,7 @@
 </div>
 
 <div class="scrim" id="scrim"></div>
-<nav class="drawer" id="drawer" aria-label="Menu principal">
+<nav class="drawer" id="drawer" aria-label="Menu principal" inert>
   <div class="drawer-head">
     <span class="logo"><svg class="logo-mark" viewBox="0 0 32 32" fill="currentColor"><path d="M16 2c1 5-3 7-3 11 0 2 1 3 2 4-4-1-7-5-7-9C5 12 3 17 5 22c2.5 6 9 9 14 6 6-3.5 7-12 3-17-1 4-4 6-6 7 2-5 1-11 0-16Z"/></svg><span>TradeMap</span></span>
     <button class="icon-btn" id="closeMenu" aria-label="Fechar menu">✕</button>
@@ -482,9 +490,9 @@
   <h3>Início</h3>
   <a href="#/">Visão geral</a><a href="#/busca">Buscar</a>
   <h3>Mercados</h3>
-  <a href="#/acoes">Ações</a><a href="#/indices">Índices</a><a href="#/fis">Fundos imobiliários</a><a href="#/cripto">Cripto</a><a href="#/cambio">Câmbio</a><a href="#/ativos">Ativos de A a Z</a>
+  <a href="#/acoes">Ações</a><a href="#/indices">Índices</a><a href="#/fis">Fundos imobiliários</a><a href="#/etfs">ETFs</a><a href="#/cripto">Cripto</a><a href="#/cambio">Câmbio</a><a href="#/ativos">Ativos de A a Z</a>
   <h3>Ferramentas</h3>
-  <a href="#/calculadoras">Calculadoras</a><a href="#/simulador">Simulador de investimentos</a><a href="#/historico">Simulador histórico</a><a href="#/comparador">Comparador de ativos</a><a href="#/mapa-setores">Mapa de setores</a><a href="#/calendario">Calendário econômico</a>
+  <a href="#/calculadoras">Calculadoras</a><a href="#/simulador">Simulador de investimentos</a><a href="#/historico">Simulador histórico</a><a href="#/comparador">Comparador de ativos</a><a href="#/alertas">Alertas de preço</a><a href="#/mapa-setores">Mapa de setores</a><a href="#/calendario">Calendário econômico</a>
   <h3>Conteúdo</h3>
   <a href="#/noticias">Notícias</a><a href="#/arquivo-noticias">Arquivo de notícias</a><a href="#/tradeletter">TradeLetter</a><a href="#/academy">Academy</a><a href="#/videos">Vídeos</a>
   <h3>Institucional</h3>
@@ -527,7 +535,7 @@
           <div class="carousel-body" id="carouselBody">
             <div class="slides" id="slides"></div>
           </div>
-          <div class="dots" id="dots" aria-hidden="true"></div>
+          <div class="dots" id="dots" role="group" aria-label="Escolher destaque"></div>
           <div class="carousel-hint">← arraste para trocar de destaque →</div>
         </section>
 
@@ -614,7 +622,7 @@
               <div class="pf-stat"><span>Hoje</span><b id="pfDay">—</b></div>
               <div class="pf-stat"><span>Desde o início</span><b id="pfProfit">—</b></div>
             </div>
-            <div id="pfRows"></div>
+            <div id="pfRows" style="display:none"></div>
             <a href="#" class="link-green" id="viewWallet" style="display:inline-block;margin-top:10px">Ver carteira →</a>
             <p class="muted small" id="pfNote" style="margin:10px 0 0">Cotações via Brapi · delay de 15 min.</p>
           </div>
@@ -643,7 +651,7 @@
 </main>
 
 <!-- Modal da carteira -->
-<div class="modal" id="assetModal">
+<div class="modal" id="assetModal" role="dialog" aria-modal="true" aria-labelledby="assetModalTitle">
   <div class="modal-card">
     <button class="close-x" id="closeAssetModal" aria-label="Fechar">✕</button>
     <h3 id="assetModalTitle">Adicionar ativo</h3>
@@ -740,8 +748,7 @@ const cryptos = [
 const currencies = [
   {s:'USD/BRL',n:'Dólar comercial',p:'R$ 5,8889',ch:1.35},
   {s:'EUR/BRL',n:'Euro',p:'R$ 6,4672',ch:1.49},
-  {s:'GBP/BRL',n:'Libra esterlina',p:'R$ 7,6120',ch:0.74},
-  {s:'USD/BRL PTAX',n:'Dólar PTAX',p:'R$ 5,8889',ch:1.35}
+  {s:'GBP/BRL',n:'Libra esterlina',p:'R$ 7,6120',ch:0.74}
 ];
 
 const indexRows = ticks.slice(3).map(([n,v,c,cl])=>({s:n,n:'Índice / ativo de referência',p:v,ch:parseFloat((c||'0').replace('%','').replace(',','.'))||0,cl}));
@@ -877,7 +884,7 @@ const RANGES=[
   ['1D',78,1,'min'],['5D',90,5,'dia'],['1M',30,1,'dia'],['6M',26,7,'sem'],['1A',52,7,'sem'],['MÁX',60,30,'mês']
 ];
 function dateLabel(range,i,n){
-  const d=new Date(2026,10,21);
+  const d=new Date();
   if(range==='1D'){
     d.setHours(10,0,0,0); d.setMinutes(d.getMinutes()+i*5);
     return d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
@@ -909,10 +916,10 @@ function genHistory(symbol,currentPrice,rangeKey){
   return out;
 }
 const PALETTE=['#0fe07f','#4da3ff','#f5a623','#a78bfa','#ff5d6c','#22d3ee'];
-const signedPct=v=>`${v>0?'+':''}${v.toFixed(2).replace('.',',')}%`;
 
 function valuation(a){
-  if(!a||!a.lpa) return null;
+  if(!a) return null;
+  if(!a.lpa) return a.vpa>0?{fair:a.vpa,up:(a.vpa/a.p-1)*100,graham:null,grahamUp:null,plFair:null,gordon:null}:null;
   const graham=Math.sqrt(22.5*a.lpa*a.vpa);
   const plFair=a.lpa*12;
   const div=a.p*a.dy/100;
@@ -932,18 +939,33 @@ function targetBadge(rec){
   return `<span class="badge ${k}">${rec}</span>`;
 }
 
-/* Canvas interativo: linha ou candles + volume + crosshair */
-function drawPriceChart(canvas,bars,mode,color){
+/* Canvas interativo: linha/candles + volume + MM/BB/RSI + crosshair */
+const indicators={sma:false,bb:false,rsi:false};
+function smaOf(vals,n){
+  return vals.map((_,i)=>i<n-1?null:vals.slice(i-n+1,i+1).reduce((s,v)=>s+v,0)/n);
+}
+function rsiOf(vals,n=14){
+  const out=Array(vals.length).fill(null);
+  let gain=0,loss=0;
+  for(let i=1;i<vals.length;i++){
+    const d=vals[i]-vals[i-1], up=Math.max(d,0), dn=Math.max(-d,0);
+    if(i<=n){ gain+=up/n; loss+=dn/n; if(i===n) out[i]=loss===0?100:100-100/(1+gain/loss) }
+    else { gain=(gain*(n-1)+up)/n; loss=(loss*(n-1)+dn)/n; out[i]=loss===0?100:100-100/(1+gain/loss) }
+  }
+  return out;
+}
+function drawPriceChart(canvas,bars,mode,color,opts={}){
   if(!canvas||!bars.length) return;
   const dpr=window.devicePixelRatio||1;
-  const w=canvas.clientWidth||600, h=mode==='candle'?320:290;
+  const rsiOn=!!opts.rsi, rsiH=rsiOn?60:0;
+  const w=canvas.clientWidth||600, h=(mode==='candle'?320:290)+rsiH;
   canvas.width=w*dpr; canvas.height=h*dpr; canvas.style.height=h+'px';
   const g=canvas.getContext('2d');
   g.setTransform(1,0,0,1,0,0); // evita acumular escalas entre redesenhos
   g.scale(dpr,dpr);
   g.clearRect(0,0,w,h);
   const padL=6,padR=58,padT=12,padB=26, volH=48;
-  const plotW=w-padL-padR, plotH=h-padT-padB-(mode==='candle'?volH+10:0);
+  const plotW=w-padL-padR, plotH=h-padT-padB-(mode==='candle'?volH+10:0)-rsiH;
   const hi=Math.max(...bars.map(b=>b.h)), lo=Math.min(...bars.map(b=>b.l));
   const span=hi-lo||1, top=hi+span*0.08, bot=lo-span*0.08;
   const X=i=>padL+(i+0.5)*(plotW/bars.length);
@@ -982,6 +1004,48 @@ function drawPriceChart(canvas,bars,mode,color){
     g.beginPath();bars.forEach((b,i)=>i?g.lineTo(X(i),Y(b.c)):g.moveTo(X(i),Y(b.c)));
     g.strokeStyle=color;g.lineWidth=2;g.lineJoin='round';g.stroke();
   }
+  /* Indicadores técnicos */
+  const closes=bars.map(b=>b.c);
+  const drawLine=(vals,fn,stroke,width=1.5,dash=[])=>{
+    g.beginPath(); let started=false;
+    vals.forEach((v,i)=>{ if(v==null) return; const yy=fn(v);
+      if(!started){ g.moveTo(X(i),yy); started=true } else g.lineTo(X(i),yy) });
+    g.strokeStyle=stroke; g.lineWidth=width; g.setLineDash(dash); g.stroke(); g.setLineDash([]);
+  };
+  if(opts.bb||opts.sma){
+    const sma=smaOf(closes,20);
+    if(opts.bb){
+      const up=[],dn=[];
+      sma.forEach((m,i)=>{
+        if(m==null){ up.push(null);dn.push(null);return }
+        const slice=closes.slice(i-19,i+1);
+        const sd=Math.sqrt(slice.reduce((s,v)=>s+(v-m)**2,0)/20);
+        up.push(m+2*sd); dn.push(m-2*sd);
+      });
+      g.beginPath(); let started=false;
+      up.forEach((v,i)=>{ if(v==null)return; const yy=Y(v); started?g.lineTo(X(i),yy):(g.moveTo(X(i),yy),started=true) });
+      for(let i=dn.length-1;i>=0;i--){ if(dn[i]==null)continue; g.lineTo(X(i),Y(dn[i])) }
+      g.closePath(); g.fillStyle='rgba(167,139,250,.10)'; g.fill();
+      drawLine(up,Y,'rgba(167,139,250,.65)',1,[4,3]);
+      drawLine(dn,Y,'rgba(167,139,250,.65)',1,[4,3]);
+    }
+    if(opts.sma) drawLine(sma,Y,'#f5a623',1.8);
+    g.fillStyle='#8d92a3'; g.textAlign='left'; g.font='10px system-ui';
+    g.fillText([opts.sma?'MM20':'',opts.bb?'BB(20,2)':''].filter(Boolean).join(' · '),padL+4,padT+12);
+  }
+  if(rsiOn){
+    const ry=padT+plotH+(mode==='candle'?volH+16:12), rh=48;
+    g.strokeStyle='#2b2e3a'; g.lineWidth=1; g.strokeRect(padL,ry,plotW,rh);
+    g.setLineDash([3,3]); g.strokeStyle='rgba(255,93,108,.5)';
+    [30,70].forEach(v=>{ const y=ry+rh-(v/100)*rh; g.beginPath();g.moveTo(padL,y);g.lineTo(padL+plotW,y);g.stroke() });
+    g.setLineDash([]);
+    const rsi=rsiOf(closes);
+    drawLine(rsi,v=>ry+rh-(v/100)*rh,'#a78bfa',1.6);
+    g.fillStyle='#8d92a3'; g.textAlign='left'; g.fillText('RSI 14',padL+4,ry-4);
+    g.textAlign='right'; g.fillStyle='#a78bfa';
+    g.fillText(rsi[rsi.length-1]!=null?rsi[rsi.length-1].toFixed(1):'—',padL+plotW,ry-4);
+  }
+
   const last=bars[bars.length-1];
   g.setLineDash([4,4]);g.strokeStyle=color+'88';g.lineWidth=1;
   g.beginPath();g.moveTo(padL,Y(last.c));g.lineTo(padL+plotW,Y(last.c));g.stroke();g.setLineDash([]);
@@ -991,7 +1055,7 @@ function drawPriceChart(canvas,bars,mode,color){
   // Handlers registrados uma única vez; a geometria mais recente fica no estado.
   // Isso evita o bug de escala acumulada (setTransform + scale a cada mousemove).
   canvas.__chart={bars,mode,color,w,h,padL,padR,padT,padB,plotW,plotH,X,Y,
-    repaint:()=>drawPriceChart(canvas,bars,mode,color)};
+    repaint:()=>drawPriceChart(canvas,bars,mode,color,opts)};
   if(!canvas.__chartBound){
     canvas.__chartBound=true;
     canvas.addEventListener('mousemove',e=>{
@@ -1036,6 +1100,11 @@ function chartMarkup(sym,price,ch,range,mode){
         <button class="rng ${mode==='line'?'active':''}" data-act="chart-mode" data-mode="line">Linha</button>
         <button class="rng ${mode==='candle'?'active':''}" data-act="chart-mode" data-mode="candle">Candles</button>
       </div>
+      <div class="chart-ind">
+        <button class="rng ${indicators.sma?'active':''}" data-act="chart-ind" data-ind="sma" title="Média móvel de 20 períodos">MM20</button>
+        <button class="rng ${indicators.bb?'active':''}" data-act="chart-ind" data-ind="bb" title="Bandas de Bollinger 20,2">BB</button>
+        <button class="rng ${indicators.rsi?'active':''}" data-act="chart-ind" data-ind="rsi" title="Índice de força relativa 14">RSI</button>
+      </div>
     </div>
     <div class="chart-legend"><span>Máx. <b>R$ ${numBR(hi)}</b></span><span>Mín. <b>R$ ${numBR(lo)}</b></span><span>Período <b>${range}</b></span></div>
     <div class="chart-canvas-wrap"><canvas></canvas><div class="chart-tip"></div></div>
@@ -1054,7 +1123,7 @@ function mountChart(scope){
   const ch=Number(shell.dataset.chartCh||0);
   const range=shell.querySelector('.rng[data-range].active')?.dataset.range||'1M';
   const mode=shell.querySelector('[data-mode].active')?.dataset.mode||'line';
-  drawPriceChart(shell.querySelector('canvas'),genHistory(sym,price,range),mode,ch>=0?'#0fe07f':'#ff5d6c');
+  drawPriceChart(shell.querySelector('canvas'),genHistory(sym,price,range),mode,ch>=0?'#0fe07f':'#ff5d6c',indicators);
 }
 function refreshChart(shell){
   if(!shell) return;
@@ -1064,7 +1133,7 @@ function refreshChart(shell){
   const mode=shell.querySelector('[data-mode].active')?.dataset.mode||'line';
   const bars=genHistory(sym,price,range);
   shell.querySelector('.chart-legend').innerHTML=`<span>Máx. <b>R$ ${numBR(Math.max(...bars.map(b=>b.h)))}</b></span><span>Mín. <b>R$ ${numBR(Math.min(...bars.map(b=>b.l)))}</b></span><span>Período <b>${range}</b></span>`;
-  drawPriceChart(shell.querySelector('canvas'),bars,mode,ch>=0?'#0fe07f':'#ff5d6c');
+  drawPriceChart(shell.querySelector('canvas'),bars,mode,ch>=0?'#0fe07f':'#ff5d6c',indicators);
 }
 
 /* ============================================================
@@ -1073,6 +1142,8 @@ function refreshChart(shell){
 const marketState = {filter:'', sort:'ch', dir:-1};
 /* Cotações ao vivo consultadas na Brapi (v1.2). Chave por ticker. */
 const liveQuotes = {};
+const currencyLive = {};
+const currencyPairs = {'USD/BRL':'USD-BRL','EUR/BRL':'EUR-BRL','GBP/BRL':'GBP-BRL'};
 const applyLive = a => {
   const c = currencyOf(a);                 // cotação de câmbio (se aplicável)
   const q = liveQuotes[c.s];               // cotação de ações/FIIs (se aplicável)
@@ -1083,6 +1154,38 @@ let newsFilter = 'Todas';
 let azLetter = 'Todas';
 let calcTab = 'juros';
 let buscaQuery = '';
+
+/* Alertas de preço — persistidos apenas no navegador (v1.4) */
+let alerts=[];
+try{ const a=JSON.parse(localStorage.getItem('tm_alerts')||'[]'); alerts=Array.isArray(a)?a:[] }catch(e){ alerts=[] }
+const alertState={sym:'PETR4',dir:'above',target:''};
+const saveAlerts=()=>localStorage.setItem('tm_alerts',JSON.stringify(alerts));
+function currentPriceOf(sym){
+  const q=liveQuotes[sym];
+  if(q&&typeof q.price==='number') return q.price;
+  const c=quoteCache[sym];
+  if(c&&typeof c.price==='number') return c.price;
+  const a=assets.find(x=>x.s===sym);
+  return a?a.p:null;
+}
+function renderAlertBadge(){
+  const badge=$('#alertBadge'); if(!badge) return;
+  const n=alerts.filter(a=>a.triggeredAt&&!a.seen).length;
+  badge.textContent=n>9?'9+':(n||'');
+  badge.style.display=n?'grid':'none';
+}
+function checkAlerts(){
+  let changed=false;
+  alerts.forEach(a=>{
+    if(a.triggeredAt) return;
+    const p=currentPriceOf(a.sym);
+    if(p==null) return;
+    if((a.dir==='above'&&p>=a.target)||(a.dir==='below'&&p<=a.target)){
+      a.triggeredAt=Date.now(); a.lastPrice=p; changed=true;
+    }
+  });
+  if(changed){ saveAlerts(); renderAlertBadge(); if(currentPath()==='alertas') renderAlertsList() }
+}
 
 /* ============================================================
    HOME — ticker, menu, carrossel, gráficos e carteira
@@ -1097,6 +1200,7 @@ function toggleMenu(open){
   $('#scrim').classList.toggle('show',open);
   $('#menuBtn').setAttribute('aria-expanded',String(open));
   $('#drawer').setAttribute('aria-hidden',String(!open));
+  $('#drawer').inert=!open;
   if(open) setTimeout(()=>$('#closeMenu').focus(),30);
   else if(document.activeElement && $('#drawer').contains(document.activeElement)) $('#menuBtn').focus();
 }
@@ -1107,11 +1211,10 @@ $$('#drawer a').forEach(a=>a.onclick=()=>toggleMenu(false));
 addEventListener('keydown',e=>{
   if(e.key!=='Escape') return;
   const openModal=$('.modal.show');
-  if(openModal){ openModal.classList.remove('show'); if(openModal===$('#assetModal')) acHide(); return }
+  if(openModal){ closeModal(openModal); return }
   toggleMenu(false);
 });
 
-/* Destaques calculados a partir dos dados — quedas, Graham e players (v1.3) */
 /* Destaques calculados a partir dos dados — quedas, Graham, alvos e casas (v1.3) */
 let totalSlides=3;
 function thumbBars(items,color){
@@ -1149,20 +1252,20 @@ function buildSlides(){
      rows:losers.map(a=>`<a class="slide-line" href="#/ativo/${a.s}"><span class="code">${a.s}</span><span class="nm">${a.n}</span><span class="r down">${pct(a.ch)}</span></a>`).join(''),
      link:'#/acoes',linkText:'Ver todas as ações →'},
     {tag:'Graham',title:'Ações mais descontadas (Graham)',desc:'Maior potencial contra o preço justo √(22,5 × LPA × VPA).',
-     art:thumbBars(rankedGraham.map(x=>({v:x.up,label:`${x.a.s} · Justo R$ ${numBR(x.fair)}`,value:signedPct(x.up),link:`#/ativo/${x.a.s}`})),'#0fe07f'),
-     rows:rankedGraham.map(x=>`<a class="slide-line" href="#/ativo/${x.a.s}"><span class="code">${x.a.s}</span><span class="nm">Justo R$ ${numBR(x.fair)}</span><span class="r up">${signedPct(x.up)}</span></a>`).join(''),
+     art:thumbBars(rankedGraham.map(x=>({v:x.up,label:`${x.a.s} · Justo R$ ${numBR(x.fair)}`,value:pct(x.up),link:`#/ativo/${x.a.s}`})),'#0fe07f'),
+     rows:rankedGraham.map(x=>`<a class="slide-line" href="#/ativo/${x.a.s}"><span class="code">${x.a.s}</span><span class="nm">Justo R$ ${numBR(x.fair)}</span><span class="r up">${pct(x.up)}</span></a>`).join(''),
      link:'#/comparador',linkText:'Comparar valuations →'},
     {tag:'Players',title:'Players do mercado',desc:'Maiores descontos segundo o preço-alvo de cada casa de análise.',
      art:thumbBars(topTargets.map(o=>({v:o.up,label:`${o.house} · ${o.sym}`,
-       value:`R$ ${numBR(o.price)} → R$ ${numBR(o.target)} · ${signedPct(o.up)}`,link:`#/ativo/${o.sym}`})),'#0fe07f'),
+       value:`R$ ${numBR(o.price)} → R$ ${numBR(o.target)} · ${pct(o.up)}`,link:`#/ativo/${o.sym}`})),'#0fe07f'),
      rows:topTargets.map(o=>`<a class="slide-line" href="#/ativo/${o.sym}"><span class="code">${o.sym}</span>
        <span class="nm">${o.house} · R$ ${numBR(o.price)} → ${numBR(o.target)}</span>
-       <span class="r ${o.up>=0?'up':'down'}">${signedPct(o.up)}<span class="rec-mini ${o.rec==='Compra'?'up':o.rec==='Venda'?'down':''}">${o.rec}</span></span></a>`).join(''),
+       <span class="r ${o.up>=0?'up':'down'}">${pct(o.up)}<span class="rec-mini ${o.rec==='Compra'?'up':o.rec==='Venda'?'down':''}">${o.rec}</span></span></a>`).join(''),
      link:'#/comparador',linkText:'Comparar alvos →'},
     {tag:'Casas',title:'Casas de análise',desc:'Ranking por quantidade de preços-alvo e potencial médio implícito.',
-     art:thumbBars(players.map(p=>({v:p.n,label:p.house,value:`${p.n} alvos · ${p.buys} compras · ${signedPct(p.up)}`,link:'#/ativos'})),'#4da3ff'),
+     art:thumbBars(players.map(p=>({v:p.n,label:p.house,value:`${p.n} alvos · ${p.buys} compras · ${pct(p.up)}`,link:'#/ativos'})),'#4da3ff'),
      rows:players.map(p=>`<div class="slide-line"><span class="code">${p.house}</span><span class="nm">${p.n} alvos · ${p.buys} compras</span>
-       <span class="r ${p.up>=0?'up':'down'}">${signedPct(p.up)}</span></div>`).join(''),
+       <span class="r ${p.up>=0?'up':'down'}">${pct(p.up)}</span></div>`).join(''),
      link:'#/ativos',linkText:'Ver ativos cobertos →'}
   ];
   const themes=[['#173c50','#231f4d'],['#3d2c1d','#182a3c'],['#143f35','#352241'],['#3a2a44','#16283b']];
@@ -1478,6 +1581,7 @@ function renderQuotes(list){
     const ch=q.regularMarketChangePercent||0;
     return `<a class="quote" href="#/ativo/${encodeURIComponent(q.symbol)}"><span class="code">${q.symbol}</span><span class="name">${(q.shortName||q.symbol||'').slice(0,16)}</span><span class="price">R$ ${(q.regularMarketPrice||0).toFixed(2).replace('.',',')}</span><span class="chg ${ch>=0?'up':'down'}">${pct(ch)}</span></a>`;
   }).join('');
+  checkAlerts();
 }
 
 function renderPortfolio(list){
@@ -1516,6 +1620,19 @@ function renderPortfolio(list){
   </div>`).join('');
 }
 
+/* Abertura/fechamento de modal com retorno de foco */
+let modalFocus=null;
+function showModal(el){
+  modalFocus=document.activeElement;
+  el.classList.add('show');
+  setTimeout(()=>el.querySelector('input:not([type=hidden]),button')?.focus(),30);
+}
+function closeModal(el){
+  el.classList.remove('show');
+  if(el===$('#assetModal')) acHide();
+  if(modalFocus&&!el.contains(modalFocus)) modalFocus.focus();
+  modalFocus=null;
+}
 let editingSymbol=null;
 function openAsset(symbol){
   editingSymbol=symbol||null;
@@ -1527,13 +1644,13 @@ function openAsset(symbol){
   $('#assetTicker').disabled=!!h;
   $('#deleteAsset').style.display=h?'block':'none';
   acHide();
-  $('#assetModal').classList.add('show');
+  showModal($('#assetModal'));
   setTimeout(()=>(h?$('#assetQty'):$('#assetTicker')).focus(),50);
 }
 $('#addAssetBtn').onclick=()=>openAsset(null);
 $('#addFirstBtn').onclick=()=>openAsset(null);
-$('#closeAssetModal').onclick=()=>{ acHide(); $('#assetModal').classList.remove('show') };
-$('#assetModal').onclick=e=>{ if(e.target.id==='assetModal') $('#assetModal').classList.remove('show') };
+$('#closeAssetModal').onclick=()=>closeModal($('#assetModal'));
+$('#assetModal').onclick=e=>{ if(e.target.id==='assetModal') closeModal($('#assetModal')) };
 $('#saveAsset').onclick=()=>{
   const symbol=$('#assetTicker').value.trim().toUpperCase().replace(/\s+/g,'');
   const qty=Number($('#assetQty').value), avg=Number($('#assetAvg').value);
@@ -1544,14 +1661,15 @@ $('#saveAsset').onclick=()=>{
     if(holdings.some(x=>x.symbol===symbol)){ alert('Esse ativo já está na carteira. Use ✎ para editar.'); return }
     holdings.push({symbol,qty,avg});
   }
-  saveHoldings(); $('#assetModal').classList.remove('show'); loadQuotes();
+  saveHoldings(); closeModal($('#assetModal')); loadQuotes();
 };
 $('#deleteAsset').onclick=()=>{
   if(!editingSymbol) return;
+  if(!confirm('Remover '+editingSymbol+' da carteira?')) return;
   holdings=holdings.filter(x=>x.symbol!==editingSymbol);
   delete quoteCache[editingSymbol];
   localStorage.setItem('tm_quote_cache',JSON.stringify(quoteCache));
-  saveHoldings(); $('#assetModal').classList.remove('show'); loadQuotes();
+  saveHoldings(); closeModal($('#assetModal')); loadQuotes();
 };
 $('#pfRows').addEventListener('click',e=>{
   const b=e.target.closest('button'); if(!b) return;
@@ -1653,8 +1771,9 @@ function renderAssetsTable(list,opts={}){
   if(!rows.length) return '<div class="empty">Nenhum ativo encontrado para o filtro informado.</div>';
   const hasVal=rows.some(a=>a.lpa>0||a.vpa>0);
   const valOf=a=>a.lpa>0?valuation(a):(a.vpa>0?{fair:a.vpa,up:(a.vpa/a.p-1)*100}:null);
+  const th=(k,label,cls='')=>`<th data-act="sort" data-key="${k}" tabindex="0" role="button" class="${cls}" aria-sort="${marketState.sort===k?(marketState.dir===1?'ascending':'descending'):'none'}" aria-label="Ordenar por ${label}">${label}</th>`;
   return `<div class="table-wrap"><table class="table">
-    <thead><tr><th data-act="sort" data-key="s">Ativo</th><th data-act="sort" data-key="n">Nome</th>${showClass?'<th data-act="sort" data-key="c">Classe</th>':''}<th data-act="sort" data-key="p" class="num">Preço</th>${hasVal?'<th class="num">Justo</th><th class="num">Potencial</th>':''}<th data-act="sort" data-key="ch" class="num">Var.</th></tr></thead>
+    <thead><tr>${th('s','Ativo')}${th('n','Nome')}${showClass?th('c','Classe'):''}${th('p','Preço','num')}${hasVal?'<th class="num">Justo</th><th class="num">Potencial</th>':''}${th('ch','Var.','num')}</tr></thead>
     <tbody>${rows.map(a=>{
       const val=valOf(a);
       return `<tr>
@@ -1662,7 +1781,7 @@ function renderAssetsTable(list,opts={}){
       <td>${a.n}</td>
       ${showClass?`<td><span class="pill">${a.c}</span></td>`:''}
       <td class="num">${typeof a.p==='number'?(a.c==='Ações'||a.c==='FIIs'||a.c==='ETFs'?money(a.p):numBR(a.p)):a.p}</td>
-      ${hasVal?`<td class="num">${val?'R$ '+numBR(val.fair):'—'}</td><td class="num ${val?(val.up>=0?'up':'down'):''}">${val?signedPct(val.up):'—'}</td>`:''}
+      ${hasVal?`<td class="num">${val?'R$ '+numBR(val.fair):'—'}</td><td class="num ${val?(val.up>=0?'up':'down'):''}">${val?pct(val.up):'—'}</td>`:''}
       <td class="num ${a.ch>=0?'up':'down'}">${pct(a.ch)}</td>
     </tr>`}).join('')}</tbody>
   </table></div>`;
@@ -1700,10 +1819,10 @@ function queryParam(k){
   try{ return new URLSearchParams(q).get(k) }catch(e){ return null }
 }
 function valuationCard(a,price,v){
-  if(!v){
+  if(!v||v.graham==null){
     if(a.c==='FIIs') return `<section class="panel pad" style="margin-top:14px">
       <div class="section-head"><h3>Valuation</h3><span class="tag">FII</span></div>
-      <div class="val-row"><span class="k">Valor patrimonial por cota</span><span class="v">R$ ${numBR(a.vpa)}</span><span class="u ${price<=a.vpa?'up':'down'}">${signedPct((a.vpa/price-1)*100)}</span></div>
+      <div class="val-row"><span class="k">Valor patrimonial por cota</span><span class="v">R$ ${numBR(a.vpa)}</span><span class="u ${price<=a.vpa?'up':'down'}">${pct((a.vpa/price-1)*100)}</span></div>
       <div class="val-row"><span class="k">Preço / VPA</span><span class="v">${(price/a.vpa).toFixed(2)}x</span><span class="u muted">—</span></div>
       <div class="val-row"><span class="k">Dividend yield</span><span class="v">${a.dy.toFixed(1).replace('.',',')}% a.a.</span><span class="u muted">—</span></div>
       <div class="val-final"><div class="row"><span>Referência patrimonial</span><strong>R$ ${numBR(a.vpa)}</strong></div></div>
@@ -1713,12 +1832,12 @@ function valuationCard(a,price,v){
   }
   return `<section class="panel pad" style="margin-top:14px">
     <div class="section-head"><h3>Preço justo</h3><span class="tag">Valuation</span></div>
-    <div class="val-row"><span class="k">Graham · √(22,5 × LPA × VPA)</span><span class="v">R$ ${numBR(v.graham)}</span><span class="u ${v.grahamUp>=0?'up':'down'}">${signedPct(v.grahamUp)}</span></div>
-    <div class="val-row"><span class="k">P/L justo · 12× LPA</span><span class="v">R$ ${numBR(v.plFair)}</span><span class="u ${v.plFair>=price?'up':'down'}">${signedPct((v.plFair/price-1)*100)}</span></div>
-    ${v.gordon?`<div class="val-row"><span class="k">DDM (Gordon)</span><span class="v">R$ ${numBR(v.gordon)}</span><span class="u ${v.gordon>=price?'up':'down'}">${signedPct((v.gordon/price-1)*100)}</span></div>`:''}
+    <div class="val-row"><span class="k">Graham · √(22,5 × LPA × VPA)</span><span class="v">R$ ${numBR(v.graham)}</span><span class="u ${v.grahamUp>=0?'up':'down'}">${pct(v.grahamUp)}</span></div>
+    <div class="val-row"><span class="k">P/L justo · 12× LPA</span><span class="v">R$ ${numBR(v.plFair)}</span><span class="u ${v.plFair>=price?'up':'down'}">${pct((v.plFair/price-1)*100)}</span></div>
+    ${v.gordon?`<div class="val-row"><span class="k">DDM (Gordon)</span><span class="v">R$ ${numBR(v.gordon)}</span><span class="u ${v.gordon>=price?'up':'down'}">${pct((v.gordon/price-1)*100)}</span></div>`:''}
     <div class="val-final">
       <div class="row"><span>Preço justo médio</span><strong>R$ ${numBR(v.fair)}</strong></div>
-      <div class="row" style="margin-top:4px"><span class="muted small">Potencial vs. cotação atual</span><b class="${v.up>=0?'up':'down'}">${signedPct(v.up)}</b></div>
+      <div class="row" style="margin-top:4px"><span class="muted small">Potencial vs. cotação atual</span><b class="${v.up>=0?'up':'down'}">${pct(v.up)}</b></div>
     </div>
     <div class="metrics">
       <div class="metric"><span>P/L atual</span><b>${a.lpa?(price/a.lpa).toFixed(1).replace('.',',')+'x':'—'}</b></div>
@@ -1733,9 +1852,9 @@ function targetsCard(a,price,c){
   if(!c) return '';
   return `<section class="panel pad" style="margin-top:14px">
     <div class="section-head"><h3>Preços-alvo</h3><span class="tag">Consenso</span></div>
-    ${a.t.map(([h,p,r])=>`<div class="rec"><span class="house">${h}</span><span class="price">R$ ${numBR(p)}</span>${targetBadge(r)}<span class="u ${p>=price?'up':'down'}">${signedPct((p/price-1)*100)}</span></div>`).join('')}
+    ${a.t.map(([h,p,r])=>`<div class="rec"><span class="house">${h}</span><span class="price">R$ ${numBR(p)}</span>${targetBadge(r)}<span class="u ${p>=price?'up':'down'}">${pct((p/price-1)*100)}</span></div>`).join('')}
     <div class="val-final"><div class="row"><span>Preço-alvo médio</span><strong>R$ ${numBR(c.avg)}</strong></div>
-      <div class="row" style="margin-top:4px"><span class="muted small">Potencial implícito</span><b class="${c.up>=0?'up':'down'}">${signedPct(c.up)}</b></div></div>
+      <div class="row" style="margin-top:4px"><span class="muted small">Potencial implícito</span><b class="${c.up>=0?'up':'down'}">${pct(c.up)}</b></div></div>
     <p class="disclaimer"><b>Dados fictícios de demonstração.</b> Os preços e recomendações acima foram criados apenas para ilustrar a interface e não representam publicações reais dessas instituições nem recomendação de investimento.</p>
   </section>`;
 }
@@ -1760,6 +1879,7 @@ function assetDetail(sym){
       <div class="inline-form">
         <button class="btn-ghost" data-act="live-one" data-sym="${a.s}">⟳ Atualizar cotação</button>
         <button class="btn-green" data-act="add-wallet" data-sym="${a.s}">Adicionar à carteira</button>
+        <button class="btn-ghost" data-act="alert-quick" data-sym="${a.s}">🔔 Criar alerta</button>
         <a class="btn-ghost" href="#/historico?ativo=${a.s}" style="display:grid;place-items:center">Simular histórico</a>
         <a class="btn-ghost" href="#/comparador?ativo=${a.s}" style="display:grid;place-items:center">Comparar ativos</a>
       </div>
@@ -1888,7 +2008,7 @@ function academyView(){
   `<div class="cards">${courses.map(c=>`<div class="card">
     <span class="tag">${c.level}</span><h3>${c.title}</h3>
     <p class="muted small">${c.lessons.length} aulas</p>
-    ${c.lessons.map((l,i)=>`<button class="lesson" data-act="lesson" data-id="${c.id}-${i}">▸ ${l}</button><div class="lesson-body" id="${c.id}-${i}" style="display:none">Conteúdo da aula “${l}” do curso ${c.title}. Material de demonstração.</div>`).join('')}
+    ${c.lessons.map((l,i)=>`<button class="lesson" data-act="lesson" data-id="${c.id}-${i}">▸ ${l}</button><div class="lesson-body" id="${c.id}-${i}" style="display:none"><b>${l}</b><br>Nesta aula do curso ${c.title}, você estuda ${l.toLowerCase()} com exemplos práticos usando os dados ilustrativos deste painel: o que observar, como interpretar e onde aplicar no acompanhamento da sua carteira.<br><span class="muted small">Material de estudo demonstrativo.</span></div>`).join('')}
   </div>`).join('')}</div>`;
 }
 
@@ -2075,7 +2195,7 @@ function renderSim(){
       <div class="row"><span>Você teria hoje</span><strong>${money(r.final)}</strong></div>
       <div class="row" style="margin-top:4px"><span class="muted small">Total investido</span><b>${money(r.invested)}</b></div>
       <div class="row" style="margin-top:4px"><span class="muted small">Resultado</span><b class="${up?'up':'down'}">${up?'+':'-'}${money(Math.abs(r.profit))}</b></div>
-      <div class="row" style="margin-top:4px"><span class="muted small">Retorno anualizado (CAGR)</span><b class="${r.cagr>=0?'up':'down'}">${signedPct(r.cagr)}</b></div>
+      <div class="row" style="margin-top:4px"><span class="muted small">Retorno anualizado (CAGR)</span><b class="${r.cagr>=0?'up':'down'}">${pct(r.cagr)}</b></div>
       <div class="row" style="margin-top:4px"><span class="muted small">CDI hipotético (10,5% a.a.)</span><b>${money(r.cdi)}</b></div>
     </div>
     <div style="margin-top:16px">
@@ -2118,7 +2238,7 @@ function renderCompare(){
     return {a,color:PALETTE[i%PALETTE.length],norm:bars.map(b=>b.c/base*100),labels:bars.map(b=>b.label),bars};
   });
   box.innerHTML=`
-    <div class="cmp-legend">${series.map(s=>`<span><i style="background:${s.color}"></i><b>${s.a.s}</b> ${signedPct((s.norm[s.norm.length-1]-100))}</span>`).join('')}</div>
+    <div class="cmp-legend">${series.map(s=>`<span><i style="background:${s.color}"></i><b>${s.a.s}</b> ${pct((s.norm[s.norm.length-1]-100))}</span>`).join('')}</div>
     ${lineChart(series.map(s=>({vals:s.norm,labels:s.labels,color:s.color})),{height:270})}
     <div class="table-wrap" style="margin-top:14px"><table class="table">
       <thead><tr><th>Ativo</th><th class="num">Preço</th><th class="num">Var. período</th><th class="num">Justo</th><th class="num">Potencial</th><th class="num">P/L</th><th class="num">DY</th><th>Consenso</th></tr></thead>
@@ -2127,14 +2247,60 @@ function renderCompare(){
         const c=consensus(s.a);
         return `<tr><td class="cod"><a href="#/ativo/${s.a.s}">${s.a.s}</a></td>
           <td class="num">R$ ${numBR(s.a.p)}</td>
-          <td class="num ${s.norm[s.norm.length-1]>=100?'up':'down'}">${signedPct(s.norm[s.norm.length-1]-100)}</td>
+          <td class="num ${s.norm[s.norm.length-1]>=100?'up':'down'}">${pct(s.norm[s.norm.length-1]-100)}</td>
           <td class="num">${v?'R$ '+numBR(v.fair):'—'}</td>
-          <td class="num ${v?(v.up>=0?'up':'down'):''}">${v?signedPct(v.up):'—'}</td>
+          <td class="num ${v?(v.up>=0?'up':'down'):''}">${v?pct(v.up):'—'}</td>
           <td class="num">${s.a.lpa?(s.a.p/s.a.lpa).toFixed(1).replace('.',',')+'x':'—'}</td>
           <td class="num">${s.a.dy?s.a.dy.toFixed(1).replace('.',',')+'%':'—'}</td>
-          <td>${c?`<span class="${c.up>=0?'up':'down'}">${signedPct(c.up)}</span>`:'—'}</td></tr>`;
+          <td>${c?`<span class="${c.up>=0?'up':'down'}">${pct(c.up)}</span>`:'—'}</td></tr>`;
       }).join('')}</tbody></table></div>
     <p class="disclaimer">Desempenho normalizado na base 100. Séries de preços e fundamentos são ilustrativos e gerados deterministicamente para demonstração.</p>`;
+}
+
+/* ---------- Alertas de preço ---------- */
+function alertasView(){
+  const qa=queryParam('ativo');
+  if(qa&&assets.some(a=>a.s===qa)) alertState.sym=qa;
+  return head('Alertas de preço','Você é avisado no painel quando o ativo atinge o preço definido.',HOME_CRUMB+'Alertas de preço')+
+  `<div class="grid-2">
+    <section class="panel pad">
+      <h3 style="margin-bottom:12px">Novo alerta</h3>
+      <div class="sim-grid">
+        <div class="field"><label>Ativo</label><select id="alertSym" style="width:100%;background:#262a36;border:1px solid var(--line);border-radius:8px;padding:9px;color:#fff">
+          ${assets.map(a=>`<option value="${a.s}" ${a.s===alertState.sym?'selected':''}>${a.s} · ${a.n}</option>`).join('')}</select></div>
+        <div class="field"><label>Condição</label><select id="alertDir" style="width:100%;background:#262a36;border:1px solid var(--line);border-radius:8px;padding:9px;color:#fff">
+          <option value="above" ${alertState.dir==='above'?'selected':''}>Preço sobe até / acima de</option>
+          <option value="below" ${alertState.dir==='below'?'selected':''}>Preço cai até / abaixo de</option></select></div>
+        <div class="field" style="grid-column:1/-1"><label>Preço alvo (R$)</label><input id="alertTarget" type="number" min="0.01" step="0.01" placeholder="Ex.: 45,00" value="${alertState.target}"></div>
+      </div>
+      <button class="btn-green" data-act="alert-add" style="margin-top:14px;width:100%">Criar alerta</button>
+      <p class="muted small" style="margin-top:10px">A verificação usa cotação ao vivo (Brapi), depois o último preço salvo e, por fim, o preço ilustrativo. Tudo fica no seu navegador.</p>
+    </section>
+    <section class="panel pad">
+      <div class="section-head"><h3>Meus alertas</h3><span class="tag" id="alertCount"></span></div>
+      <div id="alertsList"></div>
+    </section>
+  </div>`;
+}
+function renderAlertsList(){
+  const box=$('#alertsList'); if(!box) return;
+  const count=$('#alertCount'); if(count) count.textContent=alerts.length+' alerta(s)';
+  if(!alerts.length){ box.innerHTML='<div class="empty">Nenhum alerta criado. Use o formulário ao lado.</div>'; return }
+  const ordered=[...alerts].sort((a,b)=>(b.triggeredAt||0)-(a.triggeredAt||0));
+  box.innerHTML=ordered.map(a=>{
+    const price=currentPriceOf(a.sym);
+    const ativo=assets.find(x=>x.s===a.sym);
+    const status=a.triggeredAt?'<span class="badge compra">ATINGIDO</span>':'<span class="pill">Ativo</span>';
+    return `<div class="cal-row" style="flex-wrap:wrap">
+      <span class="flag">${a.triggeredAt?'🔔':'🔕'}</span>
+      <span class="cal-name"><a href="#/ativo/${a.sym}" class="link-green">${a.sym}</a>
+        <span class="muted small">${ativo?ativo.n:''} · ${a.dir==='above'?'acima de':'abaixo de'} R$ ${numBR(a.target)}</span></span>
+      <span class="muted small">agora: ${price!=null?'R$ '+numBR(price):'—'}</span>
+      ${status}
+      <span class="pf-actions"><button data-act="alert-del" data-id="${a.id}" title="Remover alerta" aria-label="Remover alerta de ${a.sym}">✕</button></span>
+    </div>`;
+  }).join('')+
+  `<p class="disclaimer">Alertas são verificados ao consultar cotações e ao abrir o app. Não há envio de push notification nem e-mail.</p>`;
 }
 
 function buscaView(){
@@ -2213,6 +2379,7 @@ const routeTable=[
     return comparadorView();
   },'Comparador de ativos'],
   [/^busca$/,buscaView,'Buscar'],
+  [/^alertas$/,alertasView,'Alertas de preço'],
   [/^(sobre|privacidade|termos|cookies)$/,m=>institutionView(m[1]),'Institucional']
 ];
 const BASE_TITLE='TradeMap — notícias, cotações e ferramentas financeiras';
@@ -2235,6 +2402,11 @@ function renderRoute(){
       document.title=title+' — TradeMap';
       if(title==='Calculadoras'||title==='Simulador de investimentos') calcRun();
       if(title==='Buscar') runBusca();
+      if(title==='Alertas de preço'){
+        alerts.forEach(a=>{ if(a.triggeredAt) a.seen=true });
+        saveAlerts(); renderAlertBadge(); renderAlertsList();
+        checkAlerts();
+      }
       if(title==='Ativo') mountChart(VIEW);
       if(title==='Simulador histórico') renderSim();
       if(title==='Comparador de ativos') renderCompare();
@@ -2261,6 +2433,7 @@ function marketListFor(path){
   if(path==='cambio') return currencies;
   if(path==='indices') return indexRows.map(i=>({s:i.s,n:i.n,c:'Índice',p:i.p,ch:i.ch}));
   if(path.startsWith('setor/')) return assets.filter(a=>a.set===decodeURIComponent(path.split('/')[1]));
+  if(path==='ativos'&&azLetter!=='Todas') return assets.filter(a=>a.s.startsWith(azLetter));
   return assets;
 }
 function refreshMarket(){
@@ -2315,8 +2488,6 @@ function exportMarketCSV(){
 }
 
 /* Câmbio ao vivo pela Brapi: /api/v2/currency?currency=USD-BRL,... (v1.3) */
-const currencyLive={};
-const currencyPairs={'USD/BRL':'USD-BRL','EUR/BRL':'EUR-BRL','GBP/BRL':'GBP-BRL','USD/BRL PTAX':'USD-BRL'};
 function parseBrapiNumber(v){
   const s=String(v==null?'':v).trim(); if(!s) return NaN;
   return s.includes(',')?Number(s.replace(/\./g,'').replace(',','.')):Number(s);
@@ -2417,24 +2588,46 @@ VIEW.addEventListener('change',e=>{
     marketState.sort=e.target.value; marketState.dir=e.target.value==='s'||e.target.value==='n'?1:-1;
     refreshMarket();
   }
-  if(e.target.hasAttribute('data-sim')){
-    if(e.target.type==='checkbox') simState.reinvest=e.target.checked;
-    else if(e.target.id==='simAtivo') simState.ativo=e.target.value;
-    else if(e.target.id==='simAno') simState.ano=Number(e.target.value);
-    else if(e.target.id==='simInitial') simState.initial=Number(e.target.value)||0;
-    else if(e.target.id==='simMonthly') simState.monthly=Number(e.target.value)||0;
-    renderSim();
-  }
+  /* data-sim é tratado no listener de input (selects modernos também disparam input) */
 });
 
+VIEW.addEventListener('keydown',e=>{
+  const b=e.target.closest('th[data-act="sort"]');
+  if(b&&(e.key==='Enter'||e.key===' ')){
+    e.preventDefault();
+    const k=b.dataset.key;
+    marketState.dir=marketState.sort===k?-marketState.dir:(k==='s'||k==='n'?1:-1);
+    marketState.sort=k;
+    refreshMarket();
+  }
+});
 VIEW.addEventListener('click',e=>{
   const b=e.target.closest('[data-act]'); if(!b) return;
   const act=b.dataset.act;
   if(act==='live-quotes'){ refreshLiveQuotes(b); return }
   if(act==='currency-refresh'){ loadCurrencies(); return }
   if(act==='csv'){ exportMarketCSV(); return }
+  if(act==='alert-quick'){
+    location.hash='#/alertas?ativo='+encodeURIComponent(b.dataset.sym);
+    return;
+  }
+  if(act==='alert-add'){
+    const sym=$('#alertSym').value, dir=$('#alertDir').value;
+    const target=Number($('#alertTarget').value);
+    if(!Number.isFinite(target)||target<=0){ alert('Informe um preço alvo válido.'); return }
+    alerts.push({id:'a'+Date.now()+Math.floor(Math.random()*1000),sym,dir,target,created:Date.now(),triggeredAt:null,seen:false});
+    saveAlerts(); alertState.sym=sym; alertState.dir=dir; alertState.target='';
+    renderAlertsList(); renderAlertBadge(); checkAlerts();
+    return;
+  }
+  if(act==='alert-del'){
+    alerts=alerts.filter(a=>a.id!==b.dataset.id);
+    saveAlerts(); renderAlertsList(); renderAlertBadge();
+    return;
+  }
   if(act==='live-one'){ refreshLiveQuotes(b,[b.dataset.sym]); return }
-  if(act==='chart-range'||act==='chart-mode'){
+  if(act==='chart-range'||act==='chart-mode'||act==='chart-ind'){
+    if(act==='chart-ind') indicators[b.dataset.ind]=!indicators[b.dataset.ind];
     b.parentElement.querySelectorAll('.rng').forEach(x=>x.classList.remove('active'));
     b.classList.add('active');
     refreshChart(b.closest('.chart-shell'));
@@ -2468,6 +2661,8 @@ VIEW.addEventListener('click',e=>{
 /* Inicialização final da busca e calculadora (caso a rota inicial seja uma delas) */
 calcRun();
 runBusca();
+renderAlertBadge();
+checkAlerts();
 loadCurrencies();
 /* PWA: registramento somente em HTTPS/localhost (v1.2) */
 if('serviceWorker' in navigator && (location.protocol==='https:'||['localhost','127.0.0.1'].includes(location.hostname))){

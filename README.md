@@ -44,8 +44,8 @@ npm test
 
 O `npm test` roda duas checagens:
 
-- `tests/check-version.js` — garante que `package.json`, `sw.js`, `README.md` e `CHANGELOG.md` estejam na mesma versão;
-- `tests/smoke.js` — carrega o HTML em um DOM simulado (jsdom), percorre todas as rotas e verifica se não há erros de JavaScript.
+- `tests/check-version.js` — usa `package.json` como fonte e valida `sw.js`, `README.md` e `CHANGELOG.md`;
+- `tests/smoke.js` — carrega o HTML em um DOM simulado (jsdom), percorre as principais rotas e verifica se não há erros de JavaScript.
 
 ## O que tem
 
@@ -54,6 +54,8 @@ O `npm test` roda duas checagens:
 - **Mapa de setores:** visualização de altas e baixas com detalhe por setor.
 - **Notícias e TradeLetter:** listas filtráveis e páginas de leitura.
 - **Ferramentas:** calculadoras, simulador de aportes, simulador histórico e comparador de ativos com gráficos em canvas/SVG.
+- **Gráficos:** linha ou candles, volume, crosshair e indicadores MM20, Bandas de Bollinger e RSI(14).
+- **Alertas de preço:** cadastre alvos por ativo; o sino no cabeçalho avisa quando uma cotação atinge o valor definido (dados salvos apenas no navegador).
 - **Carteira:** cadastro de ativos com autocomplete via Brapi, cálculo de patrimônio, donut de alocação, persistência em `localStorage`.
 - **Busca global, Academy e páginas institucionais.**
 
@@ -73,13 +75,13 @@ Ao publicar via HTTPS (GitHub Pages, por exemplo), o app pode ser instalado na t
 
 ## Versões
 
-Versão atual: **v1.3.0**. Cada release é uma tag Git (`v1.0.0`, `v1.1.0`, `v1.2.0`, `v1.3.0`). O histórico está no [CHANGELOG.md](CHANGELOG.md).
+Versão atual: **v1.4.0**. Cada release é uma tag Git (`v1.0.0`, `v1.1.0`, `v1.2.0`, `v1.3.0`, `v1.4.0`). O histórico está no [CHANGELOG.md](CHANGELOG.md).
 
 As tags substituem os antigos snapshots em `versions/`. Para inspecionar ou recuperar uma versão antiga sem sair do branch atual:
 
 ```bash
 git show v1.2.0:index.html > /tmp/trademap-v1.2.0.html
-git diff v1.2.0..v1.3.0 -- index.html
+git diff v1.3.0..v1.4.0 -- index.html
 ```
 
 Ao lançar uma versão nova, atualize o número em `package.json`, `sw.js` (nome do cache), `README.md` e `CHANGELOG.md` — o `npm test` falha se algum ficar desatualizado.
@@ -120,8 +122,8 @@ Tudo está em um único `index.html` para facilitar o estudo. Dentro dele:
 Um roadmap aberto, sem ordem de prioridade — pegue o que te interessar:
 
 - [ ] Tema claro/alternante com persistência da escolha.
-- [ ] Indicadores técnicos no gráfico (médias móveis, RSI, bandas de Bollinger).
-- [ ] Alertas de preço e de dividendos salvos no navegador.
+- [x] Indicadores técnicos no gráfico (MM20, RSI, bandas de Bollinger).
+- [x] Alertas de preço salvos no navegador (alertas de dividendos ainda não).
 - [ ] Exportação/importação de toda a carteira com senha ou criptografia local.
 - [ ] Mais fontes de dados públicas (BACEN, B3, APIs de cripto) com fallback offline.
 - [ ] Testes end-to-end com Playwright e capturas de tela versionadas.

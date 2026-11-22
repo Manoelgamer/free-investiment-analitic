@@ -59,12 +59,12 @@ const dom = new JSDOM(html, {
 
 const w = dom.window, d = w.document;
 const routes = [
-  '#/acoes', '#/indices', '#/fis', '#/cripto', '#/cambio', '#/ativos',
+  '#/acoes', '#/indices', '#/fis', '#/etfs', '#/cripto', '#/cambio', '#/ativos',
   '#/ativo/PETR4', '#/ativo/MXRF11', '#/gestoras', '#/mapa-setores',
   '#/setor/Bancos', '#/calendario', '#/noticias', '#/arquivo-noticias',
   '#/noticia/n1', '#/tradeletter', '#/carta/tl1', '#/academy', '#/videos',
   '#/calculadoras', '#/simulador', '#/historico', '#/comparador',
-  '#/busca', '#/sobre', '#/privacidade', '#/nao-existe'
+  '#/busca', '#/sobre', '#/privacidade', '#/termos', '#/cookies', '#/alertas', '#/nao-existe'
 ];
 
 setTimeout(() => {

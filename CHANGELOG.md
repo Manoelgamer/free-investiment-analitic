@@ -2,7 +2,20 @@
 
 Todas as versões notáveis deste projeto são documentadas aqui. O formato segue o [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/).
 
-## [Não publicado]
+## [v1.4.0] — 2026-11-22
+
+### Adicionado
+- **Alertas de preço** (`#/alertas`): cadastro de alvo por ativo (acima/abaixo), verificação com cotação ao vivo/cache/ilustrativa, sino com contador no cabeçalho e atalho na página do ativo. Persistência em `localStorage`.
+- **Indicadores técnicos** no gráfico: MM20, Bandas de Bollinger (20,2) e RSI(14), com painel dedicado do RSI e alternância independente por botão.
+- ETFs incluídos no menu lateral e rotas adicionais cobertas pelo smoke test.
+
+### Corrigido
+- Botão “Ver carteira” começava com o rótulo invertido em relação ao estado da tabela.
+- Filtro por letra (A a Z) e exportação CSV ignoravam a seleção ativa.
+- Erro de inicialização ao abrir o app diretamente em rotas de tabela (`currencyPairs` acessado antes da declaração).
+- Data dos rótulos do gráfico era fixa em nov/2026; agora acompanha a data atual.
+- `valuation()` retornava `null` para FIIs com VPA, causando inconsistência entre páginas.
+- Linha duplicada de Dólar PTAX na tabela de câmbio ao vivo.
 
 ### Alterado
 - Organização do repositório: ícone e mídia movidos para `assets/`; vídeos e legenda referenciados a partir de `assets/videos/`.
