@@ -2,6 +2,14 @@
 
 Todas as versões notáveis deste projeto são documentadas aqui. O formato segue o [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/).
 
+## [v1.5.0] — 2026-11-22
+
+### Adicionado
+- **Universo completo de ativos da B3**: carrega todos os tickers disponíveis na Brapi em duas requisições paginadas (~2.300 ativos, já com preço e variação) e funde com a base curada do projeto. Ações/BDRs, FIIs e ETFs passam a aparecer nas listas, busca, detalhe, alertas e comparador.
+- Cache do catálogo no `localStorage` por 24 h e botão **⟳ Universo** nas páginas de mercado para forçar a atualização. Sem conexão, o app usa a base local.
+- Comparador com campo de busca (60 primeiros resultados) para evitar listas enormes; simulador histórico e alertas limitam o seletor a ativos curados + 100 primeiros.
+- Ativos vindos apenas da Brapi exibem aviso de que não possuem LPA/VPA e preços-alvo na base demonstrativa.
+
 ## [v1.4.5] — 2026-11-22
 
 ### Alterado

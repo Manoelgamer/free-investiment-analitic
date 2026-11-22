@@ -891,7 +891,89 @@ const courses = [
 
 /* Só aparecem no mapa os setores que possuem empresas/FIIs cadastrados na base */
 const sectorAssets = name => assets.filter(a=>a.set===name&&(a.c==='Ações'||a.c==='FIIs'));
-const activeSectors = sectors.filter(([name])=>sectorAssets(name).length>0);
+const activeSectors = () => sectors.filter(([name])=>sectorAssets(name).length>0);
+
+/* ---------- Universo completo de ativos via Brapi (v1.5) ---------- */
+const UNIVERSE_KEY='tm_asset_universe';
+let universeLoaded=false, universeLoading=false, universeCount=0, universeStatusText='';
+const SUBTYPE_CLASS={stock:'Ações',unit:'Ações',bdr:'Ações',fii:'FIIs','fi-infra':'FIIs','fi-agro':'FIIs',fip:'FIIs',fidc:'FIIs',etf:'ETFs'};
+const SETOR_KEYWORDS=[
+  ['Petroquímica',['petróleo','petroquím','petroquim']],['Mineração',['miner']],['Bancos',['banco','bank']],
+  ['Finanças',['financeir','dados financeiros','títulos e val','crédito']],['Varejo',['varejo','retail','vestuário']],
+  ['Máquinas',['máq','maq','equip','motores']],['Bebidas',['bebida','cerveja']],
+  ['Transporte',['transporte','rodov','aéreo','ferrovi','hidrovi','logística']],['Papel',['papel','celulose']],
+  ['Imobiliário',['imobili','fundos imobili','lajes','shoppings','incorpora']],['Construção',['constru','engenharia']],
+  ['Química',['quím','quim']],['Alimentos',['aliment','açucar','acucar','carnes']],
+  ['Saúde',['saúde','saude','hospital','medic']],['Educação',['educa']],
+  ['TI',['tecnologia','software','comput','program','dados']],['Telecom',['telecom','comunica']],
+  ['Utilidades',['energia elétrica','água','saneamento','gás','utilit']],['Agronegócio',['agricult','agro','fertiliz']],
+  ['Siderurgia',['siderurg','aço','ferro']],['Eletrodomésticos',['eletrodom','utensílios']],['Seguros',['segur']]
+];
+function mapSetor(r){
+  const txt=((r.subsector||'')+' '+(r.sector||'')).toLowerCase();
+  for(const [name,keys] of SETOR_KEYWORDS) if(keys.some(k=>txt.includes(k))) return name;
+  return 'Outros';
+}
+function normalizeBrapi(r){
+  return {s:r.symbol,n:r.longName||r.name||r.symbol,c:SUBTYPE_CLASS[r.subType]||'Outros',
+    set:r.subType==='etf'?'Mercado':mapSetor(r),p:Number(r.quote?.lastPrice)||0,
+    ch:Number(r.quote?.changePercent)||0,lpa:0,vpa:0,dy:0,roe:0,t:[],logo:r.logoUrl,brapi:true};
+}
+const fromCompact=a=>({s:a[0],n:a[1],c:a[2],set:a[3],p:a[4],ch:a[5],lpa:0,vpa:0,dy:0,roe:0,t:[],brapi:true});
+function setUniverseStatus(txt){
+  universeStatusText=txt;
+  const el=$('#universeStatus'); if(el) el.textContent=txt;
+}
+function mergeUniverse(items){
+  const have=new Map(assets.map(a=>[a.s,a]));
+  items.forEach(it=>{
+    const ex=have.get(it.s);
+    if(!ex){ assets.push(it); have.set(it.s,it) }
+    else if(!ex.lpa){ ex.p=it.p||ex.p; ex.ch=it.ch; ex.n=it.n||ex.n }
+  });
+  universeCount=assets.length;
+}
+async function fetchUniversePage(page){
+  const ctrl=new AbortController(), timer=setTimeout(()=>ctrl.abort(),15000);
+  try{
+    const res=await fetch('https://brapi.dev/api/v2/tickers?limit=2000&page='+page,{signal:ctrl.signal});
+    if(!res.ok) throw new Error('HTTP '+res.status);
+    const j=await res.json(); if(j.error) throw new Error(j.message||'Erro na Brapi');
+    return j;
+  }finally{ clearTimeout(timer) }
+}
+async function loadAssetUniverse(force=false){
+  if(universeLoading) return;
+  if(!force){
+    try{
+      const c=JSON.parse(localStorage.getItem(UNIVERSE_KEY)||'null');
+      if(c&&Array.isArray(c.items)&&Date.now()-c.ts<86400000){
+        mergeUniverse(c.items.map(fromCompact)); universeLoaded=true;
+        setUniverseStatus(c.items.length+' ativos via Brapi');
+        return;
+      }
+    }catch(e){}
+  }
+  universeLoading=true;
+  setUniverseStatus('Carregando ativos da B3...');
+  try{
+    const p1=await fetchUniversePage(1);
+    const pages=Math.min(3,p1.pagination?.totalPages||1);
+    const rest=await Promise.all(Array.from({length:Math.max(0,pages-1)},(_,i)=>fetchUniversePage(i+2)));
+    const items=[p1,...rest].flatMap(j=>j.results||[]).map(normalizeBrapi).filter(a=>a.s);
+    mergeUniverse(items);
+    try{ localStorage.setItem(UNIVERSE_KEY,JSON.stringify({ts:Date.now(),items:items.map(a=>[a.s,a.n,a.c,a.set,a.p,a.ch])})) }catch(e){}
+    universeLoaded=true;
+    setUniverseStatus(items.length+' ativos da B3 via Brapi');
+    afterUniverseLoad();
+  }catch(err){
+    setUniverseStatus('Brapi indisponível — usando base local');
+  }finally{ universeLoading=false }
+}
+function afterUniverseLoad(){
+  if(!currentPath()) renderSectorGrid(); else renderRoute();
+  setUniverseStatus(universeStatusText);
+}
 
 const videos = [
   {src:'assets/videos/video-dolar-b3.mp4',track:'assets/videos/legenda-dolar-b3.srt',title:'Entenda o dólar e a B3',desc:'Uma visão prática de como o câmbio influencia o mercado de ações brasileiro.'},
@@ -1536,10 +1618,14 @@ function sectorColor(v){
   const a=Math.min(Math.abs(v)*22,55)+25;
   return v>=0?`rgba(15,224,127,${a/100})`:`rgba(255,93,108,${a/100})`;
 }
-$('#sectorGrid').innerHTML=activeSectors.map(([n,v])=>{
-  const qtd=sectorAssets(n).length;
-  return `<a class="sector" style="background:${sectorColor(v)}" href="#/setor/${encodeURIComponent(n)}" title="${n}: ${v>0?'+':''}${v.toFixed(1)}% · ${qtd} ativo(s)">${n}<small>${v>0?'+':''}${v.toFixed(1)}% · ${qtd} ativo(s)</small></a>`;
-}).join('');
+function renderSectorGrid(){
+  const el=$('#sectorGrid'); if(!el) return;
+  el.innerHTML=activeSectors().map(([n,v])=>{
+    const qtd=sectorAssets(n).length;
+    return `<a class="sector" style="background:${sectorColor(v)}" href="#/setor/${encodeURIComponent(n)}" title="${n}: ${v>0?'+':''}${v.toFixed(1)}% · ${qtd} ativo(s)">${n}<small>${v>0?'+':''}${v.toFixed(1)}% · ${qtd} ativo(s)</small></a>`;
+  }).join('');
+}
+renderSectorGrid();
 
 $$('.spark').forEach((el,i)=>{
   const pts=Array.from({length:22},(_,j)=>{
@@ -1933,9 +2019,9 @@ function renderAssetsTable(list,opts={}){
 
 function marketView(kind){
   let list,sub,showClass=true;
-  if(kind==='Ações'){ list=assets.filter(a=>a.c==='Ações'); sub='Ações listadas na B3 — cotações ilustrativas. Clique em um ticker para ver os detalhes.' }
-  else if(kind==='FIIs'){ list=assets.filter(a=>a.c==='FIIs'); sub='Fundos imobiliários — cotações ilustrativas.' }
-  else if(kind==='ETFs'){ list=assets.filter(a=>a.c==='ETFs'); sub='ETFs disponíveis na bolsa brasileira.' }
+  if(kind==='Ações'){ list=assets.filter(a=>a.c==='Ações'); sub=assets.length>50?`${list.length} ações da B3 via Brapi · clique em um ticker para ver os detalhes.`:'Ações listadas na B3 — carregando o universo completo...' }
+  else if(kind==='FIIs'){ list=assets.filter(a=>a.c==='FIIs'); sub=assets.length>50?`${list.length} fundos imobiliários listados na B3.`:'Fundos imobiliários — carregando o universo completo...' }
+  else if(kind==='ETFs'){ list=assets.filter(a=>a.c==='ETFs'); sub=assets.length>50?`${list.length} ETFs disponíveis na bolsa brasileira.`:'ETFs — carregando o universo completo...' }
   else if(kind==='Cripto'){ list=cryptos; sub='Principais criptomoedas e suas variações.'; showClass=false }
   else if(kind==='Câmbio'){ list=currencies; sub='Principais moedas e pares de câmbio.'; showClass=false }
   else { list=indexRows.map(i=>({s:i.s,n:i.n,c:'Índice',p:i.p,ch:i.ch})); sub='Índices e ativos de referência acompanhados pelo portal.'; showClass=false }
@@ -1952,6 +2038,8 @@ function marketView(kind){
           ? '<button class="btn-ghost" data-act="currency-refresh" style="padding:7px 14px">⟳ Câmbio ao vivo</button>'
           : '<button class="btn-ghost" data-act="live-quotes" style="padding:7px 14px">⟳ Cotações ao vivo</button>'}
         <button class="btn-ghost" data-act="csv" style="padding:7px 14px" title="Baixar tabela em CSV">CSV ⬇</button>
+        <button class="btn-ghost" data-act="universe-refresh" style="padding:7px 14px" title="Recarregar lista de ativos da Brapi">⟳ Universo</button>
+        <span class="muted small" id="universeStatus" aria-live="polite">${esc(universeStatusText)}</span>
         <span class="muted small" id="liveStatus" aria-live="polite">${kind==='Câmbio'?(brapiToken?'Consultando câmbio na Brapi...':'Câmbio ilustrativo · configure a chave Brapi'):'Dados ilustrativos'}</span>
       </div>
       <div id="marketRows">${renderAssetsTable(list,{showClass})}</div>
@@ -2039,6 +2127,10 @@ function assetDetail(sym){
       </section>
       ${valuationCard(a,price,v)}
       ${targetsCard(a,price,c)}
+      ${a.brapi&&!a.lpa&&!a.vpa?`<section class="panel pad" style="margin-top:14px">
+        <h3>Fundamentos</h3>
+        <p class="muted small" style="margin-top:8px">Este ativo veio do universo da Brapi e ainda não tem LPA, VPA ou preços-alvo na base demonstrativa. O cálculo de preço justo está disponível apenas para os ativos curados do projeto.</p>
+      </section>`:''}
     </div>
   </div>`;
 }
@@ -2076,7 +2168,7 @@ function gestorasView(){
 function mapaSetoresView(){
   return head('Mapa de setores','Desempenho por setor. Clique em um setor para ver as empresas.',HOME_CRUMB+'Mapa de setores')+
   `<section class="panel pad">
-    <div class="sector-full" id="sectorFull">${activeSectors.map(([n,v])=>{
+    <div class="sector-full" id="sectorFull">${activeSectors().map(([n,v])=>{
       const qtd=sectorAssets(n).length;
       return `<a class="sector" style="background:${sectorColor(v)}" href="#/setor/${encodeURIComponent(n)}" title="${n}: ${v>0?'+':''}${v.toFixed(1)}% · ${qtd} ativo(s)">${n}<small>${v>0?'+':''}${v.toFixed(1)}% · ${qtd} ativo(s)</small></a>`;
     }).join('')}</div>
@@ -2085,7 +2177,7 @@ function mapaSetoresView(){
 }
 
 function setorView(name){
-  const item=activeSectors.find(s=>s[0]===name);
+  const item=activeSectors().find(s=>s[0]===name);
   if(!item) return head('Setor não encontrado','Este setor não possui empresas cadastradas na base demonstrativa.',HOME_CRUMB+'Mapa de setores')+'<section class="panel pad"><a href="#/mapa-setores" class="link-green">← Voltar</a></section>';
   const list=sectorAssets(name);
   return head(name,`Variação do setor: <span class="${item[1]>=0?'up':'down'}">${item[1]>0?'+':''}${item[1].toFixed(1)}%</span>`,HOME_CRUMB+`<a href="#/mapa-setores">Mapa de setores</a> / ${name}`)+
@@ -2310,7 +2402,8 @@ function simulateHistory(){
   return {a,years,final,invested,profit,cagr,cdi:cdiVal,evolution,months};
 }
 function historicalView(){
-  const selectable=assets.filter(a=>a.c==='Ações'||a.c==='FIIs');
+  const selectable=assets.filter(a=>a.lpa>0||a.t?.length)
+    .concat(assets.filter(a=>(a.c==='Ações'||a.c==='FIIs')&&!a.lpa&&!a.t?.length).slice(0,100));
   return head('Simulador histórico','Descubra quanto teria hoje investindo em um ativo no passado.',HOME_CRUMB+'Simulador histórico')+
   `<section class="panel pad">
     <div class="sim-grid">
@@ -2360,12 +2453,19 @@ function renderSim(){
 
 /* ---------- Comparador de ativos ---------- */
 const compareState={syms:['PETR4','VALE3','ITUB4'],range:'6M'};
+let comparePickerQuery='';
+function renderComparePicker(){
+  const grid=$('#cmpGrid'); if(!grid) return;
+  const q=comparePickerQuery.trim().toUpperCase();
+  const list=assets.filter(a=>(a.c==='Ações'||a.c==='FIIs')&&(!q||a.s.includes(q)||String(a.n).toUpperCase().includes(q))).slice(0,60);
+  grid.innerHTML=list.length?list.map(a=>`<label class="pick ${compareState.syms.includes(a.s)?'on':''}" data-pick="${a.s}">
+    <input type="checkbox" data-act="cmp-pick" value="${a.s}" ${compareState.syms.includes(a.s)?'checked':''}><b>${a.s}</b><span class="muted small">${a.c}</span></label>`).join(''):'<div class="empty">Nenhum ativo encontrado.</div>';
+}
 function comparadorView(){
-  const list=assets.filter(a=>a.c==='Ações'||a.c==='FIIs');
   return head('Comparador de ativos','Compare desempenho, valuation e recomendações lado a lado.',HOME_CRUMB+'Comparador de ativos')+
   `<section class="panel pad">
-    <div class="pick-grid">${list.map(a=>`<label class="pick ${compareState.syms.includes(a.s)?'on':''}" data-pick="${a.s}">
-      <input type="checkbox" data-act="cmp-pick" value="${a.s}" ${compareState.syms.includes(a.s)?'checked':''}><b>${a.s}</b><span class="muted small">${a.c}</span></label>`).join('')}</div>
+    <div class="toolbar"><input type="search" data-act="cmp-filter" placeholder="Buscar ativo para comparar (código ou nome)..." aria-label="Buscar ativo" value="${esc(comparePickerQuery)}"></div>
+    <div class="pick-grid" id="cmpGrid"></div>
     <div class="toolbar"><span class="muted small">Período:</span>
       ${['1M','6M','1A','MÁX'].map(r=>`<button class="rng ${compareState.range===r?'active':''}" data-act="cmp-range" data-range="${r}">${r}</button>`).join('')}
       <span class="muted small" id="cmpHint"></span>
@@ -2374,6 +2474,7 @@ function comparadorView(){
   </section>`;
 }
 function renderCompare(){
+  renderComparePicker();
   const box=$('#cmpResult'); if(!box) return;
   const sel=assets.filter(a=>compareState.syms.includes(a.s));
   const hint=$('#cmpHint'); if(hint) hint.textContent=`${sel.length} ativo(s) selecionado(s) · máximo 5`;
@@ -2413,7 +2514,7 @@ function alertasView(){
       <h3 style="margin-bottom:12px">Novo alerta</h3>
       <div class="sim-grid">
         <div class="field"><label>Ativo</label><select id="alertSym" style="width:100%;background:#262a36;border:1px solid var(--line);border-radius:8px;padding:9px;color:#fff">
-          ${assets.map(a=>`<option value="${a.s}" ${a.s===alertState.sym?'selected':''}>${a.s} · ${a.n}</option>`).join('')}</select></div>
+          ${assets.filter(a=>a.lpa>0||a.t?.length||a.s===alertState.sym).concat(assets.filter(a=>!a.lpa&&!a.t?.length&&a.s!==alertState.sym).slice(0,100)).map(a=>`<option value="${a.s}" ${a.s===alertState.sym?'selected':''}>${a.s} · ${a.n}</option>`).join('')}</select></div>
         <div class="field"><label>Condição</label><select id="alertDir" style="width:100%;background:#262a36;border:1px solid var(--line);border-radius:8px;padding:9px;color:#fff">
           <option value="above" ${alertState.dir==='above'?'selected':''}>Preço sobe até / acima de</option>
           <option value="below" ${alertState.dir==='below'?'selected':''}>Preço cai até / abaixo de</option></select></div>
@@ -2470,7 +2571,7 @@ function runBusca(){
   ].filter(p=>hit(p[0]));
   const ativos=assets.filter(a=>hit(a.s)||hit(a.n)).slice(0,12);
   const noticias=news.filter(n=>hit(n.title)||hit(n.src)).slice(0,8);
-  const setores=activeSectors.filter(s=>hit(s[0])).slice(0,8);
+  const setores=activeSectors().filter(s=>hit(s[0])).slice(0,8);
   const groups=[
     ['Páginas e ferramentas',pages.map(p=>`<a href="${p[1]}">${p[0]} →</a>`)],
     ['Ativos',ativos.map(a=>`<a href="#/ativo/${encodeURIComponent(a.s)}"><b>${a.s}</b> · ${a.n} <span class="pill">${a.c}</span></a>`)],
@@ -2710,6 +2811,7 @@ VIEW.addEventListener('input',e=>{
     }
   }
   if(act==='busca'){ buscaQuery=e.target.value; runBusca() }
+  if(act==='cmp-filter'){ comparePickerQuery=e.target.value; renderComparePicker() }
   if(act==='cmp-pick'){
     const s=e.target.value;
     if(e.target.checked){
@@ -2754,6 +2856,11 @@ VIEW.addEventListener('click',e=>{
   if(act==='live-quotes'){ refreshLiveQuotes(b); return }
   if(act==='currency-refresh'){ loadCurrencies(); return }
   if(act==='csv'){ exportMarketCSV(); return }
+  if(act==='universe-refresh'){
+    try{ localStorage.removeItem(UNIVERSE_KEY) }catch(e){}
+    loadAssetUniverse(true);
+    return;
+  }
   if(act==='alert-quick'){
     location.hash='#/alertas?ativo='+encodeURIComponent(b.dataset.sym);
     return;
@@ -2811,6 +2918,7 @@ runBusca();
 renderAlertBadge();
 checkAlerts();
 loadCurrencies();
+loadAssetUniverse();
 /* PWA: registramento somente em HTTPS/localhost (v1.2) */
 if('serviceWorker' in navigator && (location.protocol==='https:'||['localhost','127.0.0.1'].includes(location.hostname))){
   addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));

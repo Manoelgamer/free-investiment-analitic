@@ -51,7 +51,7 @@ O `npm test` roda duas checagens:
 
 ## O que tem
 
-- **Mercados:** ticker animado, cotações, ações, FIIs, ETFs, índices, cripto e câmbio.
+- **Mercados:** ticker animado e **universo completo da B3 via Brapi** (~2.300 ativos: ações/BDRs, FIIs e ETFs, com cotação), além de índices, cripto e câmbio. O catálogo é carregado em runtime e guardado em cache por 24 h; sem rede, a base curada continua funcionando. Botão **⟳ Universo** recarrega a lista.
 - **Destaques do mercado:** carrossel calculado com as maiores quedas do dia, os maiores descontos por Graham, os descontos segundo o preço-alvo dos *players* (BTG, XP, Itaú BBA etc.) e o ranking das casas. Mini-gráficos interativos: clique/`Enter` seleciona a barra e mostra dados completos, `←`/`→` navegam, duplo clique abre o ativo; são recalculados quando chegam cotações ao vivo. Transição suave em loop, autoplay com barra de progresso e arrasto/swipe no mobile.
 - **Mapa de setores:** visualização de altas e baixas com detalhe por setor.
 - **Notícias e Carta Semanal:** listas filtráveis e páginas de leitura (conteúdo demonstrativo).
@@ -77,7 +77,7 @@ Ao publicar via HTTPS (GitHub Pages, por exemplo), o app pode ser instalado na t
 
 ## Versões
 
-Versão atual: **v1.4.5**. Cada release é uma tag Git (`v1.0.0` … `v1.4.5`). O histórico está no [CHANGELOG.md](CHANGELOG.md).
+Versão atual: **v1.5.0**. Cada release é uma tag Git (`v1.0.0` … `v1.5.0`). O histórico está no [CHANGELOG.md](CHANGELOG.md).
 
 As tags substituem os antigos snapshots em `versions/`. Para inspecionar ou recuperar uma versão antiga sem sair do branch atual:
 
