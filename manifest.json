@@ -1,7 +1,7 @@
 {
-  "name": "TradeMap — notícias, cotações e ferramentas financeiras",
-  "short_name": "TradeMap",
-  "description": "Clone demonstrativo do TradeMap com cotações, carteira e ferramentas para acompanhar investimentos.",
+  "name": "Free Invest Analytic — notícias, cotações e ferramentas financeiras",
+  "short_name": "FreeInvest",
+  "description": "Projeto open-source inspirado no TradeMap, com cotações, carteira e ferramentas para acompanhar investimentos.",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",

@@ -2,6 +2,14 @@
 
 Todas as versões notáveis deste projeto são documentadas aqui. O formato segue o [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/).
 
+## [v1.4.2] — 2026-11-22
+
+### Alterado
+- **Rebranding**: ícone original (gráfico de barras com linha de alta), identidade **Free Invest Analytic / FreeInvest** no cabeçalho, menu, título, manifesto PWA, service worker e nome dos arquivos exportados.
+- Rodapé reescrito com licença MIT, link para o repositório e aviso explícito de que o projeto é open-source, independente e apenas inspirado no TradeMap.
+- Páginas institucionais atualizadas: "Sobre", "Termos de Uso" e "Preferências de cookies" agora falam do projeto, não do clone.
+- "TradeLetter" passou a se chamar **Carta Semanal** (as rotas antigas continuam funcionando).
+
 ## [v1.4.1] — 2026-11-22
 
 ### Adicionado

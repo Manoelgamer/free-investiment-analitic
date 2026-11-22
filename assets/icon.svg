@@ -1,4 +1,9 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-label="TradeMap">
-  <rect width="32" height="32" rx="7" fill="#13141b"/>
-  <path d="M16 2c1 5-3 7-3 11 0 2 1 3 2 4-4-1-7-5-7-9C5 12 3 17 5 22c2.5 6 9 9 14 6 6-3.5 7-12 3-17-1 4-4 6-6 7 2-5 1-11 0-16Z" fill="#0fe07f"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-label="Free Invest Analytic">
+  <rect width="32" height="32" rx="8" fill="#13141b"/>
+  <g fill="none" stroke="#0fe07f" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M5 25h22" stroke="#2f5d4a"/>
+    <path d="M8 21v-5M15 21v-9M22 21v-13" opacity=".55"/>
+    <path d="m6 15 7-5 6 3 7-8"/>
+  </g>
+  <path d="M22 5h4v4" fill="none" stroke="#f5a623" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
 </svg>

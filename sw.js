@@ -1,5 +1,5 @@
-/* Service worker do TradeMap — cache-only para assets locais, network-first para navegação. */
-const CACHE = 'trademap-v1.4.1';
+/* Service worker do Free Invest Analytic — cache-only para assets locais, network-first para navegação. */
+const CACHE = 'freeinvest-v1.4.2';
 const ASSETS = ['./', './index.html', './assets/icon.svg', './manifest.json'];
 
 self.addEventListener('install', event => {

@@ -1,8 +1,8 @@
 {
   "name": "free-investiment-analitic",
-  "version": "1.4.1",
+  "version": "1.4.2",
   "private": true,
-  "description": "Clone demonstrativo do TradeMap (HTML/CSS/JS puro)",
+  "description": "Projeto open-source inspirado no TradeMap (HTML/CSS/JS puro)",
   "scripts": {
     "test": "npm run test:version && npm run test:smoke",
     "test:version": "node tests/check-version.js",

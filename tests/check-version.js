@@ -7,7 +7,7 @@ const read = file => fs.readFileSync(path.join(root, file), 'utf8');
 
 const version = JSON.parse(read('package.json')).version;
 const checks = [
-  ['sw.js (nome do cache)', read('sw.js').includes(`trademap-v${version}`)],
+  ['sw.js (nome do cache)', read('sw.js').includes(`freeinvest-v${version}`)],
   ['README.md (versão atual)', read('README.md').includes(`**v${version}**`)],
   ['CHANGELOG.md (release)', read('CHANGELOG.md').includes(`[v${version}]`)]
 ];

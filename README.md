@@ -1,6 +1,8 @@
-# free-investiment-analitic
+# Free Invest Analytic
 
-Um clone demonstrativo do **TradeMap** feito com ajuda de IA para auxiliar quem quer acompanhar investimentos. É uma aplicação **100% front-end** (HTML + CSS + JavaScript puro), sem build e sem dependências.
+Projeto **open-source** e educacional **inspirado no TradeMap**, criado para ajudar quem quer acompanhar investimentos. É uma aplicação **100% front-end** (HTML + CSS + JavaScript puro), sem build e sem dependências.
+
+> Não somos afiliados ao TradeMap nem à Valemobi. O nome e o visual do projeto original foram usados apenas como referência de estudo; todos os dados de mercado, notícias e recomendações aqui são ilustrativos.
 
 ## Propósito
 
@@ -52,7 +54,7 @@ O `npm test` roda duas checagens:
 - **Mercados:** ticker animado, cotações, ações, FIIs, ETFs, índices, cripto e câmbio.
 - **Destaques do mercado:** carrossel calculado com as maiores quedas do dia, os maiores descontos por Graham, os descontos segundo o preço-alvo dos *players* (BTG, XP, Itaú BBA etc.) e o ranking das casas. Mini-gráficos interativos: clique/`Enter` seleciona a barra e mostra dados completos, `←`/`→` navegam, duplo clique abre o ativo; são recalculados quando chegam cotações ao vivo. Transição suave em loop, autoplay com barra de progresso e arrasto/swipe no mobile.
 - **Mapa de setores:** visualização de altas e baixas com detalhe por setor.
-- **Notícias e TradeLetter:** listas filtráveis e páginas de leitura.
+- **Notícias e Carta Semanal:** listas filtráveis e páginas de leitura (conteúdo demonstrativo).
 - **Ferramentas:** calculadoras, simulador de aportes, simulador histórico e comparador de ativos com gráficos em canvas/SVG.
 - **Gráficos:** linha ou candles, volume, crosshair e indicadores MM20, Bandas de Bollinger e RSI(14).
 - **Alertas de preço:** cadastre alvos por ativo; o sino no cabeçalho avisa quando uma cotação atinge o valor definido (dados salvos apenas no navegador).
@@ -75,12 +77,12 @@ Ao publicar via HTTPS (GitHub Pages, por exemplo), o app pode ser instalado na t
 
 ## Versões
 
-Versão atual: **v1.4.1**. Cada release é uma tag Git (`v1.0.0` … `v1.4.1`). O histórico está no [CHANGELOG.md](CHANGELOG.md).
+Versão atual: **v1.4.2**. Cada release é uma tag Git (`v1.0.0` … `v1.4.2`). O histórico está no [CHANGELOG.md](CHANGELOG.md).
 
 As tags substituem os antigos snapshots em `versions/`. Para inspecionar ou recuperar uma versão antiga sem sair do branch atual:
 
 ```bash
-git show v1.2.0:index.html > /tmp/trademap-v1.2.0.html
+git show v1.2.0:index.html > /tmp/freeinvest-v1.2.0.html
 git diff v1.4.0..v1.4.1 -- index.html
 ```
 

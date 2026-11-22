@@ -4,10 +4,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#13141b">
-<meta name="description" content="Notícias, cotações e ferramentas financeiras para acompanhar seus investimentos.">
+<meta name="description" content="Projeto open-source de notícias, cotações e ferramentas financeiras para acompanhar seus investimentos.">
 <link rel="icon" href="assets/icon.svg" type="image/svg+xml">
 <link rel="manifest" href="manifest.json">
-<title>TradeMap — notícias, cotações e ferramentas financeiras</title>
+<title>Free Invest Analytic — notícias, cotações e ferramentas financeiras</title>
 <style>
   :root{
     --bg:#13141b;
@@ -475,15 +475,15 @@
     <button class="icon-btn" id="menuBtn" aria-label="Abrir menu" aria-expanded="false">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
     </button>
-    <a href="#/" class="logo" aria-label="TradeMap — início">
-      <svg class="logo-mark" viewBox="0 0 32 32" fill="currentColor"><path d="M16 2c1 5-3 7-3 11 0 2 1 3 2 4-4-1-7-5-7-9C5 12 3 17 5 22c2.5 6 9 9 14 6 6-3.5 7-12 3-17-1 4-4 6-6 7 2-5 1-11 0-16Z"/></svg>
-      <span>TradeMap</span>
+    <a href="#/" class="logo" aria-label="Free Invest Analytic — início">
+      <svg class="logo-mark" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 25h22"/><path d="M8 21v-5M15 21v-9M22 21v-13" opacity=".55"/><path d="m6 15 7-5 6 3 7-8"/><path d="M22 5h4v4" stroke="#f5a623"/></svg>
+      <span>FreeInvest</span>
     </a>
     <a class="icon-btn alert-btn" href="#/alertas" aria-label="Alertas de preço">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M13.7 21a2 2 0 0 1-3.4 0"/></svg>
       <span class="alert-badge" id="alertBadge" style="display:none" aria-hidden="true"></span>
     </a>
-    <a class="search-btn" href="#/busca" aria-label="Buscar no TradeMap">
+    <a class="search-btn" href="#/busca" aria-label="Buscar no Free Invest Analytic">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
       <span>Buscar ativos, notícias e ferramentas</span>
     </a>
@@ -497,7 +497,7 @@
 <div class="scrim" id="scrim"></div>
 <nav class="drawer" id="drawer" aria-label="Menu principal" inert>
   <div class="drawer-head">
-    <span class="logo"><svg class="logo-mark" viewBox="0 0 32 32" fill="currentColor"><path d="M16 2c1 5-3 7-3 11 0 2 1 3 2 4-4-1-7-5-7-9C5 12 3 17 5 22c2.5 6 9 9 14 6 6-3.5 7-12 3-17-1 4-4 6-6 7 2-5 1-11 0-16Z"/></svg><span>TradeMap</span></span>
+    <span class="logo"><svg class="logo-mark" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 25h22"/><path d="M8 21v-5M15 21v-9M22 21v-13" opacity=".55"/><path d="m6 15 7-5 6 3 7-8"/><path d="M22 5h4v4" stroke="#f5a623"/></svg><span>FreeInvest</span></span>
     <button class="icon-btn" id="closeMenu" aria-label="Fechar menu">✕</button>
   </div>
   <h3>Início</h3>
@@ -507,7 +507,7 @@
   <h3>Ferramentas</h3>
   <a href="#/calculadoras">Calculadoras</a><a href="#/simulador">Simulador de investimentos</a><a href="#/historico">Simulador histórico</a><a href="#/comparador">Comparador de ativos</a><a href="#/alertas">Alertas de preço</a><a href="#/mapa-setores">Mapa de setores</a><a href="#/calendario">Calendário econômico</a>
   <h3>Conteúdo</h3>
-  <a href="#/noticias">Notícias</a><a href="#/arquivo-noticias">Arquivo de notícias</a><a href="#/tradeletter">TradeLetter</a><a href="#/academy">Academy</a><a href="#/videos">Vídeos</a>
+  <a href="#/noticias">Notícias</a><a href="#/arquivo-noticias">Arquivo de notícias</a><a href="#/tradeletter">Carta Semanal</a><a href="#/academy">Academy</a><a href="#/videos">Vídeos</a>
   <h3>Institucional</h3>
   <a href="#/sobre">Sobre</a><a href="#/privacidade">Privacidade</a><a href="#/termos">Termos de Uso</a><a href="#/cookies">Preferências de cookies</a>
 </nav>
@@ -656,8 +656,12 @@
   <div id="view-dynamic" style="display:none"></div>
 
   <footer>
-    <div class="foot-col"><a href="#/" class="logo"><svg class="logo-mark" viewBox="0 0 32 32" fill="currentColor"><path d="M16 2c1 5-3 7-3 11 0 2 1 3 2 4-4-1-7-5-7-9C5 12 3 17 5 22c2.5 6 9 9 14 6 6-3.5 7-12 3-17-1 4-4 6-6 7 2-5 1-11 0-16Z"/></svg><span>TradeMap</span></a><span>© 2026 TradeMap · Valemobi.</span><span>Cotações via Brapi · delay de 15 min.</span></div>
-    <div class="foot-col"><b>Índices do portal</b><a href="#/ativos">Ativos de A a Z</a><a href="#/gestoras">Gestoras de fundos</a><a href="#/arquivo-noticias">Arquivo de notícias</a></div>
+    <div class="foot-col"><a href="#/" class="logo"><svg class="logo-mark" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 25h22"/><path d="M8 21v-5M15 21v-9M22 21v-13" opacity=".55"/><path d="m6 15 7-5 6 3 7-8"/><path d="M22 5h4v4" stroke="#f5a623"/></svg><span>FreeInvest</span></a>
+      <span>© 2026 Free Invest Analytic · licença MIT.</span>
+      <span>Projeto open-source inspirado no TradeMap, sem vínculo com a marca.</span>
+      <span>Cotações via Brapi · delay de 15 min.</span>
+      <a href="https://github.com/Manoelgamer/free-investiment-analitic" target="_blank" rel="noopener" class="link-green">Ver no GitHub →</a></div>
+    <div class="foot-col"><b>Navegação</b><a href="#/ativos">Ativos de A a Z</a><a href="#/gestoras">Gestoras de fundos</a><a href="#/arquivo-noticias">Arquivo de notícias</a></div>
     <div class="foot-col"><b>Institucional</b><a href="#/sobre">Sobre</a><a href="#/privacidade">Privacidade</a><a href="#/termos">Termos de Uso</a><a href="#/cookies">Preferências de cookies</a></div>
   </footer>
 </div>
@@ -806,19 +810,19 @@ const news = [
 ];
 
 const letters = [
-  {id:'tl1',title:'TradeLetter Semanal | 15 – 21 Novembro 2026',date:'21/11/2026',tag:'Semanal',
+  {id:'tl1',title:'Carta Semanal Semanal | 15 – 21 Novembro 2026',date:'21/11/2026',tag:'Semanal',
    body:[
      'Nesta edição: o impacto das discussões fiscais no Ibovespa, a performance dos setores de TI e Varejo e o que esperar da próxima semana de indicadores.',
      'O cenário externo segue dominado pela expectativa em torno da política monetária americana. No Brasil, o mercado monitora a tramitação das medidas fiscais e seus efeitos sobre a curva de juros.',
      'Na agenda, destaque para o IGP-M e o IPCA-15. Para a carteira, recomendamos atenção à exposição em ativos sensíveis a juros e diversificação setorial.'
    ]},
-  {id:'tl2',title:'TradeLetter Semanal | 8 – 14 Novembro 2026',date:'14/11/2026',tag:'Semanal',
+  {id:'tl2',title:'Carta Semanal Semanal | 8 – 14 Novembro 2026',date:'14/11/2026',tag:'Semanal',
    body:[
      'Semana de recuperação para os ativos de risco, com o Ibovespa avançando após dados de inflação abaixo do esperado.',
      'O dólar recuou e beneficiou as ações de exportadoras, enquanto o setor bancário registrou performance mista.',
      'Seguimos atentos à abertura da temporada de resultados do quarto trimestre e às decisões dos bancos centrais.'
    ]},
-  {id:'tl3',title:'TradeLetter Especial | Fundos imobiliários em foco',date:'07/11/2026',tag:'Especial',
+  {id:'tl3',title:'Carta Semanal Especial | Fundos imobiliários em foco',date:'07/11/2026',tag:'Especial',
    body:[
      'Os fundos imobiliários voltaram a atrair atenção dos investidores com a queda da taxa de juros e a retomada da ocupação dos imóveis comerciais.',
      'Analisamos os principais segmentos — logística, shoppings e lajes corporativas — e os critérios para seleção de FIIs.',
@@ -859,10 +863,10 @@ const calendar = [
 ];
 
 const institutional = {
-  sobre:{title:'Sobre o TradeMap',text:[
-    'O TradeMap é uma plataforma de notícias, cotações e ferramentas financeiras voltada ao investidor brasileiro. Reunimos informações de mercado, indicadores macroeconômicos e utilidades para acompanhar seus investimentos.',
-    'Esta é uma versão demonstrativa construída como projeto de estudo. As cotações da carteira são obtidas pela API Brapi; os demais dados de mercado e notícias são ilustrativos.',
-    'O objetivo é oferecer uma experiência completa de navegação, com ferramentas funcionais e conteúdo organizado por seções.'
+  sobre:{title:'Sobre o projeto',text:[
+    'O Free Invest Analytic é um projeto open-source e educacional, inspirado no TradeMap, criado para quem quer acompanhar investimentos sem depender de serviços pagos.',
+    'É uma aplicação 100% front-end: cotações e autocomplete vêm da API pública Brapi, enquanto notícias, séries históricas e recomendações são dados ilustrativos gerados para demonstrar a interface.',
+    'O código é aberto sob a licença MIT. Você pode copiar, estudar, modificar e contribuir no repositório do projeto. Não há vínculo com o TradeMap nem com a Valemobi.'
   ]},
   privacidade:{title:'Privacidade',text:[
     'Este projeto não coleta dados pessoais, não utiliza cookies de rastreamento e não exige cadastro.',
@@ -870,12 +874,13 @@ const institutional = {
     'Você pode remover todos esses dados a qualquer momento limpando os dados do site nas configurações do navegador.'
   ]},
   termos:{title:'Termos de Uso',text:[
-    'O conteúdo exibido nesta demonstração tem finalidade exclusivamente informativa e educacional.',
+    'Este projeto é independente e não tem qualquer vínculo com o TradeMap. Nomes de casas de análise e preços-alvo exibidos são fictícios e servem apenas para demonstração.',
+    'O conteúdo exibido tem finalidade exclusivamente informativa e educacional.',
     'As cotações podem sofrer atraso de até 15 minutos e não devem ser consideradas para decisões de investimento em tempo real.',
     'O uso da API Brapi está sujeito aos termos do próprio provedor, incluindo limites de requisições e chaves de acesso.'
   ]},
   cookies:{title:'Preferências de cookies',text:[
-    'Esta versão do TradeMap não utiliza cookies. Não há banner de consentimento porque nenhum dado é rastreado.',
+    'Este projeto não utiliza cookies. Não há banner de consentimento porque nenhum dado é rastreado.',
     'A persistência da carteira, do token e do cache de cotações é feita por localStorage, que permanece apenas no seu navegador e pode ser apagado a qualquer momento.',
     'Não há preferências de cookies para ajustar.'
   ]}
@@ -1773,10 +1778,10 @@ $('#refreshBtn').onclick=loadQuotes;
 /* Exportação/importação da carteira (v1.1) — o token Brapi NÃO é exportado. */
 $('#exportBtn').onclick=()=>{
   if(!holdings.length){ alert('Sua carteira está vazia.'); return }
-  const data={app:'TradeMap',version:1,exportedAt:new Date().toISOString(),holdings};
+  const data={app:'Free Invest Analytic',version:1,exportedAt:new Date().toISOString(),holdings};
   const url=URL.createObjectURL(new Blob([JSON.stringify(data,null,2)],{type:'application/json'}));
   const a=document.createElement('a');
-  a.href=url; a.download='trademap-carteira-'+new Date().toISOString().slice(0,10)+'.json';
+  a.href=url; a.download='freeinvest-carteira-'+new Date().toISOString().slice(0,10)+'.json';
   document.body.appendChild(a); a.click(); a.remove();
   setTimeout(()=>URL.revokeObjectURL(url),1000);
 };
@@ -2036,15 +2041,15 @@ function articleView(id){
 }
 
 function lettersView(){
-  return head('TradeLetter','Newsletters com o resumo dos mercados.',HOME_CRUMB+'TradeLetter')+
+  return head('Carta Semanal','Newsletters com o resumo dos mercados.',HOME_CRUMB+'Carta Semanal')+
   `<div class="cards">${letters.map(l=>`<a class="card" href="#/carta/${l.id}">
     <span class="tag">${l.tag}</span><h3>${l.title}</h3><p class="muted small">${l.body[0]}</p><span class="foot">${l.date} · Ler edição →</span>
   </a>`).join('')}</div>`;
 }
 function letterView(id){
   const l=letters.find(x=>x.id===id);
-  if(!l) return head('Edição não encontrada','',HOME_CRUMB+'TradeLetter')+'<section class="panel pad"><a href="#/tradeletter" class="link-green">← Voltar</a></section>';
-  return head(l.tag,l.date,HOME_CRUMB+`<a href="#/tradeletter">TradeLetter</a> / ${l.id}`)+
+  if(!l) return head('Edição não encontrada','',HOME_CRUMB+'Carta Semanal')+'<section class="panel pad"><a href="#/tradeletter" class="link-green">← Voltar</a></section>';
+  return head(l.tag,l.date,HOME_CRUMB+`<a href="#/tradeletter">Carta Semanal</a> / ${l.id}`)+
   `<article class="panel pad article"><span class="tag">${l.tag}</span><h2>${l.title}</h2>
     ${l.body.map(p=>`<p>${p}</p>`).join('')}
     <p><a href="#/tradeletter" class="link-green">← Todas as edições</a></p></article>`;
@@ -2353,7 +2358,7 @@ function renderAlertsList(){
 function buscaView(){
   return head('Buscar','Encontre ativos, notícias, setores e ferramentas.',HOME_CRUMB+'Buscar')+
   `<section class="panel pad">
-    <div class="toolbar"><input type="search" data-act="busca" id="buscaInput" placeholder="O que você procura?" aria-label="Buscar no TradeMap" value="${esc(buscaQuery)}"></div>
+    <div class="toolbar"><input type="search" data-act="busca" id="buscaInput" placeholder="O que você procura?" aria-label="Buscar no Free Invest Analytic" value="${esc(buscaQuery)}"></div>
     <div id="buscaOut"></div>
   </section>`;
 }
@@ -2367,7 +2372,7 @@ function runBusca(){
     ['Ações','#/acoes'],['Índices','#/indices'],['Fundos imobiliários','#/fis'],['Cripto','#/cripto'],['Câmbio','#/cambio'],
     ['Ativos de A a Z','#/ativos'],['Calculadoras','#/calculadoras'],['Simulador de investimentos','#/simulador'],
     ['Mapa de setores','#/mapa-setores'],['Calendário econômico','#/calendario'],['Notícias','#/noticias'],
-    ['TradeLetter','#/tradeletter'],['Academy','#/academy'],['Vídeos','#/videos'],['Gestoras de fundos','#/gestoras']
+    ['Carta Semanal','#/tradeletter'],['Academy','#/academy'],['Vídeos','#/videos'],['Gestoras de fundos','#/gestoras']
   ].filter(p=>hit(p[0]));
   const ativos=assets.filter(a=>hit(a.s)||hit(a.n)).slice(0,12);
   const noticias=news.filter(n=>hit(n.title)||hit(n.src)).slice(0,8);
@@ -2410,8 +2415,8 @@ const routeTable=[
   [/^noticias$/,()=>newsListView(false),'Notícias'],
   [/^arquivo-noticias$/,()=>newsListView(true),'Arquivo de notícias'],
   [/^noticia\/(.+)$/,m=>articleView(m[1]),'Notícia'],
-  [/^tradeletter$/,lettersView,'TradeLetter'],
-  [/^carta\/(.+)$/,m=>letterView(m[1]),'TradeLetter'],
+  [/^tradeletter$/,lettersView,'Carta Semanal'],
+  [/^carta\/(.+)$/,m=>letterView(m[1]),'Carta Semanal'],
   [/^academy$/,academyView,'Academy'],
   [/^videos$/,videosView,'Vídeos'],
   [/^calculadoras$/,()=>calculatorsView('juros'),'Calculadoras'],
@@ -2429,7 +2434,7 @@ const routeTable=[
   [/^alertas$/,alertasView,'Alertas de preço'],
   [/^(sobre|privacidade|termos|cookies)$/,m=>institutionView(m[1]),'Institucional']
 ];
-const BASE_TITLE='TradeMap — notícias, cotações e ferramentas financeiras';
+const BASE_TITLE='Free Invest Analytic — notícias, cotações e ferramentas financeiras';
 
 function currentPath(){
   return decodeURIComponent(location.hash.replace(/^#\/?/,'')).split('?')[0];
@@ -2446,7 +2451,7 @@ function renderRoute(){
     if(m){
       HOME.style.display='none'; VIEW.style.display='';
       VIEW.innerHTML=fn(m);
-      document.title=title+' — TradeMap';
+      document.title=title+' — Free Invest Analytic';
       if(title==='Calculadoras'||title==='Simulador de investimentos') calcRun();
       if(title==='Buscar') runBusca();
       if(title==='Alertas de preço'){
@@ -2464,7 +2469,7 @@ function renderRoute(){
   }
   HOME.style.display='none'; VIEW.style.display='';
   VIEW.innerHTML=head('Página não encontrada','O endereço acessado não existe.',HOME_CRUMB)+'<section class="panel pad"><a href="#/" class="link-green">← Voltar ao início</a></section>';
-  document.title='Página não encontrada — TradeMap';
+  document.title='Página não encontrada — Free Invest Analytic';
 }
 addEventListener('hashchange',renderRoute);
 renderRoute();
@@ -2532,7 +2537,7 @@ function exportMarketCSV(){
     marketState.filter?(a.s+a.n).toUpperCase().includes(marketState.filter.toUpperCase()):true);
   const data=[['Codigo','Nome','Classe','Preco','Variacao %'],
     ...rows.map(a=>[a.s,a.n,a.c||'',typeof a.p==='number'?a.p.toFixed(2).replace('.',','):a.p,(a.ch||0).toFixed(2).replace('.',',')])];
-  downloadCSV('trademap-'+path.replace(/[^\w-]/g,'-')+'.csv',data);
+  downloadCSV('freeinvest-'+path.replace(/[^\w-]/g,'-')+'.csv',data);
 }
 
 /* Câmbio ao vivo pela Brapi: /api/v2/currency?currency=USD-BRL,... (v1.3) */
