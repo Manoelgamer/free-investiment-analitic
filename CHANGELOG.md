@@ -2,6 +2,12 @@
 
 Todas as versões notáveis deste projeto são documentadas aqui. O formato segue o [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/).
 
+## [v1.4.1] — 2026-11-22
+
+### Adicionado
+- Mini-gráficos dos destaques agora são exploráveis: clique ou `Enter` seleciona uma barra e abre um painel com dados completos (cotação, justo, alvo, recomendação), `←`/`→` navegam entre as barras, duplo clique abre a página do ativo e o tooltip explica os atalhos.
+- Indicador visual “dinâmico” com pulso no mini-gráfico; ao atualizar cotações ao vivo, os quatro destaques são recalculados e o slide atual é preservado.
+
 ## [v1.4.0] — 2026-11-22
 
 ### Adicionado

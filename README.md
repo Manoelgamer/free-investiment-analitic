@@ -50,7 +50,7 @@ O `npm test` roda duas checagens:
 ## O que tem
 
 - **Mercados:** ticker animado, cotações, ações, FIIs, ETFs, índices, cripto e câmbio.
-- **Destaques do mercado:** carrossel calculado com as maiores quedas do dia, os maiores descontos por Graham, os descontos segundo o preço-alvo dos *players* (BTG, XP, Itaú BBA etc.) e o ranking das casas. Mini-gráficos com tooltip e atalho para o ativo; transição suave em loop, autoplay com barra de progresso e arrasto/swipe no mobile.
+- **Destaques do mercado:** carrossel calculado com as maiores quedas do dia, os maiores descontos por Graham, os descontos segundo o preço-alvo dos *players* (BTG, XP, Itaú BBA etc.) e o ranking das casas. Mini-gráficos interativos: clique/`Enter` seleciona a barra e mostra dados completos, `←`/`→` navegam, duplo clique abre o ativo; são recalculados quando chegam cotações ao vivo. Transição suave em loop, autoplay com barra de progresso e arrasto/swipe no mobile.
 - **Mapa de setores:** visualização de altas e baixas com detalhe por setor.
 - **Notícias e TradeLetter:** listas filtráveis e páginas de leitura.
 - **Ferramentas:** calculadoras, simulador de aportes, simulador histórico e comparador de ativos com gráficos em canvas/SVG.
@@ -75,13 +75,13 @@ Ao publicar via HTTPS (GitHub Pages, por exemplo), o app pode ser instalado na t
 
 ## Versões
 
-Versão atual: **v1.4.0**. Cada release é uma tag Git (`v1.0.0`, `v1.1.0`, `v1.2.0`, `v1.3.0`, `v1.4.0`). O histórico está no [CHANGELOG.md](CHANGELOG.md).
+Versão atual: **v1.4.1**. Cada release é uma tag Git (`v1.0.0` … `v1.4.1`). O histórico está no [CHANGELOG.md](CHANGELOG.md).
 
 As tags substituem os antigos snapshots em `versions/`. Para inspecionar ou recuperar uma versão antiga sem sair do branch atual:
 
 ```bash
 git show v1.2.0:index.html > /tmp/trademap-v1.2.0.html
-git diff v1.3.0..v1.4.0 -- index.html
+git diff v1.4.0..v1.4.1 -- index.html
 ```
 
 Ao lançar uma versão nova, atualize o número em `package.json`, `sw.js` (nome do cache), `README.md` e `CHANGELOG.md` — o `npm test` falha se algum ficar desatualizado.
