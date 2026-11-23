@@ -2,6 +2,11 @@
 
 Todas as versões notáveis deste projeto são documentadas aqui. O formato segue o [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/).
 
+## [v1.6.3] — 2026-11-23
+
+### Alterado
+- Repositório renomeado no GitHub de `free-investiment-analitic` para **trade-radar** — nome curto, alinhado ao "radar de mercado" (mapa de setores, alertas e varredura da B3). Remote, links e `package.json` atualizados.
+
 ## [v1.6.2] — 2026-11-23
 
 ### Alterado

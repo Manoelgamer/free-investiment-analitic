@@ -89,7 +89,9 @@ Ao publicar via HTTPS (GitHub Pages, por exemplo), o app pode ser instalado na t
 
 ## Versões
 
-Versão atual: **v1.6.2**. Cada release é uma tag Git (`v1.0.0` … `v1.6.2`). O histórico está no [CHANGELOG.md](CHANGELOG.md).
+Versão atual: **v1.6.3**. Cada release é uma tag Git (`v1.0.0` … `v1.6.3`). O histórico está no [CHANGELOG.md](CHANGELOG.md).
+
+> O repositório se chama **trade-radar** (antes `free-investiment-analitic`). O link antigo redireciona automaticamente para o novo.
 
 As tags substituem os antigos snapshots em `versions/`. Para inspecionar ou recuperar uma versão antiga sem sair do branch atual:
 
