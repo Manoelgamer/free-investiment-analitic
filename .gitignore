@@ -14,3 +14,6 @@ __pycache__/
 
 # Dados internos do ambiente de desenvolvimento
 .opencode/
+
+# Pipeline de vídeo vertical — projeto separado, não versionar aqui
+video/
