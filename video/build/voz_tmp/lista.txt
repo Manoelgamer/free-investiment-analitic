@@ -1,0 +1,7 @@
+file '/home/manoel/Documentos/Projeto TradeMap/video/build/voz_tmp/seg_1.mp3'
+file '/home/manoel/Documentos/Projeto TradeMap/video/build/voz_tmp/seg_2.mp3'
+file '/home/manoel/Documentos/Projeto TradeMap/video/build/voz_tmp/seg_3.mp3'
+file '/home/manoel/Documentos/Projeto TradeMap/video/build/voz_tmp/seg_4.mp3'
+file '/home/manoel/Documentos/Projeto TradeMap/video/build/voz_tmp/seg_5.mp3'
+file '/home/manoel/Documentos/Projeto TradeMap/video/build/voz_tmp/seg_6.mp3'
+file '/home/manoel/Documentos/Projeto TradeMap/video/build/voz_tmp/seg_7.mp3'

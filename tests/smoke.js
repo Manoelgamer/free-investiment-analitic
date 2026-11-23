@@ -70,8 +70,12 @@ const routes = [
 setTimeout(() => {
   const checks = [];
   const ck = (name, ok) => checks.push([name, !!ok]);
+  const version = JSON.parse(fs.readFileSync('package.json', 'utf8')).version;
+  ck('versao package.json/sw.js', fs.readFileSync('sw.js', 'utf8').includes('freeinvest-v' + version));
+  ck('versao README.md', fs.readFileSync('README.md', 'utf8').includes('**v' + version + '**'));
+  ck('versao CHANGELOG.md', fs.readFileSync('CHANGELOG.md', 'utf8').includes('[v' + version + ']'));
   ck('ticker preenchido', d.querySelectorAll('#tickerTrack .tick').length > 0);
-  ck('setores preenchidos', d.querySelectorAll('#sectorGrid .sector').length === 24);
+  ck('setores preenchidos', d.querySelectorAll('#sectorGrid .sector').length >= 10);
   ck('noticias preenchidas', d.querySelectorAll('#newsList .news-item').length > 0);
   ck('calendario preenchido', d.querySelectorAll('#calTeaser .cal-row').length > 0);
   ck('skip-link presente', !!d.querySelector('.skip-link'));

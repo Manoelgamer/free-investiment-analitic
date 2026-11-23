@@ -1,12 +1,12 @@
 {
   "name": "free-investiment-analitic",
-  "version": "1.6.1",
+  "version": "1.6.2",
   "private": true,
   "description": "Projeto open-source inspirado no TradeMap (HTML/CSS/JS puro)",
   "scripts": {
-    "test": "npm run test:version && npm run test:smoke",
-    "test:version": "node tests/check-version.js",
-    "test:smoke": "node tests/smoke.js index.html"
+    "test": "node tests/smoke.js index.html && python3 -m unittest tests.test_backend -q",
+    "test:smoke": "node tests/smoke.js index.html",
+    "test:backend": "python3 -m unittest tests.test_backend -q"
   },
   "engines": {
     "node": ">=18"

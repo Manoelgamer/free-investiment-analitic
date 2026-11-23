@@ -32,7 +32,8 @@ python3 -m http.server 8000
 | `index.html` | Versão atual da aplicação (a que o GitHub Pages serve). |
 | `assets/icon.svg`, `manifest.json`, `sw.js` | Suporte a PWA/instalação e cache offline. |
 | `assets/videos/` | Vídeos da página `#/videos` e a legenda `.srt`. |
-| `tests/` | Verificação de versão e smoke test de rotas/interface. |
+| `tests/` | Smoke test (rotas, interface e versão) e testes do backend. |
+| `backend/` | Servidor opcional em Python puro (catálogo, validação, cotações). |
 | `CHANGELOG.md` | Histórico de mudanças. |
 
 > O vídeo estendido `video-dolar-b3-pro.mp4` (~28 MB) fica apenas local e é ignorado pelo Git. Se quiser usá-lo, coloque-o em `assets/videos/`; ele não é necessário para rodar o projeto. O projeto auxiliar `chat-qr/` também fica fora do repositório.
@@ -46,8 +47,18 @@ npm test
 
 O `npm test` roda duas checagens:
 
-- `tests/check-version.js` — usa `package.json` como fonte e valida `sw.js`, `README.md` e `CHANGELOG.md`;
-- `tests/smoke.js` — carrega o HTML em um DOM simulado (jsdom), percorre as principais rotas e verifica se não há erros de JavaScript.
+- `tests/smoke.js` — carrega o HTML em um DOM simulado (jsdom), percorre as principais rotas, valida a versão em `package.json`/`sw.js`/README/CHANGELOG e verifica erros de JavaScript;
+- `tests/test_backend.py` — 6 testes unitários da normalização, validação e cobertura do backend.
+
+### Backend opcional
+
+```bash
+python3 backend/server.py
+# http://localhost:8765 — serve index.html e /api/*
+BRAPI_TOKEN=sua_chave python3 backend/server.py   # token fica no servidor
+```
+
+Endpoints: `/api/health`, `/api/catalog`, `/api/catalog/summary`, `/api/validate`, `/api/coverage`, `/api/quotes?symbols=PETR4`, `/api/recommendations` e `POST /api/refresh`. Cache em `data/` (ignorado pelo Git). Em `localhost`, o frontend usa o backend automaticamente; sem ele, consulta a Brapi direto.
 
 ## O que tem
 
@@ -78,7 +89,7 @@ Ao publicar via HTTPS (GitHub Pages, por exemplo), o app pode ser instalado na t
 
 ## Versões
 
-Versão atual: **v1.6.1**. Cada release é uma tag Git (`v1.0.0` … `v1.6.1`). O histórico está no [CHANGELOG.md](CHANGELOG.md).
+Versão atual: **v1.6.2**. Cada release é uma tag Git (`v1.0.0` … `v1.6.2`). O histórico está no [CHANGELOG.md](CHANGELOG.md).
 
 As tags substituem os antigos snapshots em `versions/`. Para inspecionar ou recuperar uma versão antiga sem sair do branch atual:
 
@@ -118,7 +129,7 @@ Tudo está em um único `index.html` para facilitar o estudo. Dentro dele:
 | `loadCurrencies` | Câmbio ao vivo via `/api/v2/currency`, com status e fallback ilustrativo. |
 | `marketView`, `assetDetail`, `Calculadoras`, `comparadorView` | Páginas renderizadas pelo roteador `#/...`. |
 | `routeTable` / `renderRoute` | Roteamento por hash (funciona em `file://` e no Pages). |
-| `tests/check-version.js`, `tests/smoke.js` | Consistência de versão e verificação automática das rotas. |
+| `tests/smoke.js`, `tests/test_backend.py` | Rotas, versão e qualidade dos dados do backend. |
 
 ## Ideias para melhorar
 

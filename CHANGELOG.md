@@ -2,6 +2,13 @@
 
 Todas as versões notáveis deste projeto são documentadas aqui. O formato segue o [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/).
 
+## [v1.6.2] — 2026-11-23
+
+### Alterado
+- Auditoria e enxugamento do repositório: de 23 para 19 arquivos. Removidos `.editorconfig`, `.gitattributes`, `backend/README.md` e `tests/check-version.js` (sem uso ou duplicados).
+- Consolidação: checagem de versão incorporada ao `tests/smoke.js`; instruções do backend incorporadas ao `README.md`; `npm test` agora roda smoke + testes Python do backend.
+- Corrigido teste de setores no smoke (aceita a lista dinâmica filtrada, não mais 24 fixos).
+
 ## [v1.6.1] — 2026-11-22
 
 ### Corrigido
