@@ -67,7 +67,7 @@ Endpoints: `/api/health`, `/api/catalog`, `/api/catalog/summary`, `/api/validate
 - **Mapa de setores:** visualização de altas e baixas com detalhe por setor.
 - **Notícias e Carta Semanal:** listas filtráveis e páginas de leitura (conteúdo demonstrativo).
 - **Ferramentas:** calculadoras, simulador de aportes, simulador histórico e comparador de ativos com gráficos em canvas/SVG.
-- **Gráficos:** linha ou candles, volume, crosshair e indicadores MM20, Bandas de Bollinger e RSI(14).
+- **Gráficos:** linha ou candles, volume, crosshair, indicadores MM20, Bandas de Bollinger e RSI(14), e períodos de 1 dia a **10 anos**, com **MÁX desde a listagem do ativo na B3**.
 - **Alertas de preço:** cadastre alvos por ativo; o sino no cabeçalho avisa quando uma cotação atinge o valor definido (dados salvos apenas no navegador).
 - **Carteira:** cadastro de ativos com autocomplete via Brapi, cálculo de patrimônio, donut de alocação, persistência em `localStorage`.
 - **Busca global no cabeçalho** com autocomplete de ativos, notícias, setores e páginas (setas + Enter); a página `#/busca` aceita `?q=...`. O autocomplete da carteira também consulta o catálogo local antes da Brapi.
@@ -89,7 +89,7 @@ Ao publicar via HTTPS (GitHub Pages, por exemplo), o app pode ser instalado na t
 
 ## Versões
 
-Versão atual: **v1.6.3**. Cada release é uma tag Git (`v1.0.0` … `v1.6.3`). O histórico está no [CHANGELOG.md](CHANGELOG.md).
+Versão atual: **v1.6.4**. Cada release é uma tag Git (`v1.0.0` … `v1.6.4`). O histórico está no [CHANGELOG.md](CHANGELOG.md).
 
 > O repositório se chama **trade-radar** (antes `free-investiment-analitic`). O link antigo redireciona automaticamente para o novo.
 

@@ -1,5 +1,5 @@
 /* Service worker do Free Invest Analytic — cache-only para assets locais, network-first para navegação. */
-const CACHE = 'freeinvest-v1.6.3';
+const CACHE = 'freeinvest-v1.6.4';
 const ASSETS = ['./', './index.html', './assets/icon.svg', './manifest.json'];
 
 self.addEventListener('install', event => {

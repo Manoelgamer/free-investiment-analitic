@@ -1075,24 +1075,35 @@ function rng(seed){
   return ()=>{ a|=0; a=a+0x6D2B79F5|0; let t=Math.imul(a^a>>>15,1|a); t=t+Math.imul(t^t>>>7,61|t)^t; return ((t^t>>>14)>>>0)/4294967296 };
 }
 const RANGES=[
-  ['1D',78,1,'min'],['5D',90,5,'dia'],['1M',30,1,'dia'],['6M',26,7,'sem'],['1A',52,7,'sem'],['MÁX',60,30,'mês']
+  ['1D',78],['5D',90],['1M',30],['6M',26],['1A',52],['2A',104],['5A',60],['10A',120],['MÁX',0]
 ];
-function dateLabel(range,i,n){
+/* Ano de listagem aproximado dos ativos curados — usado pelo período MÁX */
+const LISTING_YEAR={
+  PETR4:2000,VALE3:2000,ITUB4:2000,BBAS3:2000,MGLU3:2000,WEGE3:2004,B3SA3:2007,
+  ABEV3:2013,RENT3:2006,SUZB3:2012,MXRF11:2013,HGLG11:2011,KNRI11:2015,HGBS11:2012,
+  VISC11:2013,BOVA11:2008,IVVB11:2014,SMAL11:2007
+};
+const listingYear=sym=>LISTING_YEAR[sym]||2010;
+const maxYears=sym=>Math.max(1,new Date().getFullYear()-listingYear(sym));
+function dateLabel(range,i,n,sym){
   const d=new Date();
   if(range==='1D'){
     d.setHours(10,0,0,0); d.setMinutes(d.getMinutes()+i*5);
     return d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
   }
-  const totalDays={'5D':5,'1M':30,'6M':182,'1A':365,'MÁX':1825}[range]||30;
+  const years=maxYears(sym||'');
+  const totalDays={'5D':5,'1M':30,'6M':182,'1A':365,'2A':730,'5A':1826,'10A':3652,'MÁX':years*365}[range]||30;
   d.setDate(d.getDate()-totalDays+Math.round(i/(n-1)*totalDays));
-  return d.toLocaleDateString('pt-BR',range==='MÁX'?{month:'short',year:'2-digit'}:{day:'2-digit',month:'short'});
+  const longRange=['2A','5A','10A','MÁX'].includes(range);
+  return d.toLocaleDateString('pt-BR',longRange?{month:'short',year:'2-digit'}:{day:'2-digit',month:'short'});
 }
 function genHistory(symbol,currentPrice,rangeKey){
   const cfg=RANGES.find(r=>r[0]===rangeKey)||RANGES[2];
-  const [key,n]=cfg;
+  const key=cfg[0];
+  const n=key==='MÁX'?Math.max(60,Math.min(360,maxYears(symbol)*12)):cfg[1];
   const r=rng(strSeed(symbol+'-'+key));
   const drift=(assets.find(a=>a.s===symbol)?.ch||0)/100;
-  const vol=key==='1D'||key==='5D'?0.0035:key==='1M'?0.009:0.016;
+  const vol=key==='1D'||key==='5D'?0.0035:key==='1M'?0.009:(['2A','5A','10A','MÁX'].includes(key)?0.012:0.016);
   let p=currentPrice*(1-(drift*2+ (r()-0.5)*0.08));
   const out=[];
   for(let i=0;i<n;i++){
@@ -1106,7 +1117,7 @@ function genHistory(symbol,currentPrice,rangeKey){
   }
   const scale=currentPrice/out[out.length-1].c;
   out.forEach(b=>{ b.o*=scale;b.h*=scale;b.l*=scale;b.c*=scale });
-  out.forEach((b,i)=>{ b.label=dateLabel(key,i,n) });
+  out.forEach((b,i)=>{ b.label=dateLabel(key,i,n,symbol) });
   return out;
 }
 const PALETTE=['#0fe07f','#4da3ff','#f5a623','#a78bfa','#ff5d6c','#22d3ee'];
@@ -1299,11 +1310,11 @@ function drawPriceChart(canvas,bars,mode,opts={}){
     });
   }
 }
-function chartLegend(bars,range){
+function chartLegend(bars,range,sym){
   const p=periodChange(bars);
   return `<span>Máx. <b>R$ ${numBR(Math.max(...bars.map(b=>b.h)))}</b></span>
     <span>Mín. <b>R$ ${numBR(Math.min(...bars.map(b=>b.l)))}</b></span>
-    <span>Período <b>${range}</b></span>
+    <span>Período <b>${range}${range==='MÁX'?' · desde '+listingYear(sym):''}</b></span>
     <span>Var. período <b class="${p>=0?'up':'down'}">${pct(p)}</b></span>`;
 }
 function chartMarkup(sym,price,ch,range,mode){
@@ -1322,7 +1333,7 @@ function chartMarkup(sym,price,ch,range,mode){
         <button class="rng ${indicators.rsi?'active':''}" data-act="chart-ind" data-ind="rsi" title="Índice de força relativa 14">RSI</button>
       </div>
     </div>
-    <div class="chart-legend">${chartLegend(bars,range)}</div>
+    <div class="chart-legend">${chartLegend(bars,range,sym)}</div>
     <div class="chart-canvas-wrap"><canvas></canvas><div class="chart-tip"></div></div>
     <div class="quote-stats">
       <div class="quote-stat"><span>Abertura</span><b>R$ ${numBR(bars[0].o)}</b></div>
@@ -1346,7 +1357,7 @@ function refreshChart(shell){
   const range=shell.querySelector('.rng[data-range].active')?.dataset.range||'1M';
   const mode=shell.querySelector('[data-mode].active')?.dataset.mode||'line';
   const bars=genHistory(sym,price,range);
-  shell.querySelector('.chart-legend').innerHTML=chartLegend(bars,range);
+  shell.querySelector('.chart-legend').innerHTML=chartLegend(bars,range,sym);
   const stat=shell.querySelector('.quote-stat:nth-child(3) b');
   if(stat){ const p=periodChange(bars); stat.textContent=pct(p); stat.className=p>=0?'up':'down' }
   drawPriceChart(shell.querySelector('canvas'),bars,mode,indicators);
@@ -2567,7 +2578,7 @@ function comparadorView(){
     <div class="toolbar"><input type="search" data-act="cmp-filter" placeholder="Buscar ativo para comparar (código ou nome)..." aria-label="Buscar ativo" value="${esc(comparePickerQuery)}"></div>
     <div class="pick-grid" id="cmpGrid"></div>
     <div class="toolbar"><span class="muted small">Período:</span>
-      ${['1M','6M','1A','MÁX'].map(r=>`<button class="rng ${compareState.range===r?'active':''}" data-act="cmp-range" data-range="${r}">${r}</button>`).join('')}
+      ${['1M','6M','1A','2A','5A','10A','MÁX'].map(r=>`<button class="rng ${compareState.range===r?'active':''}" data-act="cmp-range" data-range="${r}">${r}</button>`).join('')}
       <span class="muted small" id="cmpHint"></span>
     </div>
     <div id="cmpResult"></div>

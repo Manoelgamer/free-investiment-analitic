@@ -2,6 +2,13 @@
 
 Todas as versões notáveis deste projeto são documentadas aqui. O formato segue o [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/).
 
+## [v1.6.4] — 2026-11-24
+
+### Adicionado
+- Períodos adicionais nos gráficos de ativos: **2A, 5A e 10A**, além de 1D, 5D, 1M, 6M e 1A.
+- **MÁX agora cobre todo o período de existência do ativo**: o ano de listagem de cada ativo curado é usado para dimensionar a série e os rótulos do eixo (ex.: PETR4 desde 2000, MXRF11 desde 2013), com fallback para 2010 nos ativos vindos da Brapi. A legenda exibe "desde `ano`".
+- Comparador de ativos também ganha os períodos 2A, 5A e 10A.
+
 ## [v1.6.3] — 2026-11-23
 
 ### Alterado
