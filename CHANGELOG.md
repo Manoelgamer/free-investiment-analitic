@@ -6,6 +6,7 @@ Todas as versões notáveis deste projeto são documentadas aqui. O formato segu
 
 ### Adicionado
 - Prints das principais funcionalidades em `docs/screenshots/` (destaques, busca, mapa de setores, gráfico de ativo, carteira, calculadoras, comparador, alertas e painel Brapi), exibidos no `README.md`.
+- Ajuste de enquadramento: páginas com cabeçalho e título visíveis, painéis centralizados com margem, carteira com cotações salvas e alertas com três exemplos preenchidos.
 
 ## [v1.6.4] — 2026-11-24
 
