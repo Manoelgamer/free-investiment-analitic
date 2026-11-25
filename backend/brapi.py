@@ -57,6 +57,54 @@ MANUAL_SECTOR = {
     "HGBS11": "Imobiliário", "VISC11": "Imobiliário",
 }
 
+SUBSETOR_SETOR = {
+    "Bancos": "Bancos", "Bancos Diversificados": "Bancos",
+    "Seguradoras": "Seguros", "Resseguradoras": "Seguros",
+    "Dados Financeiros e Bolsas de Valores": "Finanças", "Soc. Crédito e Financiamento": "Finanças",
+    "Incorporações": "Construção", "Exploração de Imóveis": "Imobiliário",
+    "Aluguel de Carros": "Transporte", "Aluguel de carros": "Transporte",
+    "Máq. e Equip. Industriais": "Máquinas", "Máq. e Equip. Construção e Agrícolas": "Máquinas",
+    "Máquinas e Equipamentos": "Máquinas", "Máquinas e Equipamentos Industriais": "Máquinas",
+    "Material Rodoviário": "Máquinas", "Automóveis e Motocicletas": "Máquinas",
+    "Acessórios": "Máquinas", "Equipamentos e Serviços": "Máquinas",
+    "Computadores e Equipamentos": "TI", "Programas e Serviços": "TI",
+    "Eletrodomésticos": "Eletrodomésticos", "Petroquímicos": "Química",
+    "Papel e Celulose": "Papel", "Madeira": "Papel", "Embalagens": "Papel",
+    "Alimentos": "Alimentos", "Alimentos Diversos": "Alimentos",
+    "Açúcar e Álcool": "Alimentos", "Açucar e Alcool": "Alimentos",
+    "Cervejas e Refrigerantes": "Bebidas", "Carnes e Derivados": "Alimentos",
+    "Fertilizantes e Defensivos": "Agronegócio", "Agricultura": "Agronegócio",
+    "Siderurgia": "Siderurgia", "Minerais Metálicos": "Mineração",
+    "Mineração de Minerais Metálicos": "Mineração", "Artefatos de Cobre": "Mineração",
+    "Petróleo e Gás Integrado": "Petroquímica", "Exploração e Produção de Petróleo": "Petroquímica",
+    "Exploração. Refino e Distribuição": "Petroquímica", "Exploração, Refino e Distribuição": "Petroquímica",
+    "Energia Elétrica": "Utilidades", "Gás": "Utilidades", "Água e Saneamento": "Utilidades",
+    "Serv.Méd.Hospit..Análises e Diagnósticos": "Saúde", "Serviços Médicos Hospitalares": "Saúde",
+    "Medicamentos e Outros Produtos": "Saúde", "Serviços de Apoio e Armazenagem": "Saúde",
+    "Calçados": "Varejo", "Tecidos. Vestuário e Calçados": "Varejo",
+    "Tecidos, Vestuário e Calçados": "Varejo", "Vestuário": "Varejo",
+    "Produtos de Uso Pessoal": "Varejo", "Produtos Diversos": "Varejo", "Varejo Especializado": "Varejo",
+    "Exploração de Rodovias": "Transporte", "Transporte Rodoviário": "Transporte",
+    "Transporte Ferroviário": "Transporte", "Transporte Hidroviário": "Transporte",
+    "Transporte Aéreo": "Transporte", "Holdings Diversificadas": "Transporte",
+    "Telecomunicações": "Telecom", "Comunicações": "Telecom",
+    "Serviços Educacionais": "Educação", "Viagens e Turismo": "Varejo",
+    "Atividades Esportivas": "Varejo", "Construção Pesada": "Construção",
+}
+
+SETOR_PADRAO = {
+    "Finance": "Finanças", "Utilities": "Utilidades",
+    "Producer Manufacturing": "Máquinas", "Process Industries": "Química",
+    "Non-Energy Minerals": "Mineração", "Energy Minerals": "Petroquímica",
+    "Retail Trade": "Varejo", "Transportation": "Transporte",
+    "Consumer Durables": "Construção", "Commercial Services": "Outros",
+    "Industrial Services": "Construção", "Distribution Services": "Varejo",
+    "Consumer Non-Durables": "Alimentos", "Consumer Services": "Varejo",
+    "Health Services": "Saúde", "Health Technology": "Saúde",
+    "Technology Services": "TI", "Electronic Technology": "TI",
+    "Communications": "Telecom", "Miscellaneous": "Outros",
+}
+
 SECTOR_KEYWORDS = [
     ("Petroquímica", ["petróleo", "petroquím", "petroquim", "energy minerals", "oil & gas", "integrated oil"]),
     ("Mineração", ["miner", "mining"]),
@@ -135,10 +183,14 @@ def normalize(raw):
     if symbol in MANUAL_SECTOR:
         sector = MANUAL_SECTOR[symbol]
     elif kind != "ETFs":
-        for name, keys in SECTOR_KEYWORDS:
-            if any(k in text for k in keys):
-                sector = name
-                break
+        sub_name = str(raw.get("subsector") or "")
+        sec_name = str(raw.get("sector") or "")
+        sector = SUBSETOR_SETOR.get(sub_name) or SETOR_PADRAO.get(sec_name) or "Outros"
+        if sector == "Outros":
+            for name, keys in SECTOR_KEYWORDS:
+                if any(k in text for k in keys):
+                    sector = name
+                    break
     quote = raw.get("quote") or {}
     return {
         "s": raw.get("symbol"),

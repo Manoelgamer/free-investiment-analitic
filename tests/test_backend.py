@@ -49,6 +49,15 @@ class BackendTests(unittest.TestCase):
         self.assertEqual(item["set"], "Papel")
         self.assertNotEqual(item["set"], "Petroquímica")
 
+    def test_subsetor_oficial_b3(self):
+        base = {"subType": "stock", "quote": {"lastPrice": 10, "changePercent": 0.1}}
+        self.assertEqual(brapi.normalize({**base, "symbol": "CSNA3", "name": "CSN",
+            "sector": "Non-Energy Minerals", "subsector": "Siderurgia"})["set"], "Siderurgia")
+        self.assertEqual(brapi.normalize({**base, "symbol": "BRKM5", "name": "Braskem",
+            "sector": "Process Industries", "subsector": "Petroquímicos"})["set"], "Química")
+        self.assertEqual(brapi.normalize({**base, "symbol": "ITSA4", "name": "Itaúsa",
+            "sector": "Finance", "subsector": ""})["set"], "Finanças")
+
     def test_validate_detects_duplicates(self):
         items = brapi.normalize_all(self.samples + [self.samples[0]])
         report = quality.validate_catalog(items)

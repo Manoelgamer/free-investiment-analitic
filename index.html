@@ -907,7 +907,7 @@ const sectorAssets = name => assets.filter(a=>a.set===name&&(a.c==='Ações'||a.
 const activeSectors = () => sectors.filter(([name])=>sectorAssets(name).length>0);
 
 /* ---------- Universo completo de ativos via Brapi (v1.5) ---------- */
-const UNIVERSE_KEY='tm_asset_universe';
+const UNIVERSE_KEY='tm_asset_universe_v2';
 const BACKEND_URL=(['localhost','127.0.0.1'].includes(location.hostname))?'http://'+location.hostname+':8765':'';
 const fromBackend=b=>fixSetor({s:b.s,n:b.n,c:b.c,set:b.set,p:b.p,ch:b.ch,lpa:0,vpa:0,dy:0,roe:0,t:[],brapi:true});
 let universeLoaded=false, universeLoading=false, universeCount=0, universeStatusText='';
@@ -940,6 +940,42 @@ const MANUAL_SECTOR={
 };
 const fixSetor=it=>{ if(it&&MANUAL_SECTOR[it.s]) it.set=MANUAL_SECTOR[it.s]; return it };
 assets.forEach(fixSetor);
+/* Classificação por subsetor oficial da Brapi/B3 (validada na web) */
+const SUBSETOR_SETOR={
+  'Bancos':'Bancos','Bancos Diversificados':'Bancos','Seguradoras':'Seguros','Resseguradoras':'Seguros',
+  'Dados Financeiros e Bolsas de Valores':'Finanças','Soc. Crédito e Financiamento':'Finanças',
+  'Incorporações':'Construção','Exploração de Imóveis':'Imobiliário','Aluguel de Carros':'Transporte',
+  'Aluguel de carros':'Transporte','Máq. e Equip. Industriais':'Máquinas','Máq. e Equip. Construção e Agrícolas':'Máquinas',
+  'Máquinas e Equipamentos':'Máquinas','Máquinas e Equipamentos Industriais':'Máquinas','Material Rodoviário':'Máquinas',
+  'Automóveis e Motocicletas':'Máquinas','Acessórios':'Máquinas','Equipamentos e Serviços':'Máquinas',
+  'Computadores e Equipamentos':'TI','Programas e Serviços':'TI','Eletrodomésticos':'Eletrodomésticos',
+  'Petroquímicos':'Química','Papel e Celulose':'Papel','Madeira':'Papel','Embalagens':'Papel',
+  'Alimentos':'Alimentos','Alimentos Diversos':'Alimentos','Açúcar e Álcool':'Alimentos','Açucar e Alcool':'Alimentos',
+  'Cervejas e Refrigerantes':'Bebidas','Carnes e Derivados':'Alimentos',
+  'Fertilizantes e Defensivos':'Agronegócio','Agricultura':'Agronegócio',
+  'Siderurgia':'Siderurgia','Minerais Metálicos':'Mineração','Mineração de Minerais Metálicos':'Mineração','Artefatos de Cobre':'Mineração',
+  'Petróleo e Gás Integrado':'Petroquímica','Exploração e Produção de Petróleo':'Petroquímica',
+  'Exploração. Refino e Distribuição':'Petroquímica','Exploração, Refino e Distribuição':'Petroquímica',
+  'Energia Elétrica':'Utilidades','Gás':'Utilidades','Água e Saneamento':'Utilidades','Energia Elétrica e Gás':'Utilidades',
+  'Serv.Méd.Hospit..Análises e Diagnósticos':'Saúde','Serviços Médicos Hospitalares':'Saúde',
+  'Medicamentos e Outros Produtos':'Saúde','Serviços de Apoio e Armazenagem':'Saúde',
+  'Calçados':'Varejo','Tecidos. Vestuário e Calçados':'Varejo','Tecidos, Vestuário e Calçados':'Varejo',
+  'Vestuário':'Varejo','Produtos de Uso Pessoal':'Varejo','Produtos Diversos':'Varejo','Varejo Especializado':'Varejo',
+  'Exploração de Rodovias':'Transporte','Transporte Rodoviário':'Transporte','Transporte Ferroviário':'Transporte',
+  'Transporte Hidroviário':'Transporte','Transporte Aéreo':'Transporte','Holdings Diversificadas':'Transporte',
+  'Telecomunicações':'Telecom','Comunicações':'Telecom',
+  'Serviços Educacionais':'Educação','Viagens e Turismo':'Varejo','Atividades Esportivas':'Varejo',
+  'Construção Pesada':'Construção','Exploração de madeira':'Papel'
+};
+const SETOR_PADRAO={
+  'Finance':'Finanças','Utilities':'Utilidades','Producer Manufacturing':'Máquinas',
+  'Process Industries':'Química','Non-Energy Minerals':'Mineração','Energy Minerals':'Petroquímica',
+  'Retail Trade':'Varejo','Transportation':'Transporte','Consumer Durables':'Construção',
+  'Commercial Services':'Outros','Industrial Services':'Construção','Distribution Services':'Varejo',
+  'Consumer Non-Durables':'Alimentos','Consumer Services':'Varejo','Health Services':'Saúde',
+  'Health Technology':'Saúde','Technology Services':'TI','Electronic Technology':'TI',
+  'Communications':'Telecom','Miscellaneous':'Outros'
+};
 const SETOR_KEYWORDS=[
   ['Petroquímica',['petróleo','petroquím','petroquim','energy minerals','oil & gas','integrated oil']],['Mineração',['miner','mining']],['Bancos',['banco','bank']],
   ['Finanças',['financeir','dados financeiros','títulos e val','crédito']],['Varejo',['varejo','retail','vestuário']],
@@ -954,7 +990,10 @@ const SETOR_KEYWORDS=[
   ['Papel',['paper','celulose']],['Utilidades',['utilities']],['Saúde',['health']],['Alimentos',['food']],['Química',['chemical']]
 ];
 function mapSetor(r){
-  const txt=((r.subsector||'')+' '+(r.sector||'')+' '+String(r.longName||r.name||'')).toLowerCase();
+  const sub=String(r.subsector||''), sec=String(r.sector||'');
+  if(SUBSETOR_SETOR[sub]) return SUBSETOR_SETOR[sub];
+  if(SETOR_PADRAO[sec]) return SETOR_PADRAO[sec];
+  const txt=(sub+' '+sec+' '+String(r.longName||r.name||'')).toLowerCase();
   for(const [name,keys] of SETOR_KEYWORDS) if(keys.some(k=>txt.includes(k))) return name;
   return 'Outros';
 }

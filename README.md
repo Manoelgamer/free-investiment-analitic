@@ -116,7 +116,9 @@ Ao publicar via HTTPS (GitHub Pages, por exemplo), o app pode ser instalado na t
 
 ## Versões
 
-Versão atual: **v1.6.6**. Cada release é uma tag Git (`v1.0.0` … `v1.6.6`). O histórico está no [CHANGELOG.md](CHANGELOG.md).
+Versão atual: **v1.6.7**. Cada release é uma tag Git (`v1.0.0` … `v1.6.7`). O histórico está no [CHANGELOG.md](CHANGELOG.md).
+
+> Setores são derivados da classificação oficial Brapi/B3 (setor + subsetor), com mapa de exceções validado em fontes públicas. A versão 2 do cache (`tm_asset_universe_v2`) evita classificações antigas.
 
 > O repositório se chama **trade-radar** (antes `free-investiment-analitic`). O link antigo redireciona automaticamente para o novo.
 

@@ -2,6 +2,14 @@
 
 Todas as versões notáveis deste projeto são documentadas aqui. O formato segue o [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/).
 
+## [v1.6.7] — 2026-11-25
+
+### Alterado
+- Mapa de setores reescrito a partir da **classificação oficial Brapi/B3** (setor + subsetor), validada na web para casos como Klabin (Papel e Celulose), Braskem (Químicos/Petroquímicos) e Itaúsa (Financeiro).
+- "Outros" caiu de ~1.250 ativos para 65; os subsetores oficiais passam a definir Bancos, Seguros, Siderurgia, Mineração, Papel, Utilidades, Química, TI, Saúde etc.
+- Cache do universo versionado (`tm_asset_universe_v2`) para descartar classificações antigas salvas no navegador.
+- Novos testes unitários para a classificação por subsetor.
+
 ## [v1.6.6] — 2026-11-25
 
 ### Corrigido
