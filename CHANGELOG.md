@@ -2,6 +2,11 @@
 
 Todas as versões notáveis deste projeto são documentadas aqui. O formato segue o [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/).
 
+## [v1.6.5] — 2026-11-25
+
+### Adicionado
+- Prints das principais funcionalidades em `docs/screenshots/` (destaques, busca, mapa de setores, gráfico de ativo, carteira, calculadoras, comparador, alertas e painel Brapi), exibidos no `README.md`.
+
 ## [v1.6.4] — 2026-11-24
 
 ### Adicionado

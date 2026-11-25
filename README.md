@@ -25,6 +25,32 @@ python3 -m http.server 8000
 # acesse http://localhost:8000
 ```
 
+## Prints do projeto
+
+### Destaques e busca global
+
+![Carrossel de destaques com barras interativas](docs/screenshots/01-destaques.png)
+
+![Busca global com autocomplete de ativos e setores](docs/screenshots/08-busca.png)
+
+### Mercados e gráficos
+
+![Mapa de setores com variações e quantidade de ativos](docs/screenshots/02-mapa-setores.png)
+
+![Gráfico de ação em 10 anos com candles, MM20 e RSI](docs/screenshots/03-grafico-acao.png)
+
+### Carteira e ferramentas
+
+![Carteira com patrimônio, donut de alocação e rentabilidade](docs/screenshots/04-carteira.png)
+
+![Calculadoras e simuladores de investimento](docs/screenshots/05-calculadoras.png)
+
+![Comparador de ativos com evolução normalizada](docs/screenshots/06-comparador.png)
+
+![Alertas de preço salvos no navegador](docs/screenshots/07-alertas.png)
+
+![Painel de configuração da chave Brapi](docs/screenshots/09-brapi.png)
+
 ## Arquivos
 
 | Arquivo | Descrição |
@@ -34,6 +60,7 @@ python3 -m http.server 8000
 | `assets/videos/` | Vídeos da página `#/videos` e a legenda `.srt`. |
 | `tests/` | Smoke test (rotas, interface e versão) e testes do backend. |
 | `backend/` | Servidor opcional em Python puro (catálogo, validação, cotações). |
+| `docs/screenshots/` | Prints das principais funcionalidades usados neste README. |
 | `CHANGELOG.md` | Histórico de mudanças. |
 
 > O vídeo estendido `video-dolar-b3-pro.mp4` (~28 MB) fica apenas local e é ignorado pelo Git. Se quiser usá-lo, coloque-o em `assets/videos/`; ele não é necessário para rodar o projeto. O projeto auxiliar `chat-qr/` também fica fora do repositório.
@@ -89,7 +116,7 @@ Ao publicar via HTTPS (GitHub Pages, por exemplo), o app pode ser instalado na t
 
 ## Versões
 
-Versão atual: **v1.6.4**. Cada release é uma tag Git (`v1.0.0` … `v1.6.4`). O histórico está no [CHANGELOG.md](CHANGELOG.md).
+Versão atual: **v1.6.5**. Cada release é uma tag Git (`v1.0.0` … `v1.6.5`). O histórico está no [CHANGELOG.md](CHANGELOG.md).
 
 > O repositório se chama **trade-radar** (antes `free-investiment-analitic`). O link antigo redireciona automaticamente para o novo.
 
