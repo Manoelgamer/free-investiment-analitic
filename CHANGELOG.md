@@ -2,6 +2,13 @@
 
 Todas as versões notáveis deste projeto são documentadas aqui. O formato segue o [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/).
 
+## [v1.6.6] — 2026-11-25
+
+### Corrigido
+- Classificação setorial ampliada e corrigida: **KLBN11/KLBN3/KLBN4 agora em Papel**, CSNA3/GGBR4/USIM5/GOAU4 em Siderurgia, VALE3/CMIN3 em Mineração, BRKM5 em Química, ITSA4 em Finanças, EMBJ3 em Máquinas, além de ~120 tickers mapeados manualmente.
+- Correções aplicadas também sobre o catálogo em cache, para que um `localStorage` antigo não mantenha setores errados.
+- Novos testes unitários para os casos Klabin e Vale.
+
 ## [v1.6.5] — 2026-11-25
 
 ### Adicionado

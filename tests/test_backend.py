@@ -42,6 +42,13 @@ class BackendTests(unittest.TestCase):
                                 "sector": "Energy Minerals", "quote": {"lastPrice": 60, "changePercent": 1}})
         self.assertEqual(item["set"], "Mineração")
 
+    def test_klabin_nao_e_petroquimica(self):
+        item = brapi.normalize({"symbol": "KLBN11", "name": "Klabin", "subType": "stock",
+                                "sector": "Energy Minerals", "subsector": "Petróleo e Gás",
+                                "quote": {"lastPrice": 17, "changePercent": 0.5}})
+        self.assertEqual(item["set"], "Papel")
+        self.assertNotEqual(item["set"], "Petroquímica")
+
     def test_validate_detects_duplicates(self):
         items = brapi.normalize_all(self.samples + [self.samples[0]])
         report = quality.validate_catalog(items)

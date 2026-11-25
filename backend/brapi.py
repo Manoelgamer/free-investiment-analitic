@@ -15,35 +15,71 @@ CLASS_MAP = {
 
 # Setores que a Brapi classifica mal (revisão dos agentes de cobertura)
 MANUAL_SECTOR = {
-    "VALE3": "Mineração", "CSNA3": "Siderurgia", "GGBR4": "Siderurgia",
-    "USIM5": "Siderurgia", "KLBN11": "Papel", "MXRF11": "Imobiliário",
-    "ITSA4": "Finanças", "EMBJ3": "Máquinas", "NATU3": "Varejo",
-    "RENT3": "Transporte", "ALOS3": "Imobiliário",
+    "VALE3": "Mineração", "CMIN3": "Mineração", "CBAV3": "Mineração", "BRAP3": "Mineração",
+    "CSNA3": "Siderurgia", "GGBR4": "Siderurgia", "USIM5": "Siderurgia",
+    "USIM3": "Siderurgia", "GOAU4": "Siderurgia", "PATI3": "Siderurgia",
+    "KLBN11": "Papel", "KLBN3": "Papel", "KLBN4": "Papel", "SUZB3": "Papel",
+    "PETR4": "Petroquímica", "PETR3": "Petroquímica", "PRIO3": "Petroquímica",
+    "RECV3": "Petroquímica", "BRAV3": "Petroquímica", "BRKM5": "Química", "UNIP3": "Química",
+    "EQTL3": "Utilidades", "CPFE3": "Utilidades", "CPLE3": "Utilidades", "CMIG4": "Utilidades",
+    "CSMG3": "Utilidades", "SBSP3": "Utilidades", "ENEV3": "Utilidades", "ENGI11": "Utilidades",
+    "AXIA3": "Utilidades", "AURE3": "Utilidades", "LIGT3": "Utilidades", "EGIE3": "Utilidades",
+    "PASS3": "Utilidades", "ORVR3": "Utilidades",
+    "BBAS3": "Bancos", "BBDC4": "Bancos", "BBDC3": "Bancos", "ITUB4": "Bancos",
+    "ITUB3": "Bancos", "BPAC11": "Bancos", "BPAC5": "Bancos", "SANB11": "Bancos",
+    "ABCB4": "Bancos", "BMGB4": "Bancos", "BRBI11": "Bancos", "BAZA3": "Bancos", "BEES3": "Bancos",
+    "BBSE3": "Seguros", "PSSA3": "Seguros", "IRBR3": "Seguros", "CXSE3": "Seguros", "WIZC3": "Seguros",
+    "B3SA3": "Finanças", "ITSA4": "Finanças",
+    "MGLU3": "Varejo", "LREN3": "Varejo", "ASAI3": "Varejo", "NATU3": "Varejo",
+    "PCAR3": "Varejo", "RADL3": "Varejo", "CEAB3": "Varejo", "PGMN3": "Varejo",
+    "CVCB3": "Varejo", "BHIA3": "Varejo", "VBBR3": "Varejo", "UGPA3": "Varejo", "GMAT3": "Varejo",
+    "RENT3": "Transporte", "RAIL3": "Transporte", "ECOR3": "Transporte", "MOTV3": "Transporte",
+    "JSLG3": "Transporte", "TUPY3": "Máquinas",
+    "WEGE3": "Máquinas", "EMBJ3": "Máquinas", "ROMI3": "Máquinas", "KEPL3": "Máquinas",
+    "MILS3": "Máquinas", "ARML3": "Máquinas", "INTB3": "Máquinas", "OPCT3": "Máquinas",
+    "INEP3": "Máquinas", "LUPA3": "Máquinas",
+    "HAPV3": "Saúde", "RDOR3": "Saúde", "FLRY3": "Saúde", "HYPE3": "Saúde", "VVEO3": "Saúde",
+    "BIOM3": "Saúde", "PFRM3": "Saúde", "BLAU3": "Saúde", "DMVF3": "Saúde", "OFSA3": "Saúde", "SAUD3": "Saúde",
+    "COGN3": "Educação", "ANIM3": "Educação", "YDUQ3": "Educação", "VTRU3": "Educação",
+    "CSED3": "Educação", "SEER3": "Educação", "BIED3": "Educação",
+    "TOTS3": "TI", "LWSA3": "TI", "CASH3": "TI", "BMOB3": "TI", "IFCM3": "TI", "DOTZ3": "TI", "PDTC3": "TI",
+    "VIVT3": "Telecom", "TIMS3": "Telecom", "FIQE3": "Telecom", "DESK3": "Telecom",
+    "BRST3": "Telecom", "TELB3": "Telecom",
+    "BEEF3": "Alimentos", "MBRF3": "Alimentos", "CAML3": "Alimentos", "MDIA3": "Alimentos",
+    "JALL3": "Alimentos", "JOPA3": "Alimentos",
+    "TTEN3": "Agronegócio", "SLCE3": "Agronegócio", "SOJA3": "Agronegócio", "AGRO3": "Agronegócio",
+    "LAND3": "Agronegócio", "AGXY3": "Agronegócio", "FHER3": "Agronegócio", "NUTR3": "Agronegócio", "VITT3": "Agronegócio",
+    "CYRE3": "Construção", "MRVE3": "Construção", "DIRR3": "Construção", "EZTC3": "Construção",
+    "TEND3": "Construção", "JHSF3": "Construção", "EVEN3": "Construção", "CURY3": "Construção",
+    "AZEV3": "Construção", "PTBL3": "Construção", "HAGA3": "Construção", "GFSA3": "Construção",
+    "WHRL3": "Eletrodomésticos", "ALLD3": "Eletrodomésticos",
+    "MXRF11": "Imobiliário", "HGLG11": "Imobiliário", "KNRI11": "Imobiliário",
+    "HGBS11": "Imobiliário", "VISC11": "Imobiliário",
 }
 
 SECTOR_KEYWORDS = [
     ("Petroquímica", ["petróleo", "petroquím", "petroquim", "energy minerals", "oil & gas", "integrated oil"]),
-    ("Mineração", ["miner"]),
+    ("Mineração", ["miner", "mining"]),
     ("Bancos", ["banco", "bank"]),
     ("Finanças", ["financeir", "dados financeiros", "títulos e val", "crédito", "capital markets"]),
     ("Varejo", ["varejo", "retail", "vestuário"]),
-    ("Máquinas", ["máq", "maq", "equip", "motores"]),
-    ("Bebidas", ["bebida", "cerveja"]),
-    ("Transporte", ["transporte", "rodov", "aéreo", "ferrovi", "hidrovi", "logística"]),
-    ("Papel", ["papel", "celulose"]),
+    ("Máquinas", ["máq", "maq", "equip", "motores", "machinery"]),
+    ("Bebidas", ["bebida", "cerveja", "beverage", "brew"]),
+    ("Transporte", ["transporte", "rodov", "aéreo", "ferrovi", "hidrovi", "logística", "transportation"]),
+    ("Papel", ["papel", "celulose", "paper"]),
     ("Imobiliário", ["imobili", "fundos imobili", "lajes", "shoppings", "incorpora"]),
-    ("Construção", ["constru", "engenharia"]),
-    ("Química", ["quím", "quim"]),
-    ("Alimentos", ["aliment", "açucar", "acucar", "carnes"]),
-    ("Saúde", ["saúde", "saude", "hospital", "medic"]),
-    ("Educação", ["educa"]),
+    ("Construção", ["constru", "engenharia", "construction"]),
+    ("Química", ["quím", "quim", "chemical"]),
+    ("Alimentos", ["aliment", "açucar", "acucar", "carnes", "food"]),
+    ("Saúde", ["saúde", "saude", "hospital", "medic", "health"]),
+    ("Educação", ["educa", "education"]),
     ("TI", ["tecnologia", "software", "comput", "program", "dados"]),
     ("Telecom", ["telecom", "comunica"]),
-    ("Utilidades", ["energia elétrica", "água", "saneamento", "gás", "utilit"]),
+    ("Utilidades", ["energia elétrica", "água", "saneamento", "gás", "utilit", "utilities"]),
     ("Agronegócio", ["agricult", "agro", "fertiliz"]),
-    ("Siderurgia", ["siderurg", "aço", "ferro"]),
+    ("Siderurgia", ["siderurg", "aço", "ferro", "steel"]),
     ("Eletrodomésticos", ["eletrodom", "utensílios"]),
-    ("Seguros", ["segur"]),
+    ("Seguros", ["segur", "insurance"]),
 ]
 
 
@@ -93,7 +129,8 @@ def normalize(raw):
     sub = raw.get("subType") or ""
     kind = CLASS_MAP.get(sub) or infer_class(raw)
     symbol = raw.get("symbol")
-    text = ((raw.get("subsector") or "") + " " + (raw.get("sector") or "")).lower()
+    text = ((raw.get("subsector") or "") + " " + (raw.get("sector") or "") + " "
+            + str(raw.get("longName") or raw.get("name") or "")).lower()
     sector = "Mercado" if kind == "ETFs" else "Outros"
     if symbol in MANUAL_SECTOR:
         sector = MANUAL_SECTOR[symbol]

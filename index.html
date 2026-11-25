@@ -909,12 +909,39 @@ const activeSectors = () => sectors.filter(([name])=>sectorAssets(name).length>0
 /* ---------- Universo completo de ativos via Brapi (v1.5) ---------- */
 const UNIVERSE_KEY='tm_asset_universe';
 const BACKEND_URL=(['localhost','127.0.0.1'].includes(location.hostname))?'http://'+location.hostname+':8765':'';
-const fromBackend=b=>({s:b.s,n:b.n,c:b.c,set:b.set,p:b.p,ch:b.ch,lpa:0,vpa:0,dy:0,roe:0,t:[],brapi:true});
+const fromBackend=b=>fixSetor({s:b.s,n:b.n,c:b.c,set:b.set,p:b.p,ch:b.ch,lpa:0,vpa:0,dy:0,roe:0,t:[],brapi:true});
 let universeLoaded=false, universeLoading=false, universeCount=0, universeStatusText='';
 const SUBTYPE_CLASS={stock:'Ações',unit:'Ações',bdr:'BDRs',fii:'FIIs','fi-infra':'FIIs','fi-agro':'FIIs',fip:'FIIs',fidc:'FIIs',etf:'ETFs'};
-const MANUAL_SECTOR={VALE3:'Mineração',CSNA3:'Siderurgia',GGBR4:'Siderurgia',USIM5:'Siderurgia',KLBN11:'Papel',MXRF11:'Imobiliário',ITSA4:'Finanças',EMBJ3:'Máquinas',NATU3:'Varejo',RENT3:'Transporte',ALOS3:'Imobiliário'};
+/* Correções manuais de setor para os tickers mais negociados da B3 */
+const MANUAL_SECTOR={
+  VALE3:'Mineração',CMIN3:'Mineração',CBAV3:'Mineração',BRAP3:'Mineração',
+  CSNA3:'Siderurgia',GGBR4:'Siderurgia',USIM5:'Siderurgia',USIM3:'Siderurgia',GOAU4:'Siderurgia',PATI3:'Siderurgia',
+  KLBN11:'Papel',KLBN3:'Papel',KLBN4:'Papel',SUZB3:'Papel',
+  PETR4:'Petroquímica',PETR3:'Petroquímica',PRIO3:'Petroquímica',RECV3:'Petroquímica',BRAV3:'Petroquímica',
+  BRKM5:'Química',UNIP3:'Química',
+  EQTL3:'Utilidades',CPFE3:'Utilidades',CPLE3:'Utilidades',CMIG4:'Utilidades',CSMG3:'Utilidades',SBSP3:'Utilidades',
+  ENEV3:'Utilidades',ENGI11:'Utilidades',AXIA3:'Utilidades',AURE3:'Utilidades',LIGT3:'Utilidades',EGIE3:'Utilidades',PASS3:'Utilidades',ORVR3:'Utilidades',
+  BBAS3:'Bancos',BBDC4:'Bancos',BBDC3:'Bancos',ITUB4:'Bancos',ITUB3:'Bancos',BPAC11:'Bancos',BPAC5:'Bancos',
+  SANB11:'Bancos',ABCB4:'Bancos',BMGB4:'Bancos',BRBI11:'Bancos',BAZA3:'Bancos',BEES3:'Bancos',
+  BBSE3:'Seguros',PSSA3:'Seguros',IRBR3:'Seguros',CXSE3:'Seguros',WIZC3:'Seguros',
+  B3SA3:'Finanças',ITSA4:'Finanças',
+  MGLU3:'Varejo',LREN3:'Varejo',ASAI3:'Varejo',NATU3:'Varejo',PCAR3:'Varejo',RADL3:'Varejo',CEAB3:'Varejo',PGMN3:'Varejo',CVCB3:'Varejo',BHIA3:'Varejo',VBBR3:'Varejo',UGPA3:'Varejo',GMAT3:'Varejo',
+  RENT3:'Transporte',RAIL3:'Transporte',ECOR3:'Transporte',MOTV3:'Transporte',JSLG3:'Transporte',TUPY3:'Máquinas',
+  WEGE3:'Máquinas',EMBJ3:'Máquinas',ROMI3:'Máquinas',KEPL3:'Máquinas',MILS3:'Máquinas',ARML3:'Máquinas',INTB3:'Máquinas',OPCT3:'Máquinas',INEP3:'Máquinas',LUPA3:'Máquinas',
+  HAPV3:'Saúde',RDOR3:'Saúde',FLRY3:'Saúde',HYPE3:'Saúde',VVEO3:'Saúde',BIOM3:'Saúde',PFRM3:'Saúde',BLAU3:'Saúde',DMVF3:'Saúde',OFSA3:'Saúde',SAUD3:'Saúde',
+  COGN3:'Educação',ANIM3:'Educação',YDUQ3:'Educação',VTRU3:'Educação',CSED3:'Educação',SEER3:'Educação',BIED3:'Educação',
+  TOTS3:'TI',LWSA3:'TI',CASH3:'TI',BMOB3:'TI',IFCM3:'TI',DOTZ3:'TI',PDTC3:'TI',
+  VIVT3:'Telecom',TIMS3:'Telecom',FIQE3:'Telecom',DESK3:'Telecom',BRST3:'Telecom',TELB3:'Telecom',
+  BEEF3:'Alimentos',MBRF3:'Alimentos',CAML3:'Alimentos',MDIA3:'Alimentos',JALL3:'Alimentos',JOPA3:'Alimentos',
+  TTEN3:'Agronegócio',SLCE3:'Agronegócio',SOJA3:'Agronegócio',AGRO3:'Agronegócio',LAND3:'Agronegócio',AGXY3:'Agronegócio',FHER3:'Agronegócio',NUTR3:'Agronegócio',VITT3:'Agronegócio',
+  CYRE3:'Construção',MRVE3:'Construção',DIRR3:'Construção',EZTC3:'Construção',TEND3:'Construção',JHSF3:'Construção',EVEN3:'Construção',CURY3:'Construção',AZEV3:'Construção',PTBL3:'Construção',HAGA3:'Construção',GFSA3:'Construção',
+  WHRL3:'Eletrodomésticos',ALLD3:'Eletrodomésticos',
+  MXRF11:'Imobiliário',HGLG11:'Imobiliário',KNRI11:'Imobiliário',HGBS11:'Imobiliário',VISC11:'Imobiliário'
+};
+const fixSetor=it=>{ if(it&&MANUAL_SECTOR[it.s]) it.set=MANUAL_SECTOR[it.s]; return it };
+assets.forEach(fixSetor);
 const SETOR_KEYWORDS=[
-  ['Petroquímica',['petróleo','petroquím','petroquim','energy minerals','oil & gas','integrated oil']],['Mineração',['miner']],['Bancos',['banco','bank']],
+  ['Petroquímica',['petróleo','petroquím','petroquim','energy minerals','oil & gas','integrated oil']],['Mineração',['miner','mining']],['Bancos',['banco','bank']],
   ['Finanças',['financeir','dados financeiros','títulos e val','crédito']],['Varejo',['varejo','retail','vestuário']],
   ['Máquinas',['máq','maq','equip','motores']],['Bebidas',['bebida','cerveja']],
   ['Transporte',['transporte','rodov','aéreo','ferrovi','hidrovi','logística']],['Papel',['papel','celulose']],
@@ -923,10 +950,11 @@ const SETOR_KEYWORDS=[
   ['Saúde',['saúde','saude','hospital','medic']],['Educação',['educa']],
   ['TI',['tecnologia','software','comput','program','dados']],['Telecom',['telecom','comunica']],
   ['Utilidades',['energia elétrica','água','saneamento','gás','utilit']],['Agronegócio',['agricult','agro','fertiliz']],
-  ['Siderurgia',['siderurg','aço','ferro']],['Eletrodomésticos',['eletrodom','utensílios']],['Seguros',['segur']]
+  ['Siderurgia',['siderurg','aço','ferro','steel']],['Eletrodomésticos',['eletrodom','utensílios']],['Seguros',['segur','insurance']],
+  ['Papel',['paper','celulose']],['Utilidades',['utilities']],['Saúde',['health']],['Alimentos',['food']],['Química',['chemical']]
 ];
 function mapSetor(r){
-  const txt=((r.subsector||'')+' '+(r.sector||'')).toLowerCase();
+  const txt=((r.subsector||'')+' '+(r.sector||'')+' '+String(r.longName||r.name||'')).toLowerCase();
   for(const [name,keys] of SETOR_KEYWORDS) if(keys.some(k=>txt.includes(k))) return name;
   return 'Outros';
 }
@@ -944,7 +972,7 @@ function normalizeBrapi(r){
     p:Number(r.quote?.lastPrice)||0,ch:Number(r.quote?.changePercent)||0,
     lpa:0,vpa:0,dy:0,roe:0,t:[],logo:r.logoUrl,brapi:true};
 }
-const fromCompact=a=>({s:a[0],n:a[1],c:a[2],set:a[3],p:a[4],ch:a[5],lpa:0,vpa:0,dy:0,roe:0,t:[],brapi:true});
+const fromCompact=a=>fixSetor({s:a[0],n:a[1],c:a[2],set:a[3],p:a[4],ch:a[5],lpa:0,vpa:0,dy:0,roe:0,t:[],brapi:true});
 function dedupUniverse(items){
   const syms=new Set(items.map(a=>a.s));
   return items.filter(a=>!a.s.endsWith('F')||!syms.has(a.s.slice(0,-1)));
@@ -957,8 +985,9 @@ function mergeUniverse(items){
   const have=new Map(assets.map(a=>[a.s,a]));
   items.forEach(it=>{
     const ex=have.get(it.s);
+    fixSetor(it);
     if(!ex){ assets.push(it); have.set(it.s,it) }
-    else if(it.brapi){ ex.p=it.p||ex.p; ex.ch=it.ch; ex.c=it.c!=='Outros'?it.c:ex.c }
+    else if(it.brapi){ ex.p=it.p||ex.p; ex.ch=it.ch; ex.c=it.c!=='Outros'?it.c:ex.c; fixSetor(ex) }
   });
   universeCount=assets.length;
 }
